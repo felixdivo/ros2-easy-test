@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "ros2_easy_test"
+authors = [
+  { name="Felix Divo", email="felix.divo@sailingteam.tu-darmstadt.de" },
+]
+description = "A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ros2_easy_test.__version__"}
+
+[project.urls]
+"Homepage" = "https://github.com/felixdivo/ros2-easy-test"

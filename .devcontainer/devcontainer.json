@@ -19,7 +19,9 @@
       "extensions": [
         "ms-python.python",
         "redhat.vscode-yaml",
+        "bungcip.better-toml",
       ]
     }
   },
+  "postStartCommand": "pip install -e ."
 }
