@@ -1,0 +1,10 @@
+{
+    "python.testing.pytestEnabled": true,
+    "files.exclude": {
+        ".coverage": true,
+        ".pytest_cache": true,
+        "*.egg-info": true,
+        "**/__pycache__": true
+    },
+    "python.formatting.provider": "black"
+}
