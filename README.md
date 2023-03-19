@@ -23,7 +23,7 @@ def test_simple_publisher(env: ROS2TestEnvironment) -> None:
 
 You can optionally pass `parameters={"some.thing": 30.2}`.
 
-### For any lanuch file
+### For any launch file
 
 The nodes may be implemented in any programming lanugage (C++, Python ...).
 
@@ -40,11 +40,11 @@ def test_simple_update_launch_file(env: ROS2TestEnvironment) -> None:
 
 The launch file may be written in any language [that is supported by ROS2](https://docs.ros.org/en/rolling/How-To-Guides/Launch-file-different-formats.html), like YAML, XML, or Python.
 
+Note that, however, this method is much slower than the one above. One reason for this is the requirement of a fixed warm-up time for the nodes to be started. This is because the test environment has to wait for the nodes to be ready before it can start listening for messages.
+
 ### More
 
 You can also arrange you tests in a `uinttest.TestCase`, nothing special is happening here. See `tests/` for some examples.
-
-Similarly, you can use other tools like `hypothesis`. (TODO: add example)
 
 ## Usage
 
@@ -68,10 +68,17 @@ Using `ROS2TestEnvironment`, you can assert:
 
 Generally, that no exceptions are thrown, e.g. when nodes are initialized (see limitations below).
 
+### Combining with other tools
+
+Some hints:
+- If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_launch_file(...)` decorator and it will work just fine.
+- Similarly, you can use other tools like `hypothesis`. (TODO: add example)
+
 ### Current limitations
 
 - If a callback (e.g. of a subscriber in the node) raises an exception the test does not fail automatically with the exception as the reason, as that is currently [not supported in ROS2](https://discourse.ros.org/t/what-is-the-expected-behavior-of-rclcpp-in-case-of-an-exception-raised-in-a-user-callback/27527). It will probably still fail because some expected message is not detected by the test. In those cases, cou will have to look for messages like `The following exception was never retrieved: [...]` in the stderr output of pytest. It will probably be mixed in with other messages if you view it one the console.
 - A failing service might deadlock a test. Consider adding timeouts.
+- It takes some time to set up the test environments each time. You may wish to append `--durations=0 --durations-min=1.0` to your pytest call to show the slowest tests ([more info](https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration)). There is probably room for improvement here, especially with reducing the required warm-up time of ``with_launch_file``.
 
 Contributions to address these or other shortcomings are more than welcome!
 
