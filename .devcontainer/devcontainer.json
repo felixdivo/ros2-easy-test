@@ -4,10 +4,6 @@
     "dockerfile": "../Dockerfile",
     "context": ".."
   },
-  "runArgs": [
-    "--privileged",
-    "--network=host"
-  ],
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh"
   },

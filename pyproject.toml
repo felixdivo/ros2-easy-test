@@ -34,7 +34,15 @@ dev = [
   "hacking",
   "pytest",
   "pytest-cov",
+  "hypothesis",  # To demonstrate how it works with this
 ]
 
 [tool.setuptools.dynamic]
 version = { attr = "ros2_easy_test.__version__" }
+
+[tool.pytest.ini_options]
+addopts = "--color=yes --cov=ros2_easy_test --doctest-modules"
+testpaths = [
+    "ros2_easy_test",  # for the doctests
+    "tests",  # for the actual tests
+]
