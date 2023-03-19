@@ -1,0 +1,25 @@
+{
+  "name": "ros2-easy-test",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--privileged",
+    "--network=host"
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "zsh"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "redhat.vscode-yaml",
+      ]
+    }
+  },
+}
