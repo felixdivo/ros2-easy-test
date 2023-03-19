@@ -6,18 +6,35 @@ build-backend = "setuptools.build_meta"
 dynamic = ["version"]
 name = "ros2_easy_test"
 authors = [
-  { name="Felix Divo", email="felix.divo@sailingteam.tu-darmstadt.de" },
+  { name = "Felix Divo", email = "felix.divo@sailingteam.tu-darmstadt.de" },
 ]
 description = "A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Natural Language :: English",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+  "Framework :: Robot Framework :: Library",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Software Development :: Testing :: BDD",
+  "Typing :: Typed",
+]
+urls = { Homepage = "https://github.com/felixdivo/ros2-easy-test" }
+# The package is discovered autoamtically https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
+# This includes the py.typed file
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "black~=23.1",
+  "pylint~=2.17.0",  # Explicitly pin the version since it changes frequently and is disrupting
+  "hacking",
+  "pytest",
+  "pytest-cov",
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "ros2_easy_test.__version__"}
-
-[project.urls]
-"Homepage" = "https://github.com/felixdivo/ros2-easy-test"
+version = { attr = "ros2_easy_test.__version__" }
