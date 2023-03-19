@@ -7,12 +7,14 @@ from subprocess import TimeoutExpired
 from threading import Thread
 from time import sleep
 import unittest
+from pathlib import Path
 
 # Typing
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Optional
+from typing import Union
 from typing import Type
 from typing import TypeVar
 
@@ -164,7 +166,7 @@ def with_single_node(
 
 
 def with_launch_file(  # noqa: C901
-    launch_file: str,
+    launch_file: Union[Path, str],
     *,
     debug_launch_file: bool = False,
     warmup_time: float = 5,
