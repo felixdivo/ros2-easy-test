@@ -41,7 +41,8 @@ dev = [
 version = { attr = "ros2_easy_test.__version__" }
 
 [tool.pytest.ini_options]
-addopts = "--color=yes --cov=ros2_easy_test --doctest-modules"
+# The latter part shows the duration of the slowest tests
+addopts = "--color=yes --cov=ros2_easy_test --doctest-modules --cov-report html --durations=0 --durations-min=1.0"
 testpaths = [
     "ros2_easy_test",  # for the doctests
     "tests",  # for the actual tests
