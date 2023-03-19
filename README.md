@@ -1,5 +1,8 @@
 # ROS2 easy-test
 
+[![python version](https://img.shields.io/badge/python-3.8+-green)](https://devguide.python.org/#status-of-python-branches)
+[![ros2 version](https://img.shields.io/badge/ROS2-Humble%20Hawksbill+-green)](https://docs.ros.org/en/rolling/Releases.html)
+
 A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions.
 
 ## Installation
@@ -53,8 +56,8 @@ You can also arrange you tests in a `uinttest.TestCase`, nothing special is happ
 Using `ROS2TestEnvironment`, you can call:
 
 - `publish(topic: str, message: RosMessage) -> None`
-- `listen_for_messages(topic: str, time_span: float) -> List[RosMessage]`
 - Note that `ROS2TestEnvironment` is a `rclpy.node.Node` and thus has all the methods of a node. This means, that you can create a service by `env.create_service(...)` and then use it with `env.call(...)`.
+- `listen_for_messages(topic: str, time_span: float) -> List[RosMessage]`
 - `clear_messages(topic: str) -> None` to forget all messages that have been received so far.
 
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.
