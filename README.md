@@ -21,6 +21,8 @@ def test_simple_publisher(env: ROS2TestEnvironment) -> None:
     assert response.data == "Hello World: 0"
 ```
 
+You can optionally pass `parameters={"some.thing": 30.2}`.
+
 ### For any lanuch file
 
 The nodes may be implemented in any programming lanugage (C++, Python ...).
@@ -48,16 +50,23 @@ Similarly, you can use other tools like `hypothesis`. (TODO: add example)
 
 ### How you can interact with the node(s)
 
-- Using `ROS2TestEnvironment`, you can call:
-  - `f`
+Using `ROS2TestEnvironment`, you can call:
+
+- `publish(topic: str, message: RosMessage) -> None`
+- `listen_for_messages(topic: str, time_span: float) -> List[RosMessage]`
+- Note that `ROS2TestEnvironment` is a `rclpy.node.Node` and thus has all the methods of a node. This means, that you can create a service by `env.create_service(...)` and then use it with `env.call(...)`.
+- `clear_messages(topic: str) -> None` to forget all messages that have been received so far.
 
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.
 
-### What you can assert
+### What you can test
 
-- Using `ROS2TestEnvironment`, you can call:
-  - d
-- Generally, that no exceptions are thrown (see limitations below)
+Using `ROS2TestEnvironment`, you can assert:
+- `assert_message_published(topic: str, timeout: float) -> RosMessage`
+- `assert_no_message_published(topic: str, timeout: float) -> None`
+- `assert_messages_published(topic: str, number: int, ...) -> List[RosMessage]`
+
+Generally, that no exceptions are thrown, e.g. when nodes are initialized (see limitations below).
 
 ### Current limitations
 
