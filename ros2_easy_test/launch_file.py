@@ -1,8 +1,8 @@
 """Provides a helper for the decorators."""
 
 # Standard library
-import os.path
 from tempfile import TemporaryDirectory
+from pathlib import Path
 
 # Typing
 from types import TracebackType
@@ -15,7 +15,7 @@ from typing import Optional
 from typing import Type
 
 
-class LaunchFileProvider(ContextManager[str]):
+class LaunchFileProvider(ContextManager[Path]):
     """Provides the given launch file as a path, creating and deleting a temp file if a literal was given.
 
     This can be used to handle arguments like ``launch_file`` in :func:`ros2_easy_test.with_launch_file`.
@@ -37,14 +37,14 @@ class LaunchFileProvider(ContextManager[str]):
         """If the launch file does not contain a newline, it is a path."""
         return "\n" not in self._launch_file and "\r" not in self._launch_file
 
-    def __enter__(self) -> str:
+    def __enter__(self) -> Path:
         if self.is_path:
             launch_file_path = self._launch_file
         else:
             directory = TemporaryDirectory()
             self._exit_list.append(cast(ContextManager[str], directory))
-            directory_name = directory.__enter__()
-            launch_file_path = os.path.join(directory_name, "launch_file")
+            directory_name = Path(directory.__enter__())
+            launch_file_path = directory_name / "launch_file"
             with open(launch_file_path, "w", encoding="utf-8") as file:
                 file.write(self._launch_file)
 

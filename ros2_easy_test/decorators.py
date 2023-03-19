@@ -32,7 +32,9 @@ from .launch_file import LaunchFileProvider
 
 
 NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
-TestCaseType = TypeVar("TestCaseType", bound=unittest.TestCase)  # pylint: disable=invalid-name
+TestCaseType = TypeVar(
+    "TestCaseType", bound=unittest.TestCase
+)  # pylint: disable=invalid-name
 TestFunction = Callable[[TestCaseType, ROS2TestEnvironment], None]
 
 
@@ -73,7 +75,10 @@ def with_single_node(
                 rclpy.init(context=context)
 
                 parameters_tuples = parameters or {}
-                params = [Parameter(name=name, value=value) for name, value in parameters_tuples.items()]
+                params = [
+                    Parameter(name=name, value=value)
+                    for name, value in parameters_tuples.items()
+                ]
 
                 node: Node
                 if params:
@@ -95,9 +100,13 @@ def with_single_node(
                     assert executor.add_node(environment), "failed to add environment"
 
                     # Finally, we want to launch the actual test and wait for it to complete (indefinitely)
-                    test_function_task = executor.create_task(test_function, self, environment)
+                    test_function_task = executor.create_task(
+                        test_function, self, environment
+                    )
                     thread = Thread(
-                        target=executor.spin_until_future_complete, args=(test_function_task,), daemon=True
+                        target=executor.spin_until_future_complete,
+                        args=(test_function_task,),
+                        daemon=True,
                     )
                     thread.start()
                     thread.join()
@@ -107,7 +116,9 @@ def with_single_node(
                         running_node.destroy_node()
 
                     has_finished = executor.shutdown(SHUTDOWN_TIMEOUT)
-                    assert has_finished, f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds"
+                    assert (
+                        has_finished
+                    ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds"
 
                 # Make sure that the executor and the nodes are cleaned up/freed afterwards.
                 # Cleanup is critical for correctness since subsequent tests may NEVER reference old
@@ -117,15 +128,17 @@ def with_single_node(
                     node.get_name()
                 except InvalidHandle:
                     pass  # This is what we expect to happen
-                else:
+                else:  # pragma: no cover
                     raise Exception("Node did not properly shut down after test")
 
                 try:
                     environment.get_name()
                 except InvalidHandle:
                     pass  # This is what we expect to happen
-                else:
-                    raise Exception("The Environment did not properly shut down after test")
+                else:  # pragma: no cover
+                    raise Exception(
+                        "The Environment did not properly shut down after test"
+                    )
 
                 assert not executor.get_nodes(), "The executor still holds some nodes"
 
@@ -151,7 +164,11 @@ def with_single_node(
 
 
 def with_launch_file(  # noqa: C901
-    launch_file: str, *, debug_launch_file: bool = False, warmup_time: float = 5, **kwargs
+    launch_file: str,
+    *,
+    debug_launch_file: bool = False,
+    warmup_time: float = 5,
+    **kwargs,
 ) -> Callable[[TestFunction], Callable[[TestCaseType], None]]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
 
@@ -179,11 +196,16 @@ def with_launch_file(  # noqa: C901
 
         def decorator(test_function: TestFunction) -> Callable[[TestCaseType], None]:
             def wrapper(self: TestCaseType) -> None:
-
                 # Inherits stdout and stderr from parent, so logging reaches the console
                 additional_params = ["--debug"] if debug_launch_file else []
                 process = Popen(  # pylint: disable=consider-using-with
-                    ["ros2", "launch", launch_file_path, "--noninteractive", *additional_params]
+                    [
+                        "ros2",
+                        "launch",
+                        str(launch_file_path),
+                        "--noninteractive",
+                        *additional_params,
+                    ]
                 )
 
                 context = Context()
@@ -197,13 +219,19 @@ def with_launch_file(  # noqa: C901
 
                     try:
                         environment = ROS2TestEnvironment(context=context, **kwargs)
-                        assert executor.add_node(environment), "failed to add environment"
+                        assert executor.add_node(
+                            environment
+                        ), "failed to add environment"
 
                         # Give the launch process time to start up
                         # We do it here such that the environment may spin too, while we wait
-                        executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
+                        executor.spin_until_future_complete(
+                            executor.create_task(sleep, warmup_time)
+                        )
 
-                        test_function_task = executor.create_task(test_function, self, environment)
+                        test_function_task = executor.create_task(
+                            test_function, self, environment
+                        )
 
                         thread = Thread(
                             target=executor.spin_until_future_complete,
@@ -231,10 +259,14 @@ def with_launch_file(  # noqa: C901
                         environment.get_name()
                     except InvalidHandle:
                         pass
-                    else:
-                        raise Exception("The Environment did not properly shut down after test")
+                    else:  # pragma: no cover
+                        raise Exception(
+                            "The Environment did not properly shut down after test"
+                        )
 
-                    assert not executor.get_nodes(), "The executor still holds some nodes"
+                    assert (
+                        not executor.get_nodes()
+                    ), "The executor still holds some nodes"
 
                 finally:
                     rclpy.try_shutdown(context=context)

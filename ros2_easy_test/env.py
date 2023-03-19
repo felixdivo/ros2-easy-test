@@ -179,7 +179,7 @@ class ROS2TestEnvironment(Node):
         topic: str,
         number: int,
         individual_timeout: Optional[float] = DEFAULT_TIMEOUT,
-        max_total_timeout: Optional[float] = 60.0,
+        max_total_timeout: Optional[float] = 30.0,
     ) -> List[RosMessage]:
         """Asserts that some messages are published on the given topic within after at most the given time.
 
@@ -190,7 +190,7 @@ class ROS2TestEnvironment(Node):
             number: The expected number of messages to arrive
             individual_timeout:
                 The approximate amount of time per message to listen before failing.
-                ``None`` means waiting forever.
+                ``None`` means waiting forever (if ``max_total_timeout`` is also set to ``None``).
                 The timeout that is used is calculated by ``number * timeout`` but runs for all messages
                 together, and NOT for each one individually.
                 In other words, it is accepted that when waiting for ``number = 10`` messages for
@@ -200,15 +200,16 @@ class ROS2TestEnvironment(Node):
             max_total_timeout:
                 This caps the total timeout that is computed from ``number * timeout`` if not set to ``None``.
                 This prevents excessively long tests times until a test fails when dealing with many messages.
-                Most -- if not all -- tests should in any way not take more time than this (``60`` seconds)
-                for a single operation.
+                Most -- if not all -- tests should in any way not take more time than the defualt of this.
 
         Returns:
             All messages that were received. It is guaranteed that ``len(result) == number``.
         """
 
         if individual_timeout is None:
-            timeout = None
+            # We still do not want to exceed the total timeout, so we use it here
+            # Note, that it might be None as well, but then it is intentional
+            timeout = max_total_timeout
         else:
             timeout = number * individual_timeout
             if max_total_timeout is not None and timeout > max_total_timeout:
@@ -237,12 +238,15 @@ class ROS2TestEnvironment(Node):
         assert len(collected_messages) == number, "internal counting error"
         return collected_messages
 
-    def listen_for_messages(self, topic: str, time_span: float) -> List[RosMessage]:
+    def listen_for_messages(
+        self, topic: str, time_span: Optional[float] = DEFAULT_TIMEOUT
+    ) -> List[RosMessage]:
         """Collects all messages which arrive in the given time on the topic.
 
         Args:
             topic: The topic to listen on
-            time_span: The approximate amount of time to listen before returning
+            time_span: The approximate amount of time to listen before returning.
+                If ``None``, this method will immediately return all messages that are currently in the queue.
 
         Returns:
             A (possibly empty) list of messages that were received
