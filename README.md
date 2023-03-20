@@ -98,8 +98,9 @@ See [LICENSE](LICENSE).
 
 ## TODOs
 
-- Fix typing of TestCaseType in `decorators.py`
 - Add tests using the nodes in `tests/example_nodes/failing.py`
 - Decide on where to put documentaion (README, `__init__.py`, website)
 - Setup CI and add badages to repo README
 - Compare to other tools, e.g. https://github.com/ros2/launch
+- Add branch protection
+- Make public, spread the word

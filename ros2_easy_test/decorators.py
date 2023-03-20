@@ -6,7 +6,6 @@ from subprocess import Popen
 from subprocess import TimeoutExpired
 from threading import Thread
 from time import sleep
-import unittest
 from pathlib import Path
 
 # Typing
@@ -34,10 +33,10 @@ from .launch_file import LaunchFileProvider
 
 
 NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
-TestCaseType = TypeVar(  # TODO this is not nessesarily the case
-    "TestCaseType", bound=unittest.TestCase
-)  # pylint: disable=invalid-name
-TestFunction = Callable[[TestCaseType, ROS2TestEnvironment], None]
+# From python 3.10+, we should make these typing.TypeAlias'es
+# Currently not possible to type the following any better
+TestFunctionBefore = Callable[..., None]
+TestFunctionAfter = Callable[..., None]  # The same but taking one param less (the env)
 
 
 #: The time to give a node for a successful shutdown. It is dependent on whether it runs in CI or not.
@@ -46,7 +45,7 @@ SHUTDOWN_TIMEOUT: float = 2
 
 def with_single_node(
     node_class: Type[NodeType], *, parameters: Optional[Dict[str, Any]] = None, **kwargs
-) -> Callable[[TestFunction], Callable[[TestCaseType], None]]:
+) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
 
     This function is not fundamentally restricted to one node, but more are simply not implemented as of
@@ -70,7 +69,8 @@ def with_single_node(
         :func:`~with_launch_file`
     """
 
-    def decorator(test_function: TestFunction) -> Callable[[TestCaseType], None]:
+    def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
+        # @wraps(test_function)  # Copies the docstring and other metadata
         def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
             try:
@@ -171,7 +171,7 @@ def with_launch_file(  # noqa: C901
     debug_launch_file: bool = False,
     warmup_time: float = 5,
     **kwargs,
-) -> Callable[[TestFunction], Callable[[TestCaseType], None]]:
+) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
 
     Args:
@@ -196,10 +196,11 @@ def with_launch_file(  # noqa: C901
 
     assert warmup_time >= 0, f"warmup_time must be zero or larger but was {warmup_time}"
 
-    with LaunchFileProvider(launch_file) as launch_file_path:
-
-        def decorator(test_function: TestFunction) -> Callable[[TestCaseType], None]:
-            def wrapper(*args_inner, **kwargs_inner) -> None:
+    def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
+        # @wraps(test_function)  # Copies the docstring and other metadata
+        def wrapper(*args_inner, **kwargs_inner) -> None:
+            # Provide the launch file
+            with LaunchFileProvider(launch_file) as launch_file_path:
                 # Inherits stdout and stderr from parent, so logging reaches the console
                 additional_params = ["--debug"] if debug_launch_file else []
                 process = Popen(  # pylint: disable=consider-using-with
@@ -309,6 +310,6 @@ def with_launch_file(  # noqa: C901
                 if test_function_exception is not None:
                     raise test_function_exception from None
 
-            return wrapper
+        return wrapper
 
-        return decorator
+    return decorator
