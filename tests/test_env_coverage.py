@@ -9,7 +9,7 @@ from ros2_easy_test import ROS2TestEnvironment, with_single_node
 
 # Module under test and interfaces
 from .example_nodes.well_behaved import Talker, EchoNode
-from std_msgs.msg import String
+from std_msgs.msg import String, Empty
 
 
 class TestSingleNodesForEnvCoverage(TestCase):
@@ -47,7 +47,16 @@ class TestSingleNodesForEnvCoverage(TestCase):
         sleep(0.5)  # Make sure that the response is definitely published to /mouth
 
         env.clear_messages("/mouth")
-        env.assert_message_published("/mouth", timeout=0.5)  # Should raise
+        env.assert_message_published("/mouth", timeout=0)  # Should raise
+
+    @mark.xfail(
+        raises=Exception,  # TODO: Maybe this should be a more specific exception?
+        reason="specifiying a wrong message type is a common mistake and shall fail loudly",
+        strict=True,
+    )
+    @with_single_node(EchoNode, watch_topics={"/mouth": Empty})
+    def test_wrong_topic_type(self, _: ROS2TestEnvironment) -> None:
+        pass
 
 
 if __name__ == "__main__":

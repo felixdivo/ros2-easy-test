@@ -101,6 +101,15 @@ class TestSingleNode(SharedTestCases, TestCase):
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:
         super().test_multiple_messages(env)
 
+    @mark.xfail(
+        raises=AssertionError,
+        reason="an assertion error should propagate to the test case",
+        strict=True,
+    )
+    @with_single_node(EchoNode)
+    def test_assertion_raised(self, _: ROS2TestEnvironment) -> None:
+        self.fail("This should fail the test case")
+
 
 class TestLaunchFile(SharedTestCases, TestCase):
     """This test case uses the ``with_launch_file`` decorator to set up the test environment."""

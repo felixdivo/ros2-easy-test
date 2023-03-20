@@ -70,6 +70,7 @@ def with_single_node(
     """
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
+        # TODO: This would be nice but currently breaks other pytest fixtures
         # @wraps(test_function)  # Copies the docstring and other metadata
         def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
@@ -197,6 +198,7 @@ def with_launch_file(  # noqa: C901
     assert warmup_time >= 0, f"warmup_time must be zero or larger but was {warmup_time}"
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
+        # TODO: This would be nice but currently breaks other pytest fixtures
         # @wraps(test_function)  # Copies the docstring and other metadata
         def wrapper(*args_inner, **kwargs_inner) -> None:
             # Provide the launch file

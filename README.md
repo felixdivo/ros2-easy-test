@@ -99,7 +99,6 @@ See [LICENSE](LICENSE).
 ## TODOs
 
 - Determine whether to use `functools.wraps` or not
-- Add tests using the nodes in `tests/example_nodes/failing.py`
 - Decide on where to put documentaion (README, `__init__.py`, website)
 - Setup CI and add badages to repo README
 - Compare to other tools, e.g. https://github.com/ros2/launch

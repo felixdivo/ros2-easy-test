@@ -10,15 +10,19 @@ from std_msgs.msg import String
 
 # Hypothesis
 from hypothesis import given, settings
-from hypothesis.strategies import text, characters
+from hypothesis.strategies import text, characters, composite, DrawFn
+
+
+@composite
+def ros2_preserved_string(draw: DrawFn) -> str:
+    """We need to exclude NULL characters, because they are not preserved by ROS2"""
+    return draw(
+        text(alphabet=characters(blacklist_categories=("Cs",), min_codepoint=1))
+    )
 
 
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
-@given(
-    some_message=text(
-        alphabet=characters(blacklist_categories=("Cs",), min_codepoint=1)
-    )
-)
+@given(some_message=ros2_preserved_string())
 @settings(max_examples=10)  # Remember that these tests are costly
 def test_on_same_node(env: ROS2TestEnvironment, some_message: str) -> None:
     """This creates a single node and tests it with Hypothesis against many values."""
@@ -28,11 +32,7 @@ def test_on_same_node(env: ROS2TestEnvironment, some_message: str) -> None:
     assert response == some_message, (response, some_message)
 
 
-@given(
-    some_message=text(
-        alphabet=characters(blacklist_categories=("Cs",), min_codepoint=1)
-    )
-)
+@given(some_message=ros2_preserved_string())
 @settings(max_examples=10)  # Remember that these tests are costly
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
 def test_on_new_node_each(env: ROS2TestEnvironment, some_message: str) -> None:
@@ -41,7 +41,6 @@ def test_on_new_node_each(env: ROS2TestEnvironment, some_message: str) -> None:
     env.publish("/ear", String(data=some_message))
     response: String = env.assert_message_published("/mouth").data
     assert response == some_message, (response, some_message)
-
 
 
 if __name__ == "__main__":
