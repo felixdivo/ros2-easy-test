@@ -184,8 +184,10 @@ def with_launch_file(  # noqa: C901
         warmup_time:
             The time to sleep while letting the ROS2 system spin up. Must be zero or larger.
             Strange bugs will occur when this value is set too low: No messages can be exchanged,
-            independently of how long the test waits. The default should suffice on most computers.
-            If run on the CI platform, this value will be doubled.
+            independently of how long the test waits.
+            If you set this to zero and a test case fails very fast, this will crash the launch process
+            and generate unexpected exit codes and test results.
+            The default should suffice on most computers, it is rather conservative and slow down each test case.
         kwargs: Passed to the :class:`ros2_easy_test.ROS2TestEnvironment`
 
     See Also:

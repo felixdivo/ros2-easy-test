@@ -162,8 +162,17 @@ class TestLaunchFile(SharedTestCases, TestCase):
         reason="an assertion error should propagate to the test case",
         strict=True,
     )
-    @with_launch_file(BASE / "talker.py", warmup_time=0)
+    @with_launch_file(BASE / "talker.yaml", warmup_time=1)
     def test_assertion_raised(self, _: ROS2TestEnvironment) -> None:
+        self.fail("This should fail the test case")
+
+    @mark.xfail(
+        raises=AssertionError,
+        reason="a bad launch file and raising test should still fail the test case",
+        strict=True,
+    )
+    @with_launch_file(Path(__file__).parent.parent / "README.md")
+    def test_assertion_raised_and_launch_failed(self, _: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
 
 
