@@ -34,7 +34,7 @@ from .launch_file import LaunchFileProvider
 
 
 NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
-TestCaseType = TypeVar(
+TestCaseType = TypeVar(  # TODO this is not nessesarily the case
     "TestCaseType", bound=unittest.TestCase
 )  # pylint: disable=invalid-name
 TestFunction = Callable[[TestCaseType, ROS2TestEnvironment], None]

@@ -3,7 +3,13 @@
 [![python version](https://img.shields.io/badge/python-3.8+-green)](https://devguide.python.org/#status-of-python-branches)
 [![ros2 version](https://img.shields.io/badge/ROS2-Humble%20Hawksbill+-green)](https://docs.ros.org/en/rolling/Releases.html)
 
-A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions.
+A Python test framework for ROS2 allowing for:
+- simple and expressive assertions based on message/service interactions (black box testing)
+- easy integration of existing nodes and launch files
+- testing of nodes implemented in any programming language (C++, Python, ...)
+- works with and without tools like `colcon test` and `pytest`
+- has no other dependencies
+- is tested, used in practice, documented, and maintained
 
 ## Installation
 
@@ -47,7 +53,7 @@ Note that, however, this method is much slower than the one above. One reason fo
 
 ### More
 
-You can also arrange you tests in a `uinttest.TestCase`, nothing special is happening here. See `tests/` for some examples.
+You can also arrange youe tests in a `unittest.TestCase`, nothing special is happening here. See `tests/` for some examples.
 
 ## Usage
 
@@ -62,27 +68,27 @@ Using `ROS2TestEnvironment`, you can call:
 
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.
 
-### What you can test
+### What you can test (recommended way of obtaining messages)
 
 Using `ROS2TestEnvironment`, you can assert:
 - `assert_message_published(topic: str, timeout: float) -> RosMessage`
 - `assert_no_message_published(topic: str, timeout: float) -> None`
 - `assert_messages_published(topic: str, number: int, ...) -> List[RosMessage]`
 
-Generally, that no exceptions are thrown, e.g. when nodes are initialized (see limitations below).
+Generally, you always test that no exceptions are thrown, e.g. when nodes are initialized (see limitations below).
 
 ### Combining with other tools
 
 Some hints:
-- If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_launch_file(...)` decorator and it will work just fine.
-- Similarly, you can seamlessly use other tools like `hypothesis` which annotate test functions. Generally, you have to be mindful about the order of the decorators here. See `/workspaces/ros2-easy-test/tests/demo_hypothesis_test.py` for an examples.
+- If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_single_node(...)`/`@with_launch_file(...)` decorator and it will work just fine.
+- Similarly, you can seamlessly use other tools which annotate test functions, like `hypothesis` (or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html)). Generally, you have to be mindful about the order of the decorators here. See `tests/demo_hypothesis_test.py` for two simple examples.
 - The `ROS2TestEnvironment` is added as the last postional argument to the test function (i.e. right before the keyword arguments).
 
 ### Current limitations
 
-- If a callback (e.g. of a subscriber in the node) raises an exception the test does not fail automatically with the exception as the reason, as that is currently [not supported in ROS2](https://discourse.ros.org/t/what-is-the-expected-behavior-of-rclcpp-in-case-of-an-exception-raised-in-a-user-callback/27527). It will probably still fail because some expected message is not detected by the test. In those cases, cou will have to look for messages like `The following exception was never retrieved: [...]` in the stderr output of pytest. It will probably be mixed in with other messages if you view it one the console.
+- If a callback (e.g. of a subscriber in the node) raises an exception the test does not fail automatically with the exception as the reason, as that is currently [not supported in ROS2](https://discourse.ros.org/t/what-is-the-expected-behavior-of-rclcpp-in-case-of-an-exception-raised-in-a-user-callback/27527). It will probably still fail because some expected message is not detected by the test. In those cases, you will have to look for messages like `The following exception was never retrieved: [...]` in the stderr output of pytest. It will probably be mixed in with other messages if you view it one the console.
 - A failing service might deadlock a test. Consider adding timeouts.
-- It takes some time to set up the test environments each time. You may wish to append `--durations=0 --durations-min=1.0` to your pytest call to show the slowest tests ([more info](https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration)). There is probably room for improvement here, especially with reducing the required warm-up time of ``with_launch_file``.
+- It takes some time to set up the test environment each time, particularly with `@with_launch_file`. You may wish to append `--durations=0 --durations-min=1.0` to your pytest call to show the slowest tests ([more info](https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration)). There is probably room for improvement here, especially with reducing the required warm-up time.
 
 Contributions to address these or other shortcomings are more than welcome!
 
