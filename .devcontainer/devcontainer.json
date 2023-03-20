@@ -19,5 +19,5 @@
       ]
     }
   },
-  "postStartCommand": "pip install -e .[dev]"
+  "postStartCommand": "pip install -e '.[dev]'"
 }

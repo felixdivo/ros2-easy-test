@@ -71,7 +71,7 @@ def with_single_node(
     """
 
     def decorator(test_function: TestFunction) -> Callable[[TestCaseType], None]:
-        def wrapper(self: TestCaseType) -> None:
+        def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
             try:
                 rclpy.init(context=context)
@@ -103,7 +103,7 @@ def with_single_node(
 
                     # Finally, we want to launch the actual test and wait for it to complete (indefinitely)
                     test_function_task = executor.create_task(
-                        test_function, self, environment
+                        test_function, *args_inner, environment, **kwargs_inner
                     )
                     thread = Thread(
                         target=executor.spin_until_future_complete,
@@ -197,7 +197,7 @@ def with_launch_file(  # noqa: C901
     with LaunchFileProvider(launch_file) as launch_file_path:
 
         def decorator(test_function: TestFunction) -> Callable[[TestCaseType], None]:
-            def wrapper(self: TestCaseType) -> None:
+            def wrapper(*args_inner, **kwargs_inner) -> None:
                 # Inherits stdout and stderr from parent, so logging reaches the console
                 additional_params = ["--debug"] if debug_launch_file else []
                 process = Popen(  # pylint: disable=consider-using-with
@@ -232,7 +232,7 @@ def with_launch_file(  # noqa: C901
                         )
 
                         test_function_task = executor.create_task(
-                            test_function, self, environment
+                            test_function, *args_inner, environment, **kwargs_inner
                         )
 
                         thread = Thread(
@@ -282,7 +282,7 @@ def with_launch_file(  # noqa: C901
                 try:
                     # Might raise a TimeoutExpired if it takes too long
                     return_code = process.wait(timeout=SHUTDOWN_TIMEOUT / 2)
-                except TimeoutExpired:
+                except TimeoutExpired:  # pragma: no cover
                     process.terminate()
                     # return_code will be larger than 130
                     return_code = process.wait(timeout=SHUTDOWN_TIMEOUT / 2)

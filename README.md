@@ -75,7 +75,8 @@ Generally, that no exceptions are thrown, e.g. when nodes are initialized (see l
 
 Some hints:
 - If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_launch_file(...)` decorator and it will work just fine.
-- Similarly, you can use other tools like `hypothesis`. (TODO: add example)
+- Similarly, you can seamlessly use other tools like `hypothesis` which annotate test functions. Generally, you have to be mindful about the order of the decorators here. See `/workspaces/ros2-easy-test/tests/demo_hypothesis_test.py` for an examples.
+- The `ROS2TestEnvironment` is added as the last postional argument to the test function (i.e. right before the keyword arguments).
 
 ### Current limitations
 

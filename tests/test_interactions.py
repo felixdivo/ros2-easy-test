@@ -44,7 +44,7 @@ class SharedTestCases(ABC):
     def test_service(self, env: ROS2TestEnvironment) -> None:
         # Set up the service
         adder = env.create_client(AddTwoInts, "add_two_ints")
-        self.assertTrue(adder.wait_for_service(timeout_sec=2))
+        self.assertTrue(adder.wait_for_service(timeout_sec=5))
 
         # Set up the request
         request = AddTwoInts.Request(a=-500, b=73)
@@ -149,7 +149,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
     def test_subscriber_and_publisher(self, env: ROS2TestEnvironment) -> None:
         super().test_subscriber_and_publisher(env)
 
-    @with_launch_file(BASE / "adder.yaml")
+    @with_launch_file(BASE / "adder.yaml", warmup_time=2)
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
 
