@@ -1,0 +1,5 @@
+launch:
+- executable:
+    name: NodeRaiseInInit
+    cmd: python tests/example_nodes/run_node.py tests/example_nodes/failing.py NodeRaiseInInit
+    output: screen
