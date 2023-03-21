@@ -1,20 +1,23 @@
 """Tests the base functionality of the library."""
 
 # Standard library
-from abc import ABC
 import unittest
-from unittest import TestCase
-from typing import List
+from abc import ABC
 from pathlib import Path
+from typing import List
+from unittest import TestCase
+
+from example_interfaces.srv import AddTwoInts
 
 # Testing
 from pytest import mark
-from ros2_easy_test import ROS2TestEnvironment, with_single_node, with_launch_file
+from std_msgs.msg import String
+
+# What we are testing
+from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
 
 # Module under test and interfaces
-from .example_nodes.well_behaved import Talker, EchoNode, AddTwoIntsServer
-from std_msgs.msg import String
-from example_interfaces.srv import AddTwoInts
+from .example_nodes.well_behaved import AddTwoIntsServer, EchoNode, Talker
 
 
 class SharedTestCases(ABC):

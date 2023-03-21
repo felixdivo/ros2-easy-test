@@ -1,21 +1,21 @@
 # Standard library
 import unittest
 
+# Hypothesis
+from hypothesis import given, settings
+from hypothesis.strategies import DrawFn, characters, composite, text
+from std_msgs.msg import String
+
 # Testing
 from ros2_easy_test import ROS2TestEnvironment, with_single_node
 
 # Module under test and interfaces
 from .example_nodes.well_behaved import EchoNode
-from std_msgs.msg import String
-
-# Hypothesis
-from hypothesis import given, settings
-from hypothesis.strategies import text, characters, composite, DrawFn
 
 
 @composite
 def ros2_preserved_string(draw: DrawFn) -> str:
-    """We need to exclude NULL characters, because they are not preserved by ROS2"""
+    """We need to exclude NULL characters, because they are not preserved by ROS2."""
     return draw(
         text(alphabet=characters(blacklist_categories=("Cs",), min_codepoint=1))
     )

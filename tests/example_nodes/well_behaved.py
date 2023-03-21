@@ -1,7 +1,6 @@
-from rclpy.node import Node
-
-from std_msgs.msg import String
 from example_interfaces.srv import AddTwoInts
+from rclpy.node import Node
+from std_msgs.msg import String
 
 
 class Talker(Node):

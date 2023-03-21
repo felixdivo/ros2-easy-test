@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
+from importlib.util import module_from_spec, spec_from_file_location
 from typing import Type
-from importlib.util import spec_from_file_location, module_from_spec
 
 import rclpy
 from rclpy.node import Node

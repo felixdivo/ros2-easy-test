@@ -4,10 +4,9 @@ except ImportError:
     # Python version <3.11
     from typing import NoReturn as Never
 
-from rclpy.node import Node
-
-from std_msgs.msg import String
 from example_interfaces.srv import AddTwoInts
+from rclpy.node import Node
+from std_msgs.msg import String
 
 
 class OnPurposeFail(RuntimeError):

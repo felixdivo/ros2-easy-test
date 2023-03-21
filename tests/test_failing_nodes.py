@@ -1,24 +1,27 @@
 """Tests how the library handles failing nodes (e.g. exceptions in ``__init__()``, in calllbacks, etc.)."""
 
 # Standard library
-from abc import ABC
 import unittest
-from unittest import TestCase
+from abc import ABC
 from pathlib import Path
+from unittest import TestCase
+
+from example_interfaces.srv import AddTwoInts
 
 # Testing
 from pytest import mark
-from ros2_easy_test import ROS2TestEnvironment, with_single_node, with_launch_file
+from std_msgs.msg import Empty, String
+
+# What we are testing
+from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
 
 # Module under test and interfaces
 from .example_nodes.failing import (
-    OnPurposeFail,
     NodeRaiseInInit,
     NodeRaiseInTimer,
     NodeRaiseOnRequest,
+    OnPurposeFail,
 )
-from std_msgs.msg import String, Empty
-from example_interfaces.srv import AddTwoInts
 
 BASE = Path(__file__).parent / "example_launch_files"
 

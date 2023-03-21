@@ -1,15 +1,16 @@
 # Standard library
-from time import sleep
 import unittest
+from time import sleep
 from unittest import TestCase
 
 # Testing
 from pytest import mark
+from std_msgs.msg import Empty, String
+
 from ros2_easy_test import ROS2TestEnvironment, with_single_node
 
 # Module under test and interfaces
-from .example_nodes.well_behaved import Talker, EchoNode
-from std_msgs.msg import String, Empty
+from .example_nodes.well_behaved import EchoNode, Talker
 
 
 class TestSingleNodesForEnvCoverage(TestCase):

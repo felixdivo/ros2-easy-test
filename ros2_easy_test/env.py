@@ -1,26 +1,16 @@
 """This module provides the environment by which tests can interact with nodes."""
 
 # Standard library
+from queue import Empty, SimpleQueue
 from threading import RLock
-from time import sleep
-from time import time
-
-# Queue implementation
-from queue import Empty
-from queue import SimpleQueue
+from time import sleep, time
 
 # Typing
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Mapping
-from typing import Optional
-from typing import Type
+from typing import Any, Dict, List, Mapping, Optional, Type
 
 # ROS
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-
 
 RosMessage = Any  # We can't be more specific for now
 
