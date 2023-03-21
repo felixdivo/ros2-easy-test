@@ -4,7 +4,8 @@
         ".coverage": true,
         ".pytest_cache": true,
         "*.egg-info": true,
-        "**/__pycache__": true
+        "**/__pycache__": true,
+        ".hypothesis": true,
     },
     "python.formatting.provider": "black"
 }
