@@ -94,7 +94,7 @@ Contributions to address these or other shortcomings are more than welcome!
 
 ## License
 
-See [LICENSE](LICENSE).
+See [LICENSE](LICENSE). Initially developed by Felix Divo at [*Sailing Team Darmstadt e. V.*](https://www.st-darmstadt.de/).
 
 ## TODOs
 
