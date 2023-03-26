@@ -72,6 +72,7 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
     "pytest-cov": ("https://pytest-cov.readthedocs.io/en/stable", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
+    "rclpy": ("https://docs.ros2.org/latest/api/rclpy/", None),
 }
 
 nitpicky = False
