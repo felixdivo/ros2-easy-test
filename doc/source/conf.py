@@ -47,17 +47,12 @@ language = "en"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx_markdown_builder",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
-    "sphinx.ext.inheritance_diagram",
     "sphinx_rtd_theme",
-    "sphinxcontrib.programoutput",
 ]
 
 # List of patterns, relative to source directory, that match files and
