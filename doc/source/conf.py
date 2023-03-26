@@ -6,16 +6,6 @@
 
 # -- Path setup --------------------------------------------------------------
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-from os.path import abspath
-from os.path import dirname
-from os.path import join
-import sys
-
-sys.path.insert(0, abspath(join(dirname(__file__), "../../")))  # for scripts/
-
 import ros2_easy_test  # noqa: E402
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +19,7 @@ author = ros2_easy_test.__author__
 # built documents.
 #
 # The short X.Y version.
-version = ros2_easy_test.__version__.split("-")[0]
+version = ros2_easy_test.__version__.split("-", maxsplit=1)[0]
 # The full version, including alpha/beta/rc tags
 release = ros2_easy_test.__version__
 
@@ -47,17 +37,12 @@ language = "en"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx_markdown_builder",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
-    "sphinx.ext.inheritance_diagram",
     "sphinx_rtd_theme",
-    "sphinxcontrib.programoutput",
 ]
 
 # List of patterns, relative to source directory, that match files and
@@ -75,7 +60,7 @@ intersphinx_mapping = {
     "rclpy": ("https://docs.ros2.org/latest/api/rclpy/", None),
 }
 
-nitpicky = False
+nitpicky = True
 
 # -- Options for HTML output -------------------------------------------------
 

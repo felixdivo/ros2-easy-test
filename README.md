@@ -17,7 +17,7 @@ At the moment, you can run the following to install this package.
 ```shell
 pip install git+git://github.com/felixdivo/ros2-easy-test
 ```
-In the future, we intend to publish this repository to be easily installed with rosdep.
+In the future, we intend to publish this repository to be easily installed with rosdep and via PyPI.
 
 ## Examples
 
@@ -58,6 +58,8 @@ def test_simple_update_launch_file(env: ROS2TestEnvironment) -> None:
     assert response_color.r == 0.5
 ```
 
+You can also pass the literal launch file contents as a `str` instead of a path like `"example_launch_file.yaml"`.
+
 Note that, however, this method is much slower than the one above. 
 One reason for this is the requirement of a fixed warm-up time for the nodes to be started. 
 This is because the test environment has to wait for the nodes to be ready before it can start listening for messages.
@@ -88,14 +90,29 @@ Generally, you can always test that no exceptions are thrown, e.g., when nodes a
 
 Some hints:
 - If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_single_node(...)`/`@with_launch_file(...)` decorator and it will work just fine.
-- Similarly, you can seamlessly use other tools which annotate test functions, like `hypothesis` (or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html)). Generally, you have to be mindful about the order of the decorators here. See `tests/demo_hypothesis_test.py` for two simple examples.
-- The `ROS2TestEnvironment` is added as the last postional argument to the test function (i.e. right before the keyword arguments).
+- Similarly, you can seamlessly use other tools which annotate test functions, like `hypothesis` (or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html)). Generally, you have to be mindful of the order of the decorators here. See `tests/demo_hypothesis_test.py` for two simple examples.
+- The `ROS2TestEnvironment` is added as the last positional argument to the test function (i.e. right before the keyword arguments).
 
-### Design, Limitations and Comparison to Other Tools
+## Limitations, Design, and Other Projects
 
-See [TODO: Link to docs](#Design, Limitations and Comparison to Other Tools)
+See [TODO: Link to docs](#Limitations, Design, and Other Projects)
 
-Contributions to address these or other shortcomings are more than welcome!
+## Contributing
+
+You can install the development dependencies with `pip install -e ".[dev]"`. After this, you will have access to the configured formatters `black` and `isort`.
+
+You can run the test with simply `pytest`. Coverage reports and timings will be printed on the command line, and a fresh line-by-line coverage report is in `htmlcov/index.html`.
+
+Building the documentation is simple too:
+```shell
+cd doc
+make html
+# open build/html/index.html in you browser
+
+# You can also run a small webserver with
+cd build/html
+python -m http.server
+```
 
 ## License
 
@@ -106,10 +123,8 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 
 ## TODOs
 
-- Determine whether to use `functools.wraps` or not
 - Publish docs, reference from repo/README
-- Setup CI and add badages to repo README
-- Compare to other tools, e.g. https://github.com/ros2/launch
+- Setup CI and add badges to repo README
 - Add branch protection
 - Make public, spread the word
 - Add a helper for async service calls with a timeout

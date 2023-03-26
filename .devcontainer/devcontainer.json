@@ -16,6 +16,7 @@
         "ms-python.python",
         "redhat.vscode-yaml",
         "bungcip.better-toml",
+        "trond-snekvik.simple-rst"
       ]
     }
   },
