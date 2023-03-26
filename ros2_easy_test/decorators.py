@@ -1,4 +1,9 @@
-"""This module contains the decorators to be applied to test functions."""
+"""This module contains the decorators to be applied to test functions.
+
+Warning:
+    If the node crashes due to an exception in service callback, a test calling the service will deadlock
+    indefinitely. In that case, exiting with ``Ctrl + C`` will probably print the exception from the node.
+"""
 
 # Standard library
 from pathlib import Path
@@ -24,7 +29,7 @@ from .env import ROS2TestEnvironment
 from .launch_file import LaunchFileProvider
 
 NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
-# From python 3.10+, we should make these typing.TypeAlias'es
+# From python 3.10+ on, we should make these typing.TypeAlias'es
 # Currently not possible to type the following any better
 TestFunctionBefore = Callable[..., None]
 TestFunctionAfter = Callable[..., None]  # The same but taking one param less (the env)
