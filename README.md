@@ -17,7 +17,7 @@ At the moment, you can run the following to install this package.
 ```shell
 pip install git+git://github.com/felixdivo/ros2-easy-test
 ```
-In the future, we intend to publish this repository to be easily installed with rosdep.
+In the future, we intend to publish this repository to be easily installed with rosdep and via PyPI.
 
 ## Examples
 
