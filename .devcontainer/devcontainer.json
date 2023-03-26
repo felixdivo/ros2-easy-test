@@ -13,11 +13,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-		"ms-python.python",
-		"redhat.vscode-yaml",
-		"bungcip.better-toml",
-		"trond-snekvik.simple-rst"
-	]
+        "ms-python.python",
+        "redhat.vscode-yaml",
+        "bungcip.better-toml",
+        "trond-snekvik.simple-rst"
+      ]
     }
   },
   "postStartCommand": "pip install -e '.[dev]'"
