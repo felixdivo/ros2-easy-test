@@ -17,7 +17,6 @@ RosMessage = Any  # We can't be more specific for now
 
 # TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
-#: It is dependent on whether it runs in CI or not.
 DEFAULT_TIMEOUT: Optional[float] = 2
 
 
