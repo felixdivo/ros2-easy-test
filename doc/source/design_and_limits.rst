@@ -1,0 +1,44 @@
+Design, Limitations and Comparison to Other Tools
+=================================================
+
+Current Limitations
+-------------------
+
+Note::
+  Contributions to address these or other shortcomings are more than welcome!
+
+- If a callback (e.g. of a subscriber in the node) raises an exception the test does not fail automatically with the exception as the reason, as that is currently
+  [not supported in ROS2](https://discourse.ros.org/t/what-is-the-expected-behavior-of-rclcpp-in-case-of-an-exception-raised-in-a-user-callback/27527).
+  It will probably still fail because some expected message is not detected by the test.
+  In those cases, you will have to look for messages like ``The following exception was never retrieved: [...]`` in the stderr output of pytest.
+  It will probably be mixed in with other messages if you view it one the console.
+- A failing service might deadlock a test. Consider calling services asynchronously with timeouts.
+- It takes some time to set up the test environment each time, particularly with ``@with_launch_file``.
+  You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
+  ([more info](https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration)).
+  There is probably room for improvement here, especially with reducing the required warm-up time.
+
+Design Goals
+------------
+
+- Provide a method for writing node tests that can assert correct behaviour via sending messages and observing
+  message output.
+- Allow for concise tests. Little to no infrastructure code should be required for typical scenarios.
+- Automate common checks were possible (e.g. nodes should not crash).
+- Support testing single and multiple nodes in combination (i.e. support *Unit tests* (of single nodes),
+  *Integration tests* and *System tests* as per
+  `ROS2 terminology
+  <https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Developer-Guide.html#testing>`__).
+- Be well documented and easy to get started.
+
+Design Constraints
+------------------
+
+- Be easy to maintain by needing only a few lines of code (below a thousand). Thus, actions and services are
+  currently not supported. Also, only use public APIs wherever possible.
+- Don't reinvent the wheel and benefit from future improvements: Use existing functionality of Python and
+  ROS2. This includes: ``unittest``, *pytest* and the
+  `ROS2 launch system <https://design.ros2.org/articles/roslaunch.html>`__.
+- Efficiency is not a primary concern as this mini-framework is intended to only be used for testing
+  and not in a real robot deployment, where performance is much more of a concern.
+- Must work with ``colcon test`` and also with just *pytest* alone (for simpler IDE integration).

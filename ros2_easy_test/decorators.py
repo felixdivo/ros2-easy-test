@@ -1,4 +1,9 @@
-"""This module contains the decorators to be applied to test functions."""
+"""This module contains the decorators to be applied to test functions.
+
+Warning:
+    If the node crashes due to an exception in service callback, a test calling the service will deadlock
+    indefinitely. In that case, exiting with ``Ctrl + C`` will probably print the exception from the node.
+"""
 
 # Standard library
 from pathlib import Path
@@ -24,13 +29,14 @@ from .env import ROS2TestEnvironment
 from .launch_file import LaunchFileProvider
 
 NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
-# From python 3.10+, we should make these typing.TypeAlias'es
+# From python 3.10+ on, we should make these typing.TypeAlias'es
 # Currently not possible to type the following any better
 TestFunctionBefore = Callable[..., None]
 TestFunctionAfter = Callable[..., None]  # The same but taking one param less (the env)
 
 
-#: The time to give a node for a successful shutdown. It is dependent on whether it runs in CI or not.
+# TODO: There should be a way to control this without directly accessing the module or changing the source code
+#: The time to give a node for a successful shutdown.
 SHUTDOWN_TIMEOUT: float = 2
 
 
@@ -68,15 +74,16 @@ def with_single_node(
             try:
                 rclpy.init(context=context)
 
+                # Package the given parameters up in the ROS2 appropriate format
                 parameters_tuples = parameters or {}
-                params = [
+                ros_parameters = [
                     Parameter(name=name, value=value)
                     for name, value in parameters_tuples.items()
                 ]
 
                 node: Node
-                if params:
-                    node = node_class(parameter_overrides=params, context=context)
+                if ros_parameters:
+                    node = node_class(parameter_overrides=ros_parameters, context=context)
                 else:
                     node = node_class(context=context)
 
@@ -87,11 +94,11 @@ def with_single_node(
 
                 try:
                     # The node should be executed
-                    assert executor.add_node(node), "failed to add node under test"
+                    assert executor.add_node(node), "Failed to add node under test."
 
                     # Also, the environment needs to execute (e.g. to capture messages in the background)
                     environment = ROS2TestEnvironment(context=context, **kwargs)
-                    assert executor.add_node(environment), "failed to add environment"
+                    assert executor.add_node(environment), "Failed to add environment."
 
                     # Finally, we want to launch the actual test and wait for it to complete (indefinitely)
                     test_function_task = executor.create_task(
@@ -112,7 +119,7 @@ def with_single_node(
                     has_finished = executor.shutdown(SHUTDOWN_TIMEOUT)
                     assert (
                         has_finished
-                    ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds"
+                    ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds."
 
                 # Make sure that the executor and the nodes are cleaned up/freed afterwards.
                 # Cleanup is critical for correctness since subsequent tests may NEVER reference old
@@ -123,7 +130,7 @@ def with_single_node(
                 except InvalidHandle:
                     pass  # This is what we expect to happen
                 else:  # pragma: no cover
-                    raise Exception("Node did not properly shut down after test")
+                    raise Exception("Node did not properly shut down after test.")
 
                 try:
                     environment.get_name()
@@ -131,10 +138,10 @@ def with_single_node(
                     pass  # This is what we expect to happen
                 else:  # pragma: no cover
                     raise Exception(
-                        "The Environment did not properly shut down after test"
+                        "The Environment did not properly shut down after test."
                     )
 
-                assert not executor.get_nodes(), "The executor still holds some nodes"
+                assert not executor.get_nodes(), "The executor still holds some nodes."
 
                 # Raise the exception that the test case might have raised, e.g. due to asserts
                 exception = test_function_task.exception()
@@ -150,7 +157,7 @@ def with_single_node(
                 rclpy.try_shutdown(context=context)
 
                 # Make sure that the context is freed afterwards. This is a sanity check and should never fail.
-                assert not context.ok(), "Context did not properly shut down after test"
+                assert not context.ok(), "Context did not properly shut down after test."
 
         return wrapper
 
@@ -186,7 +193,7 @@ def with_launch_file(  # noqa: C901
         :func:`~with_single_node`
     """
 
-    assert warmup_time >= 0, f"warmup_time must be zero or larger but was {warmup_time}"
+    assert warmup_time >= 0, f"Warmup_time must be zero or larger but was {warmup_time}."
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
         # TODO: This would be nice but currently breaks other pytest fixtures
@@ -195,14 +202,14 @@ def with_launch_file(  # noqa: C901
             # Provide the launch file
             with LaunchFileProvider(launch_file) as launch_file_path:
                 # Inherits stdout and stderr from parent, so logging reaches the console
-                additional_params = ["--debug"] if debug_launch_file else []
+                additional_parameters = ["--debug"] if debug_launch_file else []
                 process = Popen(  # pylint: disable=consider-using-with
                     [
                         "ros2",
                         "launch",
                         str(launch_file_path),
                         "--noninteractive",
-                        *additional_params,
+                        *additional_parameters,
                     ]
                 )
 
@@ -247,7 +254,7 @@ def with_launch_file(  # noqa: C901
                         has_finished = executor.shutdown(SHUTDOWN_TIMEOUT)
                         assert (
                             has_finished
-                        ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds"
+                        ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds."
 
                     # Make sure that the executor and the node are cleaned up/freed afterwards.
                     # Cleanup is critical for correctness since subsequent tests may NEVER reference old
@@ -259,19 +266,19 @@ def with_launch_file(  # noqa: C901
                         pass
                     else:  # pragma: no cover
                         raise Exception(
-                            "The Environment did not properly shut down after test"
+                            "The Environment did not properly shut down after test."
                         )
 
                     assert (
                         not executor.get_nodes()
-                    ), "The executor still holds some nodes"
+                    ), "The executor still holds some nodes."
 
                 finally:
                     rclpy.try_shutdown(context=context)
 
                 # Make sure that the context is freed afterwards.
                 # This is a sanity check and should never fail.
-                assert not context.ok(), "Context did not properly shut down after test"
+                assert not context.ok(), "Context did not properly shut down after test."
 
                 # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
                 process.send_signal(SIGINT)
@@ -291,7 +298,7 @@ def with_launch_file(  # noqa: C901
                     if test_function_exception is None:
                         raise AssertionError(
                             f"The ROS launch process FAILED with exit code {return_code} "
-                            "(please inspect stdout and stderr) BUT the test case SUCCEEDED"
+                            "(please inspect stdout and stderr) BUT the test case SUCCEEDED."
                         )
 
                     raise AssertionError(

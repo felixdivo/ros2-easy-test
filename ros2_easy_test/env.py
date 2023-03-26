@@ -15,8 +15,8 @@ from rclpy.publisher import Publisher
 RosMessage = Any  # We can't be more specific for now
 
 
+# TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
-#: It is dependent on whether it runs in CI or not.
 DEFAULT_TIMEOUT: Optional[float] = 2
 
 
@@ -90,6 +90,7 @@ class ROS2TestEnvironment(Node):
         Raises:
             AssertionError: If ``topic`` is not being watched on
         """
+
         with self._subscriber_mailboxes_lock:
             assert (
                 topic in self._subscriber_mailboxes
@@ -107,6 +108,7 @@ class ROS2TestEnvironment(Node):
             message: The message to be sent. It's type must match the one of all other messages sent on this
                 ``topic`` before and after.
         """
+
         with self._registered_publishers_lock:
             if topic in self._registered_publishers:
                 publisher = self._registered_publishers[topic]
@@ -133,6 +135,7 @@ class ROS2TestEnvironment(Node):
                 This value is set to be rather low (when compared to the other timeouts) since in a
                 successful test, it may never return early and causes a lot of waiting time.
         """
+
         try:
             message = self._get_mailbox_for(topic).get(block=True, timeout=time_span)
         except Empty:
@@ -157,6 +160,7 @@ class ROS2TestEnvironment(Node):
         Returns:
             The message that was received
         """
+
         try:
             return self._get_mailbox_for(topic).get(block=True, timeout=timeout)
         except Empty:
@@ -241,6 +245,7 @@ class ROS2TestEnvironment(Node):
         Returns:
             A (possibly empty) list of messages that were received
         """
+
         # First, wait for the given time span
         if time_span is not None:
             sleep(time_span)
@@ -263,4 +268,5 @@ class ROS2TestEnvironment(Node):
         Args:
             topic: The topic to clear the mailbox of
         """
+
         self.listen_for_messages(topic, time_span=None)  # ignore the result
