@@ -32,7 +32,6 @@ TestFunctionAfter = Callable[..., None]  # The same but taking one param less (t
 
 # TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The time to give a node for a successful shutdown.
-#: It is dependent on whether it runs in CI or not.
 SHUTDOWN_TIMEOUT: float = 2
 
 
