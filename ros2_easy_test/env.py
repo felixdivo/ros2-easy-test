@@ -14,6 +14,7 @@ from rclpy.publisher import Publisher
 
 RosMessage = Any  # We can't be more specific for now
 
+__all__ = ["ROS2TestEnvironment"]
 
 # TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
@@ -38,13 +39,13 @@ class ROS2TestEnvironment(Node):
     Asserting that a message is sent or failing to assert that no message is sent will return early.
 
     Note:
-        The :class:`ROS2TestEnvironment` is a :class:`Node` too, which allows to implement custom
+        The :class:`ROS2TestEnvironment` is a :class:`rclpy.node.Node` too, which allows to implement custom
         functionality too. In particular, one can simply call services using code similar to:
         ``client = env.create_client(GetLocalTangentPoint, "/service/get_local_tangent_point")``.
         In theory, services can also be provided and not only called as clients.
 
     Note:
-        Timings and timeouts in this class are only approximate and might vary by many milliseconds.
+        Timings and timeouts in this class are only approximate.
 
     Args:
         watch_topics: The topics (and their type) to watch for incoming messages.

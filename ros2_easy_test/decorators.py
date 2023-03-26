@@ -28,7 +28,10 @@ from .env import ROS2TestEnvironment
 # Helpers
 from .launch_file import LaunchFileProvider
 
-NodeType = TypeVar("NodeType", bound=Node)  # pylint: disable=invalid-name
+
+__all__ = ["with_launch_file", "with_single_node"]
+
+
 # From python 3.10+ on, we should make these typing.TypeAlias'es
 # Currently not possible to type the following any better
 TestFunctionBefore = Callable[..., None]
@@ -41,7 +44,7 @@ SHUTDOWN_TIMEOUT: float = 2
 
 
 def with_single_node(
-    node_class: Type[NodeType], *, parameters: Optional[Dict[str, Any]] = None, **kwargs
+    node_class: Type[Node], *, parameters: Optional[Dict[str, Any]] = None, **kwargs
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
 
@@ -53,14 +56,14 @@ def with_single_node(
         class :class:`rclpy.node.Node`.
         To do this, have the ``__init__`` of your node accept ``**kwargs`` as the last argument and call
         the super class constructor with these, e.g.
-        ``super().__init__("node name", automatically_declare_parameters_from_overrides=True, **kwargs)``.
+        ``super().__init__("node name", **kwargs)``.
 
     Args:
         node_class:
             Class of the node to instantiate. Assumed to accept no extra parameters besides **any** keyword
             arguments that are passed along to :class:`rclpy.node.Node`.
         parameters: The parameters to be set for the node as ``("key", value)`` pairs
-        kwargs: Passed to the :class:`ros2_easy_test.ROS2TestEnvironment`
+        kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
         :func:`~with_launch_file`
@@ -83,7 +86,9 @@ def with_single_node(
 
                 node: Node
                 if ros_parameters:
-                    node = node_class(parameter_overrides=ros_parameters, context=context)
+                    node = node_class(
+                        parameter_overrides=ros_parameters, context=context
+                    )
                 else:
                     node = node_class(context=context)
 
@@ -157,7 +162,9 @@ def with_single_node(
                 rclpy.try_shutdown(context=context)
 
                 # Make sure that the context is freed afterwards. This is a sanity check and should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+                assert (
+                    not context.ok()
+                ), "Context did not properly shut down after test."
 
         return wrapper
 
@@ -187,13 +194,15 @@ def with_launch_file(  # noqa: C901
             If you set this to zero and a test case fails very fast, this will crash the launch process
             and generate unexpected exit codes and test results.
             The default should suffice on most computers, it is rather conservative and slow down each test case.
-        kwargs: Passed to the :class:`ros2_easy_test.ROS2TestEnvironment`
+        kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
         :func:`~with_single_node`
     """
 
-    assert warmup_time >= 0, f"Warmup_time must be zero or larger but was {warmup_time}."
+    assert (
+        warmup_time >= 0
+    ), f"Warmup_time must be zero or larger but was {warmup_time}."
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
         # TODO: This would be nice but currently breaks other pytest fixtures
@@ -278,7 +287,9 @@ def with_launch_file(  # noqa: C901
 
                 # Make sure that the context is freed afterwards.
                 # This is a sanity check and should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+                assert (
+                    not context.ok()
+                ), "Context did not properly shut down after test."
 
                 # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
                 process.send_signal(SIGINT)

@@ -70,7 +70,7 @@ intersphinx_mapping = {
     "rclpy": ("https://docs.ros2.org/latest/api/rclpy/", None),
 }
 
-nitpicky = False
+nitpicky = True
 
 # -- Options for HTML output -------------------------------------------------
 
