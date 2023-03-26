@@ -93,11 +93,26 @@ Some hints:
 - Similarly, you can seamlessly use other tools which annotate test functions, like `hypothesis` (or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html)). Generally, you have to be mindful of the order of the decorators here. See `tests/demo_hypothesis_test.py` for two simple examples.
 - The `ROS2TestEnvironment` is added as the last positional argument to the test function (i.e. right before the keyword arguments).
 
-### Limitations, Design, and Other Projects
+## Limitations, Design, and Other Projects
 
 See [TODO: Link to docs](#Limitations, Design, and Other Projects)
 
-Contributions to address these or other shortcomings are more than welcome!
+## Contributing
+
+You can install the development dependencies with `pip install -e ".[dev]"`. After this, you will have access to the configured formatters `black` and `isort`.
+
+You can run the test with simply `pytest`. Coverage reports and timings will be printed on the command line, and a fresh line-by-line coverage report is in `htmlcov/index.html`.
+
+Building the documentation is simple too:
+```shell
+cd doc
+make html
+# open build/html/index.html in you browser
+
+# You can also run a small webserver with
+cd build/html
+python -m http.server
+```
 
 ## License
 
