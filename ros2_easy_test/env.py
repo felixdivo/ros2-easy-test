@@ -119,6 +119,7 @@ class ROS2TestEnvironment(Node):
 
         publisher.publish(message)
 
+        # TODO:
         # This is apparently needed to allow the node to react (else, not all messages will get published!).
         # It is not clear why exactly this is required, and it shouldn't be from what the docs say.
         # However, setting this to a value below 0.02 caused very reliable issues on three separate setups.

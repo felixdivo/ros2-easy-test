@@ -6,16 +6,6 @@
 
 # -- Path setup --------------------------------------------------------------
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-from os.path import abspath
-from os.path import dirname
-from os.path import join
-import sys
-
-sys.path.insert(0, abspath(join(dirname(__file__), "../../")))  # for scripts/
-
 import ros2_easy_test  # noqa: E402
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +19,7 @@ author = ros2_easy_test.__author__
 # built documents.
 #
 # The short X.Y version.
-version = ros2_easy_test.__version__.split("-")[0]
+version = ros2_easy_test.__version__.split("-", maxsplit=1)[0]
 # The full version, including alpha/beta/rc tags
 release = ros2_easy_test.__version__
 
