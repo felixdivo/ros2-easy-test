@@ -1,6 +1,6 @@
 """
 ``ros2_easy_test`` is a Python test framework for ROS2 allowing simple and expressive assertions mainly based
-on message interaction.
+on message passing between nodes.
 
 Mini-Guide
 ----------
@@ -37,8 +37,8 @@ Design Goals
 
 - Provide a method for writing node tests that can assert correct behaviour via sending messages and observing
   message output.
-- Allow for concise tests. Little to no infrastructure code should be required for usual scenarios. Automate
-  common checks were possible (e.g. nodes should not crash).
+- Allow for concise tests. Little to no infrastructure code should be required for usual scenarios. 
+- Automate common checks were possible (e.g. nodes should not crash).
 - Support testing single and multiple nodes in combination (i.e. support *Unit tests* (of single nodes),
   *Integration tests* and *System tests* as per
   `ROS2 terminology
@@ -55,7 +55,6 @@ Design Constraints
 - Efficiency is not a concern as this mini-framework is intended to only be used for testing and not in a real
   robot deployment.
 - Must work with ``colcon test`` and also with just *pytest* alone (for simpler IDE integration).
-
 """
 
 __author__ = "Felix Divo <felix.divo@sailingteam.tu-darmstadt.de>"
