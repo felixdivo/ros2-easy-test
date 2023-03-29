@@ -110,10 +110,12 @@ class ROS2TestEnvironment(Node):
                 ``topic`` before and after.
         """
 
+        # Get or else create the correct publisher
+        publisher: Publisher
         with self._registered_publishers_lock:
-            if topic in self._registered_publishers:
+            try:
                 publisher = self._registered_publishers[topic]
-            else:
+            except KeyError:
                 publisher = self.create_publisher(type(message), topic, 0)
                 self._registered_publishers[topic] = publisher
 

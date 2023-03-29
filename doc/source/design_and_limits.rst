@@ -27,8 +27,8 @@ Current Limitations
   There is probably room for improvement here, especially with reducing the required warm-up time.
 - The provided stack traces could be more useful. One should determine whether to use :func:`functools.wraps` or not.
   See the comments in the decorators for more information on this.
-- `ROS2TestEnvironment.publish(topic, message)` requires a final small `sleep(0.05)`. This should not be required, one could investigte how to avoid it.
-  It very likely just hides an actual bug.
+- `ROS2TestEnvironment.publish(topic, message)` requires a final small `sleep(eps)`. This should not be required, one could investigte how to avoid it.
+  It very likely just hides an actual bug. See comment in that test.
 
 Design Considerations
 ---------------------
