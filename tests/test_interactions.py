@@ -68,14 +68,17 @@ class SharedTestCases(ABC):
         for identifier in range(count):
             env.publish("/ear", String(data=f"Hi #{identifier}"))
 
-        # This text also tests the message order, which is relevant!
+        # This text also tests the message order, which *is* relevant!
         all_messages: List[String] = env.assert_messages_published(
             "/mouth",
             number=count,
-            max_total_timeout=2,
+            max_total_timeout=5,
         )
         expected = [String(data=f"Hi #{identifier}") for identifier in range(count)]
         self.assertListEqual(all_messages, expected)
+
+    def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
+        self.test_multiple_messages(env, count=100)
 
 
 class TestSingleNode(SharedTestCases, TestCase):
@@ -103,6 +106,10 @@ class TestSingleNode(SharedTestCases, TestCase):
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:
         super().test_multiple_messages(env)
+
+    @with_single_node(EchoNode, watch_topics={"/mouth": String})
+    def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
+        super().test_multiple_messages_stress_test(env)
 
     @mark.xfail(
         raises=AssertionError,
@@ -150,6 +157,10 @@ class TestLaunchFile(SharedTestCases, TestCase):
     @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:
         super().test_multiple_messages(env)
+
+    @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
+    def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
+        super().test_multiple_messages_stress_test(env)
 
     @mark.xfail(
         raises=AssertionError,

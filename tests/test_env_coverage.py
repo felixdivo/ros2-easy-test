@@ -50,8 +50,10 @@ class TestSingleNodesForEnvCoverage(TestCase):
         env.clear_messages("/mouth")
         env.assert_message_published("/mouth", timeout=0)  # Should raise
 
+    # It would be nice to have some more specific Exception type,
+    # but it raises the private rclpy._rclpy_pybind11.RCLError
     @mark.xfail(
-        raises=Exception,  # TODO: Maybe this should be a more specific exception?
+        raises=Exception,  
         reason="specifiying a wrong message type is a common mistake and shall fail loudly",
         strict=True,
     )
