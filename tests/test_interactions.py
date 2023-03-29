@@ -77,9 +77,6 @@ class SharedTestCases(ABC):
         expected = [String(data=f"Hi #{identifier}") for identifier in range(count)]
         self.assertListEqual(all_messages, expected)
 
-    def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        self.test_multiple_messages(env, count=100)
-
 
 class TestSingleNode(SharedTestCases, TestCase):
     """This test case uses the ``with_single_node`` decorator to set up the test environment."""
@@ -109,7 +106,7 @@ class TestSingleNode(SharedTestCases, TestCase):
 
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages_stress_test(env)
+        super().test_multiple_messages(env, count=100)
 
     @mark.xfail(
         raises=AssertionError,
@@ -160,7 +157,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
 
     @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages_stress_test(env)
+        super().test_multiple_messages(env, count=100)
 
     @mark.xfail(
         raises=AssertionError,
