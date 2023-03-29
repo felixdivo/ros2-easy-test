@@ -70,7 +70,7 @@ class TestSingleNode(SharedTestCases, TestCase):
         strict=True,
     )
     @with_single_node(NodeRaiseInInit)
-    def test_failing_node_init(self, _: ROS2TestEnvironment) -> None:
+    def test_failing_node_init(self, env: ROS2TestEnvironment) -> None:
         pass
 
     @mark.xfail(
@@ -79,7 +79,7 @@ class TestSingleNode(SharedTestCases, TestCase):
         strict=True,
     )
     @with_single_node(NodeRaiseInInit)
-    def test_failing_node_init_and_failing_test(self, _: ROS2TestEnvironment) -> None:
+    def test_failing_node_init_and_failing_test(self, env: ROS2TestEnvironment) -> None:
         self.fail("This will also raise an exception")
 
     @mark.xfail(
@@ -130,7 +130,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
         strict=False,  # TODO: It would be nice to fix this some time -> make it strict=True
     )
     @with_launch_file(BASE / "raise_in_init.yaml")
-    def test_failing_node_init(self, _: ROS2TestEnvironment) -> None:
+    def test_failing_node_init(self, env: ROS2TestEnvironment) -> None:
         pass
 
     @mark.xfail(
@@ -139,7 +139,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
         strict=True,
     )
     @with_launch_file(BASE / "raise_in_init.yaml")
-    def test_failing_node_init_and_failing_test(self, _: ROS2TestEnvironment) -> None:
+    def test_failing_node_init_and_failing_test(self, env: ROS2TestEnvironment) -> None:
         self.fail("This will also raise an exception")
 
     @mark.xfail(
@@ -190,7 +190,7 @@ class TestBadLaunchFiles(TestCase):
         strict=True,
     )
     @with_launch_file(BASE / "definitely" / "missing_2783468.launch.py", warmup_time=2)
-    def test_missing_launch_file(self, _: ROS2TestEnvironment) -> None:
+    def test_missing_launch_file(self, env: ROS2TestEnvironment) -> None:
         pass
 
     @mark.xfail(
@@ -199,7 +199,7 @@ class TestBadLaunchFiles(TestCase):
         strict=True,
     )
     @with_launch_file(Path(__file__).parent.parent / "README.md", warmup_time=2)
-    def test_non_launch_file(self, _: ROS2TestEnvironment) -> None:
+    def test_non_launch_file(self, env: ROS2TestEnvironment) -> None:
         pass
 
     @mark.xfail(
@@ -208,7 +208,7 @@ class TestBadLaunchFiles(TestCase):
         strict=True,
     )
     @with_launch_file(Path(__file__).parent.parent / "README.md", warmup_time=2)
-    def test_assertion_raised_and_launch_failed(self, _: ROS2TestEnvironment) -> None:
+    def test_assertion_raised_and_launch_failed(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
 
 

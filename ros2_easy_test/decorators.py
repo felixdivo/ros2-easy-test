@@ -11,9 +11,11 @@ from signal import SIGINT
 from subprocess import Popen, TimeoutExpired
 from threading import Thread
 from time import sleep
+from functools import wraps
+from inspect import signature
 
 # Typing
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
 # ROS
 import rclpy
@@ -27,6 +29,9 @@ from .env import ROS2TestEnvironment
 
 # Helpers
 from .launch_file import LaunchFileProvider
+
+# Function manipulation
+from makefun import remove_signature_parameters
 
 
 __all__ = ["with_launch_file", "with_single_node"]
@@ -51,7 +56,11 @@ def with_single_node(
     This function is not fundamentally restricted to one node, but more are simply not implemented as of
     now. See :func:`~with_launch_file` for more complex scenarios.
 
-    Warning:
+    Note:
+        Your test function *must* accept the environment as a keyword-parameter called ``env``,
+        e.g. ``def test(env: ROS2TestEnvironment)``.
+
+    Note:
         Make sure that the initializer of ``node_class`` passes along any keyword arguments to the super
         class :class:`rclpy.node.Node`.
         To do this, have the ``__init__`` of your node accept ``**kwargs`` as the last argument and call
@@ -70,8 +79,7 @@ def with_single_node(
     """
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
-        # TODO: This would be nice but currently breaks other pytest fixtures
-        # @wraps(test_function)  # Copies the docstring and other metadata
+        @wraps(test_function)  # Copies the docstring and other metadata
         def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
             try:
@@ -107,7 +115,7 @@ def with_single_node(
 
                     # Finally, we want to launch the actual test and wait for it to complete (indefinitely)
                     test_function_task = executor.create_task(
-                        test_function, *args_inner, environment, **kwargs_inner
+                        test_function, *args_inner, env=environment, **kwargs_inner
                     )
                     thread = Thread(
                         target=executor.spin_until_future_complete,
@@ -166,6 +174,11 @@ def with_single_node(
                     not context.ok()
                 ), "Context did not properly shut down after test."
 
+        # This is required to make pytest fixtures work
+        # In principle, we could make the parameter name easily adjustable, but that is probably a rare use case
+        wrapper.__signature__ = remove_signature_parameters(
+            signature(test_function), "env"
+        )
         return wrapper
 
     return decorator
@@ -179,6 +192,10 @@ def with_launch_file(  # noqa: C901
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
+
+    Note:
+        Your test function *must* accept the environment as a keyword-parameter called ``env``,
+        e.g. ``def test(env: ROS2TestEnvironment)``.
 
     Args:
         launch_file: Either:
@@ -205,8 +222,7 @@ def with_launch_file(  # noqa: C901
     ), f"Warmup_time must be zero or larger but was {warmup_time}."
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
-        # TODO: This would be nice but currently breaks other pytest fixtures
-        # @wraps(test_function)  # Copies the docstring and other metadata
+        @wraps(test_function)  # Copies the docstring and other metadata
         def wrapper(*args_inner, **kwargs_inner) -> None:
             # Provide the launch file
             with LaunchFileProvider(launch_file) as launch_file_path:
@@ -244,7 +260,7 @@ def with_launch_file(  # noqa: C901
                         )
 
                         test_function_task = executor.create_task(
-                            test_function, *args_inner, environment, **kwargs_inner
+                            test_function, *args_inner, env=environment, **kwargs_inner
                         )
 
                         thread = Thread(
@@ -321,6 +337,11 @@ def with_launch_file(  # noqa: C901
                 if test_function_exception is not None:
                     raise test_function_exception from None
 
+        # This is required to make pytest fixtures work
+        # In principle, we could make the parameter name easily adjustable, but that is probably a rare use case
+        wrapper.__signature__ = remove_signature_parameters(
+            signature(test_function), "env"
+        )
         return wrapper
 
     return decorator

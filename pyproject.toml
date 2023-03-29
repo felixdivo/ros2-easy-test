@@ -25,7 +25,9 @@ classifiers = [
 urls = { Homepage = "https://github.com/felixdivo/ros2-easy-test" }
 # The package is discovered autoamtically https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
 # This includes the py.typed file
-dependencies = []
+dependencies = [
+  "makefun>=1.15.1"
+]
 
 [project.optional-dependencies]
 dev = [

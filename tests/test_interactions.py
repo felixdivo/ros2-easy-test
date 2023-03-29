@@ -114,7 +114,7 @@ class TestSingleNode(SharedTestCases, TestCase):
         strict=True,
     )
     @with_single_node(EchoNode)
-    def test_assertion_raised(self, _: ROS2TestEnvironment) -> None:
+    def test_assertion_raised(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
 
 
@@ -165,7 +165,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
         strict=True,
     )
     @with_launch_file(BASE / "talker.yaml", warmup_time=2)
-    def test_assertion_raised(self, _: ROS2TestEnvironment) -> None:
+    def test_assertion_raised(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
 
 

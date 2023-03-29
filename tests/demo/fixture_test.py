@@ -10,16 +10,11 @@ from ..example_nodes.well_behaved import EchoNode
 from std_msgs.msg import String
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def the_message() -> str:
     return "The message which should get echoed back!"
 
 
-@pytest.mark.xfail(
-    raises=TypeError,
-    reason="This is currently not supported",  # TODO: Support this
-    strict=True,
-)
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
 def test_fixture_in_beginning(the_message: str, env: ROS2TestEnvironment) -> None:
     """A demo for combining a pytest fixture and ros2_easy_test."""
@@ -28,11 +23,6 @@ def test_fixture_in_beginning(the_message: str, env: ROS2TestEnvironment) -> Non
     assert response == the_message, (response, the_message)
 
 
-@pytest.mark.xfail(
-    raises=TypeError,
-    reason="This is currently not supported",  # TODO: Support this
-    strict=True,
-)
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
 def test_fixture_as_last_argument(env: ROS2TestEnvironment, the_message: str) -> None:
     """The same as :func:`~test_fixture_in_beginning`, but with a different parameter order."""

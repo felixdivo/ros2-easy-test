@@ -8,7 +8,7 @@ A Python test framework for ROS2 allowing for:
 - easy integration of existing nodes and launch files
 - testing of nodes implemented in any programming language (C++, Python, ...)
 - works with and without tools like `colcon test` and `pytest`
-- is minimalistic and has no other dependencies
+- is minimalistic and has very few dependencies
 - is tested, used in practice, documented, and maintained
 
 ## Installation
@@ -42,6 +42,7 @@ def test_simple_publisher(env: ROS2TestEnvironment) -> None:
 ```
 
 You can optionally provide more parameters to the test setting, i.e., additionally pass `parameters={"some.thing": 30.2}` to the decorator.
+The argument of the test function receiving the `ROS2TestEnvironment` *must* be named `env`.
 
 ### Testing a Launch File
 
@@ -59,6 +60,7 @@ def test_simple_update_launch_file(env: ROS2TestEnvironment) -> None:
 ```
 
 You can also pass the literal launch file contents as a `str` instead of a path like `"example_launch_file.yaml"`.
+The argument of the test function receiving the `ROS2TestEnvironment` *must* be named `env`.
 
 Note that, however, this method is much slower than the one above. 
 One reason for this is the requirement of a fixed warm-up time for the nodes to be started. 
@@ -90,8 +92,10 @@ Generally, you can always test that no exceptions are thrown, e.g., when nodes a
 
 Some hints:
 - If you want to use [pytest markers](https://docs.pytest.org/en/7.1.x/how-to/mark.html) like `@pytest.mark.skipif(...)`, add that above (=before) the `@with_single_node(...)`/`@with_launch_file(...)` decorator and it will work just fine.
-- Similarly, you can seamlessly use other tools which annotate test functions, like `hypothesis` (or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html)). Generally, you have to be mindful of the order of the decorators here. See `tests/demo_hypothesis_test.py` for two simple examples.
-- The `ROS2TestEnvironment` is added as the last positional argument to the test function (i.e. right before the keyword arguments).
+- Similarly, you can seamlessly use other tools which annotate test functions, like [hypothesis](https://hypothesis.readthedocs.io/en/latest/) or [pytest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html).
+  Generally, you have to be mindful of the order of the decorators here.
+  The `ROS2TestEnvironment` is always added as a keyword argument called `env` to the test function.
+  See `tests/demo/` for a few examples.
 
 ## Limitations, Design, and Other Projects
 

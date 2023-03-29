@@ -24,7 +24,7 @@ def ros2_preserved_string(draw: DrawFn) -> str:
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
 @given(some_message=ros2_preserved_string())
 @settings(max_examples=10)  # Remember that these tests are costly
-def test_on_same_node(env: ROS2TestEnvironment, some_message: str) -> None:
+def test_on_same_node(some_message: str, env: ROS2TestEnvironment) -> None:
     """This creates a single node and tests it with Hypothesis against many values."""
 
     env.publish("/ear", String(data=some_message))
@@ -35,8 +35,14 @@ def test_on_same_node(env: ROS2TestEnvironment, some_message: str) -> None:
 @given(some_message=ros2_preserved_string())
 @settings(max_examples=10)  # Remember that these tests are costly
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
-def test_on_new_node_each(env: ROS2TestEnvironment, some_message: str) -> None:
-    """This creates a single node and tests it with Hypothesis against many values."""
+def test_on_new_node_each(*, env: ROS2TestEnvironment, some_message: str) -> None:
+    """This creates a single node and tests it with Hypothesis against many values.
+
+    Note:
+        This also switches the order of the arguments.
+        To make that work, we need to use the ``*`` in the function signature
+        to make ``env`` and ``some_message`` keyword-only arguments.
+    """
 
     env.publish("/ear", String(data=some_message))
     response: str = env.assert_message_published("/mouth").data

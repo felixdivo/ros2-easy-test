@@ -13,6 +13,11 @@ from ros2_easy_test import ROS2TestEnvironment, with_single_node
 from .example_nodes.well_behaved import EchoNode, Talker
 
 
+@with_single_node(EchoNode, watch_topics={"/not_existing": Empty})
+def test_plain_function(env: ROS2TestEnvironment) -> None:
+    env.assert_no_message_published("/not_existing", time_span=0.5)
+
+
 class TestSingleNodesForEnvCoverage(TestCase):
     """Makes sure that the ``ROS2TestEnvironment`` class is covered."""
 
@@ -53,12 +58,12 @@ class TestSingleNodesForEnvCoverage(TestCase):
     # It would be nice to have some more specific Exception type,
     # but it raises the private rclpy._rclpy_pybind11.RCLError
     @mark.xfail(
-        raises=Exception,  
+        raises=Exception,
         reason="specifiying a wrong message type is a common mistake and shall fail loudly",
         strict=True,
     )
     @with_single_node(EchoNode, watch_topics={"/mouth": Empty})
-    def test_wrong_topic_type(self, _: ROS2TestEnvironment) -> None:
+    def test_wrong_topic_type(self, env: ROS2TestEnvironment) -> None:
         pass
 
 
