@@ -42,7 +42,9 @@ jobs:
           ros2 --help
       - #pip install -e .[dev]
         name: Check dependencies
-        run: ros2 --help
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash
+          ros2 --help
       - run: |
           pytest --collect-only
       -
