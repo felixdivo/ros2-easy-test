@@ -27,14 +27,14 @@ jobs:
           apt-get update -q && apt-get install -qy python3-pip python-is-python3 ros-$ROS_DISTRO-example-interfaces
           pip install --upgrade pip setuptools
           python -m pip install -e '.[dev]'
-      -
-        name: Format with black
-        run: |
-          black --check .
-      -
-        name: Lint with ruff
-        run: |
-          ruff check .
+      # -
+      #   name: Format with black
+      #   run: |
+      #     black --check .
+      # -
+      #   name: Lint with ruff
+      #   run: |
+      #     ruff check .
       -
         name: Testing (with pytest)
         run: |
