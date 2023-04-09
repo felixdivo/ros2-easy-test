@@ -23,9 +23,7 @@ class TestSingleNodesForEnvCoverage(TestCase):
 
     @mark.xfail(raises=AssertionError, reason="the chatter always talks", strict=True)
     @with_single_node(Talker, watch_topics={"/chatter": String})
-    def test_failing_assert_no_message_published(
-        self, env: ROS2TestEnvironment
-    ) -> None:
+    def test_failing_assert_no_message_published(self, env: ROS2TestEnvironment) -> None:
         env.assert_no_message_published("/chatter", time_span=2)  # Should raise
 
     @mark.xfail(raises=AssertionError, reason="no query - no response", strict=True)

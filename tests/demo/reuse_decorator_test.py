@@ -1,14 +1,15 @@
 # Standard library
 import unittest
+from functools import partial
+
+# ROS2 interfaces
+from std_msgs.msg import String
 
 # Testing
 from ros2_easy_test import ROS2TestEnvironment, with_single_node
-from functools import partial
 
 # Module under test and interfaces
 from ..example_nodes.well_behaved import EchoNode
-from std_msgs.msg import String
-
 
 # This does not work:
 #   alias = with_single_node(EchoNode, watch_topics={"/mouth": String})

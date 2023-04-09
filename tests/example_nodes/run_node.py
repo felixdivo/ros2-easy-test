@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""This is a helper script to run a node from a file given the class name."""
+
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from typing import Type

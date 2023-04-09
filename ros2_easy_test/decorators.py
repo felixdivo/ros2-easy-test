@@ -6,13 +6,13 @@ Warning:
 """
 
 # Standard library
+from functools import wraps
+from inspect import signature
 from pathlib import Path
 from signal import SIGINT
 from subprocess import Popen, TimeoutExpired
 from threading import Thread
 from time import sleep
-from functools import wraps
-from inspect import signature
 
 # Typing
 from typing import Any, Callable, Dict, Optional, Type, Union
@@ -31,7 +31,7 @@ from .env import ROS2TestEnvironment
 from .launch_file import LaunchFileProvider
 
 # Function manipulation
-from makefun import remove_signature_parameters
+from makefun import remove_signature_parameters  # isort: skip
 
 
 __all__ = ["with_launch_file", "with_single_node"]
@@ -43,13 +43,16 @@ TestFunctionBefore = Callable[..., None]
 TestFunctionAfter = Callable[..., None]  # The same but taking one param less (the env)
 
 
-# TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The time to give a node for a successful shutdown.
-SHUTDOWN_TIMEOUT: float = 2
+_DEFAULT_SHUTDOWN_TIMEOUT: float = 2
 
 
 def with_single_node(
-    node_class: Type[Node], *, parameters: Optional[Dict[str, Any]] = None, **kwargs
+    node_class: Type[Node],
+    *,
+    parameters: Optional[Dict[str, Any]] = None,
+    shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
+    **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
 
@@ -72,6 +75,9 @@ def with_single_node(
             Class of the node to instantiate. Assumed to accept no extra parameters besides **any** keyword
             arguments that are passed along to :class:`rclpy.node.Node`.
         parameters: The parameters to be set for the node as ``("key", value)`` pairs
+        shutdown_timeout:
+            The time to give a node for a successful shutdown. If it takes longer than this,
+            the test will fail.
         kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
@@ -88,15 +94,12 @@ def with_single_node(
                 # Package the given parameters up in the ROS2 appropriate format
                 parameters_tuples = parameters or {}
                 ros_parameters = [
-                    Parameter(name=name, value=value)
-                    for name, value in parameters_tuples.items()
+                    Parameter(name=name, value=value) for name, value in parameters_tuples.items()
                 ]
 
                 node: Node
                 if ros_parameters:
-                    node = node_class(
-                        parameter_overrides=ros_parameters, context=context
-                    )
+                    node = node_class(parameter_overrides=ros_parameters, context=context)
                 else:
                     node = node_class(context=context)
 
@@ -129,10 +132,8 @@ def with_single_node(
                     for running_node in executor.get_nodes():
                         running_node.destroy_node()
 
-                    has_finished = executor.shutdown(SHUTDOWN_TIMEOUT)
-                    assert (
-                        has_finished
-                    ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds."
+                    has_finished = executor.shutdown(shutdown_timeout)
+                    assert has_finished, f"Executor shutdown did not complete in {shutdown_timeout} seconds."
 
                 # Make sure that the executor and the nodes are cleaned up/freed afterwards.
                 # Cleanup is critical for correctness since subsequent tests may NEVER reference old
@@ -150,9 +151,7 @@ def with_single_node(
                 except InvalidHandle:
                     pass  # This is what we expect to happen
                 else:  # pragma: no cover
-                    raise Exception(
-                        "The Environment did not properly shut down after test."
-                    )
+                    raise Exception("The Environment did not properly shut down after test.")
 
                 assert not executor.get_nodes(), "The executor still holds some nodes."
 
@@ -169,16 +168,13 @@ def with_single_node(
             finally:
                 rclpy.try_shutdown(context=context)
 
-                # Make sure that the context is freed afterwards. This is a sanity check and should never fail.
-                assert (
-                    not context.ok()
-                ), "Context did not properly shut down after test."
+                # Make sure that the context is freed afterwards. This sanity check should never fail.
+                assert not context.ok(), "Context did not properly shut down after test."
 
         # This is required to make pytest fixtures work
-        # In principle, we could make the parameter name easily adjustable, but that is probably a rare use case
-        wrapper.__signature__ = remove_signature_parameters(
-            signature(test_function), "env"
-        )
+        # In principle, we could make the parameter name easily adjustable,
+        # but that is probably a rare use case
+        wrapper.__signature__ = remove_signature_parameters(signature(test_function), "env")
         return wrapper
 
     return decorator
@@ -189,6 +185,7 @@ def with_launch_file(  # noqa: C901
     *,
     debug_launch_file: bool = False,
     warmup_time: float = 5,
+    shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
@@ -210,16 +207,19 @@ def with_launch_file(  # noqa: C901
             independently of how long the test waits.
             If you set this to zero and a test case fails very fast, this will crash the launch process
             and generate unexpected exit codes and test results.
-            The default should suffice on most computers, it is rather conservative and slow down each test case.
+            The default should suffice on most computers,
+            it is rather conservative and high numbers will slow down each test case.
+        shutdown_timeout:
+            The time to give a node for a successful shutdown. If it takes longer than this,
+            the test will fail.
+            It applies individually to both shutting down the environment and the launch process.
         kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
         :func:`~with_single_node`
     """
 
-    assert (
-        warmup_time >= 0
-    ), f"Warmup_time must be zero or larger but was {warmup_time}."
+    assert warmup_time >= 0, f"Warmup_time must be zero or larger but was {warmup_time}."
 
     def decorator(test_function: TestFunctionBefore) -> TestFunctionAfter:
         @wraps(test_function)  # Copies the docstring and other metadata
@@ -249,15 +249,11 @@ def with_launch_file(  # noqa: C901
 
                     try:
                         environment = ROS2TestEnvironment(context=context, **kwargs)
-                        assert executor.add_node(
-                            environment
-                        ), "failed to add environment"
+                        assert executor.add_node(environment), "failed to add environment"
 
                         # Give the launch process time to start up
                         # We do it here such that the environment may spin too, while we wait
-                        executor.spin_until_future_complete(
-                            executor.create_task(sleep, warmup_time)
-                        )
+                        executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
                             test_function, *args_inner, env=environment, **kwargs_inner
@@ -276,10 +272,10 @@ def with_launch_file(  # noqa: C901
                         for node in executor.get_nodes():
                             node.destroy_node()
 
-                        has_finished = executor.shutdown(SHUTDOWN_TIMEOUT)
+                        has_finished = executor.shutdown(shutdown_timeout)
                         assert (
                             has_finished
-                        ), f"Executor shutdown did not complete in {SHUTDOWN_TIMEOUT} seconds."
+                        ), f"Executor shutdown did not complete in {shutdown_timeout} seconds."
 
                     # Make sure that the executor and the node are cleaned up/freed afterwards.
                     # Cleanup is critical for correctness since subsequent tests may NEVER reference old
@@ -290,32 +286,25 @@ def with_launch_file(  # noqa: C901
                     except InvalidHandle:
                         pass
                     else:  # pragma: no cover
-                        raise Exception(
-                            "The Environment did not properly shut down after test."
-                        )
+                        raise Exception("The Environment did not properly shut down after test.")
 
-                    assert (
-                        not executor.get_nodes()
-                    ), "The executor still holds some nodes."
+                    assert not executor.get_nodes(), "The executor still holds some nodes."
 
                 finally:
                     rclpy.try_shutdown(context=context)
 
-                # Make sure that the context is freed afterwards.
-                # This is a sanity check and should never fail.
-                assert (
-                    not context.ok()
-                ), "Context did not properly shut down after test."
+                # Make sure that the context is freed afterwards. This sanity check should never fail.
+                assert not context.ok(), "Context did not properly shut down after test."
 
                 # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
                 process.send_signal(SIGINT)
                 try:
                     # Might raise a TimeoutExpired if it takes too long
-                    return_code = process.wait(timeout=SHUTDOWN_TIMEOUT / 2)
+                    return_code = process.wait(timeout=shutdown_timeout / 2)
                 except TimeoutExpired:  # pragma: no cover
                     process.terminate()
                     # return_code will be larger than 130
-                    return_code = process.wait(timeout=SHUTDOWN_TIMEOUT / 2)
+                    return_code = process.wait(timeout=shutdown_timeout / 2)
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
@@ -338,10 +327,9 @@ def with_launch_file(  # noqa: C901
                     raise test_function_exception from None
 
         # This is required to make pytest fixtures work
-        # In principle, we could make the parameter name easily adjustable, but that is probably a rare use case
-        wrapper.__signature__ = remove_signature_parameters(
-            signature(test_function), "env"
-        )
+        # In principle, we could make the parameter name easily adjustable,
+        # but that is probably a rare use case
+        wrapper.__signature__ = remove_signature_parameters(signature(test_function), "env")
         return wrapper
 
     return decorator
