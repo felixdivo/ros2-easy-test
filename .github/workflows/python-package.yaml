@@ -12,6 +12,7 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false  # Tests may behave very different across these systems
       matrix:
         # TODO: add ros:iron-ros-core when it is available
         container: ["ros:foxy-ros-core", "ros:humble-ros-core", "ros:rolling-ros-core"]
