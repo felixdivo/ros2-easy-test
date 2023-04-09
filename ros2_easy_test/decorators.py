@@ -225,16 +225,17 @@ def with_launch_file(  # noqa: C901
         def wrapper(*args_inner, **kwargs_inner) -> None:
             # Provide the launch file
             with LaunchFileProvider(launch_file) as launch_file_path:
-                # The child process inherits stdout and stderr from parent, so logging reaches the console
-                debug_parameters = ["--debug"] if debug_launch_file else []
-                parameters = [
+                # Prepare the "ros2 launch" child process
+                # It inherits stdout and stderr from parent, so logging reaches the (pytest) console
+                ros2_debug_parameters = ["--debug"] if debug_launch_file else []
+                ros2_parameters = [
                     "ros2",
                     "launch",
                     str(launch_file_path),
                     "--noninteractive",
-                    *debug_parameters,
+                    *ros2_debug_parameters,
                 ]
-                
+
                 context = Context()
                 try:
                     context.init()
@@ -245,18 +246,19 @@ def with_launch_file(  # noqa: C901
                     executor = MultiThreadedExecutor(num_threads=4, context=context)
 
                     try:
+                        # We first start the environment, such that any topics that are watched can be
+                        # captured rigth from the start
                         environment = ROS2TestEnvironment(context=context, **kwargs)
                         assert executor.add_node(environment), "failed to add environment"
 
-                        # Give the launch process time to start up
-                        # We do it here such that the environment may spin too, while we wait
-                        executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
+                        # We do not need any warmp time here, as the environment is fully ready once the
+                        # node class (the environment) is instantiated.
 
-                        # TODO cleanup
-                        ros2_process = Popen(parameters)
+                        # Now, we are ready to start the system under test using "ros2 launch"
+                        ros2_process = Popen(ros2_parameters)
 
-                        # Give the launch process time to start up
-                        # We do it here such that the environment may spin too, while we wait
+                        # Give the launch process time to start up. Otherwise, the timeouts on the first
+                        # test asserts will be off
                         executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
@@ -297,18 +299,23 @@ def with_launch_file(  # noqa: C901
                 finally:
                     context.try_shutdown()
 
-                # Make sure that the context is freed afterwards. This sanity check should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+                    # Make sure that the context is freed afterwards. This sanity check should never fail.
+                    assert not context.ok(), "Context did not properly shut down after test."
 
-                # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
-                ros2_process.send_signal(SIGINT)
-                try:
-                    # Might raise a TimeoutExpired if it takes too long
-                    return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
-                except TimeoutExpired:  # pragma: no cover
-                    ros2_process.terminate()
-                    # return_code will be larger than 130
-                    return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                    try:
+                        ros2_process
+                    except NameError:
+                        pass  # Maybe, the launch process was not even started
+                    else:
+                        # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
+                        ros2_process.send_signal(SIGINT)
+                        try:
+                            # Might raise a TimeoutExpired if it takes too long
+                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                        except TimeoutExpired:  # pragma: no cover
+                            ros2_process.terminate()
+                            # return_code will be larger than 130
+                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
