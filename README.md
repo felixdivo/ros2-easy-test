@@ -1,7 +1,7 @@
 # ROS2 easy-test
 
 [![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg)](https://pypi.org/project/ros2-easy-test/)
-[![image](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://pypi.python.org/pypi/ruff)
+[![license](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 
 [![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-green)](https://docs.ros.org/en/rolling/Releases.html)
