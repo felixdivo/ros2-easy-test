@@ -2,7 +2,6 @@ from example_interfaces.srv import AddTwoInts
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile
 from std_msgs.msg import String
-from rclpy.qos import QoSProfile, QoSHistoryPolicy
 
 
 class Talker(Node):
