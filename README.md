@@ -129,7 +129,7 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 
 ## TODOs
 
+- Decide on a name
 - Publish docs, reference from repo/README
 - Make public, spread the word
-- Add a helper for async service calls with a timeout
 - push to PyPI
