@@ -25,9 +25,6 @@ Current Limitations
   You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
   There is probably room for improvement here, especially with reducing the required warm-up time.
-- `ROS2TestEnvironment.publish(topic, message)` requires a final small `sleep(eps)`. This should not be required, one could investigte how to avoid it.
-  It very likely just hides an actual bug. See comment in that test.
-
 
 Design Considerations
 ---------------------
