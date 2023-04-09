@@ -1,7 +1,9 @@
 # ROS2 easy-test
 
-[![python version](https://img.shields.io/badge/python-3.8+-green)](https://devguide.python.org/#status-of-python-branches)
-[![ros2 version](https://img.shields.io/badge/ROS2-Humble%20Hawksbill+-green)](https://docs.ros.org/en/rolling/Releases.html)
+[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-green)](https://devguide.python.org/versions/)
+[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-green)](https://docs.ros.org/en/rolling/Releases.html)
+
+[![Python package](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 
 A Python test framework for ROS2 allowing for:
 - simple and expressive assertions based on message/service interactions (black box testing)

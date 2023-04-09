@@ -127,7 +127,7 @@ class ROS2TestEnvironment(Node):
         # However, setting this to a value below 0.02 caused very reliable issues on three separate setups.
         # Instead of removing this line (and getting unhappy like me), one should probably file an issue
         # in the ROS bug tracker.
-        sleep(0.05)
+        sleep(0.1)
 
     def assert_no_message_published(self, topic: str, time_span: float = 0.5) -> None:
         """Asserts that no message is published on the given topic within the given time.
