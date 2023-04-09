@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
 
-# We use ROS2 Humble (https://docs.ros.org/en/humble/index.html) as base image
-# In the future -base instead of -core might be necessary
+# NOTE: Keep this file in sync with .github/workflows/*.yaml
+
+# We use ROS2 Humble (https://docs.ros.org/en/humble/index.html) as base image,
+# since it is the oldest ROS2 distro that we support and we want to ensure
+# that we do not use APIs that are not available in older distros.
 FROM ros:humble-ros-core
 
 # Install runtime dependencies
