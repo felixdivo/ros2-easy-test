@@ -89,7 +89,7 @@ def with_single_node(
         def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
             try:
-                rclpy.init(context=context)
+                context.init()
 
                 # Package the given parameters up in the ROS2 appropriate format
                 parameters_tuples = parameters or {}
@@ -166,10 +166,10 @@ def with_single_node(
                 # "The following exception was never retrieved: [...]" message.
 
             finally:
-                rclpy.try_shutdown(context=context)
+                context.try_shutdown()
 
-                # Make sure that the context is freed afterwards. This sanity check should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+            # Make sure that the context is freed afterwards. This sanity check should never fail.
+            assert not context.ok(), "Context did not properly shut down after test."
 
         # This is required to make pytest fixtures work
         # In principle, we could make the parameter name easily adjustable,
@@ -226,85 +226,83 @@ def with_launch_file(  # noqa: C901
         def wrapper(*args_inner, **kwargs_inner) -> None:
             # Provide the launch file
             with LaunchFileProvider(launch_file) as launch_file_path:
+                debug_parameters = ["--debug"] if debug_launch_file else []
+                parameters = [
+                    "ros2",
+                    "launch",
+                    str(launch_file_path),
+                    "--noninteractive",
+                    *debug_parameters,
+                ]
                 # Inherits stdout and stderr from parent, so logging reaches the console
-                additional_parameters = ["--debug"] if debug_launch_file else []
-                process = Popen(  # pylint: disable=consider-using-with
-                    [
-                        "ros2",
-                        "launch",
-                        str(launch_file_path),
-                        "--noninteractive",
-                        *additional_parameters,
-                    ]
-                )
-
-                context = Context()
-                try:
-                    rclpy.init(context=context)
-
-                    # We need at least two threads: One to spin() and one to execute the test case
-                    # (as the latter blocks). We better provide 4, since more nodes/tasks might get spun up
-                    # by some tests and threads are rather cheap.
-                    executor = MultiThreadedExecutor(num_threads=4, context=context)
-
+                with Popen(parameters) as ros2_process:
+                    context = Context()
                     try:
-                        environment = ROS2TestEnvironment(context=context, **kwargs)
-                        assert executor.add_node(environment), "failed to add environment"
+                        context.init()
 
-                        # Give the launch process time to start up
-                        # We do it here such that the environment may spin too, while we wait
-                        executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
+                        # We need at least two threads: One to spin() and one to execute the test case
+                        # (as the latter blocks). We better provide 4, since more nodes/tasks might get spun up
+                        # by some tests and threads are rather cheap.
+                        executor = MultiThreadedExecutor(num_threads=4, context=context)
 
-                        test_function_task = executor.create_task(
-                            test_function, *args_inner, env=environment, **kwargs_inner
-                        )
+                        try:
+                            environment = ROS2TestEnvironment(context=context, **kwargs)
+                            assert executor.add_node(environment), "failed to add environment"
 
-                        thread = Thread(
-                            target=executor.spin_until_future_complete,
-                            args=(test_function_task,),
-                            daemon=True,
-                        )
-                        thread.start()
-                        thread.join()
+                            # Give the launch process time to start up
+                            # We do it here such that the environment may spin too, while we wait
+                            executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
+
+                            test_function_task = executor.create_task(
+                                test_function, *args_inner, env=environment, **kwargs_inner
+                            )
+
+                            thread = Thread(
+                                target=executor.spin_until_future_complete,
+                                args=(test_function_task,),
+                                daemon=True,
+                            )
+                            thread.start()
+                            thread.join()
+
+                        finally:
+                            # This should only kill the environment, no other node is registered
+                            for node in executor.get_nodes():
+                                node.destroy_node()
+
+                            has_finished = executor.shutdown(shutdown_timeout)
+                            assert (
+                                has_finished
+                            ), f"Executor shutdown did not complete in {shutdown_timeout} seconds."
+
+                        # Make sure that the executor and the node are cleaned up/freed afterwards.
+                        # Cleanup is critical for correctness since subsequent tests may NEVER reference old
+                        # resources! That would (and did) cause very strange bugs.
+                        # These are sanity checks and should never fail.
+                        try:
+                            environment.get_name()
+                        except InvalidHandle:
+                            pass
+                        else:  # pragma: no cover
+                            raise Exception("The Environment did not properly shut down after test.")
+
+                        assert not executor.get_nodes(), "The executor still holds some nodes."
 
                     finally:
-                        # This should only kill the environment, no other node is registered
-                        for node in executor.get_nodes():
-                            node.destroy_node()
+                        context.try_shutdown()
 
-                        has_finished = executor.shutdown(shutdown_timeout)
-                        assert (
-                            has_finished
-                        ), f"Executor shutdown did not complete in {shutdown_timeout} seconds."
+                    # Make sure that the context is freed afterwards. This sanity check should never fail.
+                    assert not context.ok(), "Context did not properly shut down after test."
 
-                    # Make sure that the executor and the node are cleaned up/freed afterwards.
-                    # Cleanup is critical for correctness since subsequent tests may NEVER reference old
-                    # resources! That would (and did) cause very strange bugs.
-                    # These are sanity checks and should never fail.
+                    # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
+                    ros2_process.send_signal(SIGINT)
                     try:
-                        environment.get_name()
-                    except InvalidHandle:
-                        pass
-                    else:  # pragma: no cover
-                        raise Exception("The Environment did not properly shut down after test.")
-
-                    assert not executor.get_nodes(), "The executor still holds some nodes."
-
-                finally:
-                    rclpy.try_shutdown(context=context)
-
-                # Make sure that the context is freed afterwards. This sanity check should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
-
-                # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
-                process.send_signal(SIGINT)
-                try:
-                    # Might raise a TimeoutExpired if it takes too long
-                    return_code = process.wait(timeout=shutdown_timeout / 2)
-                except TimeoutExpired:  # pragma: no cover
-                    process.terminate()
-                    # return_code will be larger than 130
-                    return_code = process.wait(timeout=shutdown_timeout / 2)
+                        # Might raise a TimeoutExpired if it takes too long
+                        return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                    except TimeoutExpired:  # pragma: no cover
+                        ros2_process.terminate()
+                        # return_code will be larger than 130
+                        return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
