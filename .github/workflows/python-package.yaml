@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # TODO: add ros:iron-ros-core when it's available
         container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
         # python-version: ["3.8", "3.9", "3.10", "3.11", "3.12.0-alpha.7"]
 
@@ -30,10 +31,13 @@ jobs:
         run: |
           apt-get update -q && apt-get install -qy zsh ros-$ROS_DISTRO-example-interfaces
           echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
-          python -V
+      -
+        name: Install dependencies
+        run: |
+          which ros
           which python
           which pip
-          pip install -e .[dev]
+          pip install -e .[dev]    
       - run: |
           pytest --collect-only
     #   -
