@@ -6,6 +6,10 @@ on: [push]
 
 jobs:
   build:
+    defaults:
+      run:
+        shell: bash
+
     container:
       # image: ros:humble-ros-core
       image: ${{ matrix.container }}
@@ -30,7 +34,7 @@ jobs:
         name: Install dependencies
         run: |
           apt-get update -q && apt-get install -qy zsh ros-$ROS_DISTRO-example-interfaces
-          echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+          echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc
       -
         name: Install dependencies
         run: which ros2
