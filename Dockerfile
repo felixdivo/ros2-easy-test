@@ -8,7 +8,8 @@
 FROM ros:humble-ros-core
 
 # Install runtime dependencies
-RUN apt-get update -q && apt-get install -qy git zsh ros-$ROS_DISTRO-example-interfaces
+RUN apt-get update -q && apt-get install -qy python3-pip python-is-python3 git zsh ros-$ROS_DISTRO-example-interfaces
+RUN pip install --upgrade pip setuptools
 
 # Ensure sourced ROS environment at startup
 RUN echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc

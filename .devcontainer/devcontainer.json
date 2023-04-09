@@ -5,10 +5,7 @@
     "context": ".."
   },
   "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash"
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {}
+    "terminal.integrated.defaultProfile.linux": "zsh"
   },
   "customizations": {
     "vscode": {
