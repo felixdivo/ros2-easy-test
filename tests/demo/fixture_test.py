@@ -1,13 +1,15 @@
 # Standard library
 import unittest
 
+# Testing and interfaces
+import pytest
+from std_msgs.msg import String
+
 # Testing
 from ros2_easy_test import ROS2TestEnvironment, with_single_node
-import pytest
 
-# Module under test and interfaces
+# Module under test
 from ..example_nodes.well_behaved import EchoNode
-from std_msgs.msg import String
 
 
 @pytest.fixture(autouse=True)

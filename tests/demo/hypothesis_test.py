@@ -1,16 +1,16 @@
 # Standard library
 import unittest
 
-# Hypothesis
+# Hypothesis and interfaces
 from hypothesis import given, settings
 from hypothesis.strategies import DrawFn, characters, composite, text
+from std_msgs.msg import String
 
 # Testing
 from ros2_easy_test import ROS2TestEnvironment, with_single_node
 
-# Module under test and interfaces
+# Module under test
 from ..example_nodes.well_behaved import EchoNode
-from std_msgs.msg import String
 
 
 @composite

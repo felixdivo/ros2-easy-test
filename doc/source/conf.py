@@ -75,7 +75,9 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []  # '_static'
 
-html_sidebars = {"**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]}
+html_sidebars = {
+    "**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -91,4 +93,6 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [("index", "ros2_easy_test.tex", f"{project} Documentation", author, "manual")]
+latex_documents = [
+    ("index", "ros2_easy_test.tex", f"{project} Documentation", author, "manual")
+]

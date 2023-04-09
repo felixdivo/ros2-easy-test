@@ -75,7 +75,10 @@ class TestSingleNode(SharedTestCases, TestCase):
 
     @mark.xfail(
         raises=OnPurposeFail,  # Not AssertionError, since that is probably secondary
-        reason="Failures in the node's __init__ method should be propagated to the test (even if the test fails, since thats likely the reason for the failure).",
+        reason=(
+            "Failures in the node's __init__ method should be propagated to the test "
+            "(even if the test fails, since thats likely the reason for the failure)."
+        ),
         strict=True,
     )
     @with_single_node(NodeRaiseInInit)
@@ -135,7 +138,10 @@ class TestLaunchFile(SharedTestCases, TestCase):
 
     @mark.xfail(
         raises=Exception,
-        reason="Failures in the node's __init__ method should be propagated to the test (even if the test fails, since thats likely the reason for the failure).",
+        reason=(
+            "Failures in the node's __init__ method should be propagated to the test "
+            "(even if the test fails, since thats likely the reason for the failure)."
+        ),
         strict=True,
     )
     @with_launch_file(BASE / "raise_in_init.yaml")
@@ -147,9 +153,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
         reason="Failures in a timer callback should be propagated to the test.",
         strict=False,  # TODO: It would be nice to fix this some time -> make it strict=True
     )
-    @with_launch_file(
-        BASE / "raise_in_timer.yaml", watch_topics={"/nothing/is/here": Empty}
-    )
+    @with_launch_file(BASE / "raise_in_timer.yaml", watch_topics={"/nothing/is/here": Empty})
     def test_failing_node_timer(self, env: ROS2TestEnvironment) -> None:
         super().test_failing_node_timer(env)
 
