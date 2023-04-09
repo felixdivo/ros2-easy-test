@@ -13,7 +13,8 @@ class Talker(Node):
         self.declare_parameter("/start_value", value=0)  # Set a default
         self._counter = self.get_parameter("/start_value").value
 
-        self._pub = self.create_publisher(String, "/chatter", 0)
+        qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+        self._pub = self.create_publisher(String, "/chatter", qos_profile)
         self._timer = self.create_timer(1.0, self.timer_callback)
 
     def timer_callback(self) -> None:
