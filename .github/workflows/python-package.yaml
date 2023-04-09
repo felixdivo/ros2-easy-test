@@ -7,14 +7,15 @@ on: [push]
 jobs:
   build:
     # We do not want to waste resources, and our tests are likely to deadlock once in a while when developing
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false  # Tests may behave very different across these systems
       matrix:
+        # We do not test on ros:foxy-ros-core, since it causes many problems in the CI pipeline
         # TODO: add ros:iron-ros-core when it is available
-        container: ["ros:foxy-ros-core", "ros:humble-ros-core", "ros:rolling-ros-core"]
+        container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
     container: ${{ matrix.container }}
 
     defaults:
