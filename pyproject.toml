@@ -36,6 +36,8 @@ dev = [
   "pytest",
   "pytest-cov",
   "hypothesis",  # To demonstrate how it works with this
+]
+doc = [
   "sphinx",
   "sphinx_rtd_theme",
 ]
