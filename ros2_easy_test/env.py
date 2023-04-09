@@ -17,9 +17,8 @@ RosMessage = Any  # We can't be more specific for now
 
 __all__ = ["ROS2TestEnvironment"]
 
-# TODO: There should be a way to control this without directly accessing the module or changing the source code
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
-DEFAULT_TIMEOUT: Optional[float] = 2
+_DEFAULT_TIMEOUT: Optional[float] = 2
 
 
 class ROS2TestEnvironment(Node):
@@ -43,7 +42,6 @@ class ROS2TestEnvironment(Node):
         The :class:`ROS2TestEnvironment` is a :class:`rclpy.node.Node` too, which allows to implement custom
         functionality too. In particular, one can simply call services using code similar to:
         ``client = env.create_client(GetLocalTangentPoint, "/service/get_local_tangent_point")``.
-        In theory, services can also be provided and not only called as clients.
 
     Note:
         Timings and timeouts in this class are only approximate.
@@ -104,7 +102,8 @@ class ROS2TestEnvironment(Node):
     def publish(self, topic: str, message: RosMessage) -> None:
         """Publish the message on the topic.
 
-        This method creates the publisher internally if required. Nothing needs to be done manually.
+        This method creates the publisher internally if required and caches it.
+        Nothing needs to be done manually.
 
         Args:
             topic: The topic to publish on
@@ -112,7 +111,7 @@ class ROS2TestEnvironment(Node):
                 ``topic`` before and after.
         """
 
-        # Get or else create the correct publisher
+        # Get or else create the correct publisher and cache it
         publisher: Publisher
         with self._registered_publishers_lock:
             try:
@@ -123,14 +122,6 @@ class ROS2TestEnvironment(Node):
                 self._registered_publishers[topic] = publisher
 
         publisher.publish(message)
-
-        # TODO: remove this in a separate PR and adjust alls pub/sub lines in the repo
-        # This is apparently needed to allow the node to react (else, not all messages will get published!).
-        # It is not clear why exactly this is required, and it shouldn't be from what the docs say.
-        # However, setting this to a value below 0.02 caused very reliable issues on three separate setups.
-        # Instead of removing this line (and getting unhappy like me), one should probably file an issue
-        # in the ROS bug tracker.
-        #sleep(0.001)
 
     def assert_no_message_published(self, topic: str, time_span: float = 0.5) -> None:
         """Asserts that no message is published on the given topic within the given time.
@@ -154,7 +145,7 @@ class ROS2TestEnvironment(Node):
             ) from None
 
     def assert_message_published(
-        self, topic: str, timeout: Optional[float] = DEFAULT_TIMEOUT
+        self, topic: str, timeout: Optional[float] = _DEFAULT_TIMEOUT
     ) -> RosMessage:
         """Asserts a message is published on the given topic within after at most the given time.
 
@@ -179,7 +170,7 @@ class ROS2TestEnvironment(Node):
         self,
         topic: str,
         number: int,
-        individual_timeout: Optional[float] = DEFAULT_TIMEOUT,
+        individual_timeout: Optional[float] = _DEFAULT_TIMEOUT,
         max_total_timeout: Optional[float] = 30.0,
     ) -> List[RosMessage]:
         """Asserts that some messages are published on the given topic within after at most the given time.
@@ -240,7 +231,7 @@ class ROS2TestEnvironment(Node):
         return collected_messages
 
     def listen_for_messages(
-        self, topic: str, time_span: Optional[float] = DEFAULT_TIMEOUT
+        self, topic: str, time_span: Optional[float] = _DEFAULT_TIMEOUT
     ) -> List[RosMessage]:
         """Collects all messages which arrive in the given time on the topic.
 

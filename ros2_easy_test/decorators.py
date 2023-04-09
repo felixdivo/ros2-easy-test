@@ -207,7 +207,8 @@ def with_launch_file(  # noqa: C901
             independently of how long the test waits.
             If you set this to zero and a test case fails very fast, this will crash the launch process
             and generate unexpected exit codes and test results.
-            The default should suffice on most computers, it is rather conservative and slow down each test case.
+            The default should suffice on most computers,
+            it is rather conservative and high numbers will slow down each test case.
         shutdown_timeout:
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
