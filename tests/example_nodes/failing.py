@@ -27,9 +27,7 @@ class NodeRaiseInTimer(Node):
         self._timer = self.create_timer(0.1, self.timer_callback)
 
     def timer_callback(self) -> Never:
-        raise OnPurposeError(
-            "something went wrong on purpose to demonstrate the behavior"
-        )
+        raise OnPurposeError("something went wrong on purpose to demonstrate the behavior")
 
 
 class NodeRaiseOnRequest(Node):

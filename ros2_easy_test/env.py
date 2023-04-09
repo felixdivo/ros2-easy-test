@@ -51,9 +51,7 @@ class ROS2TestEnvironment(Node):
             You may pass ``None`` to not watch any topic.
     """
 
-    def __init__(
-        self, *, watch_topics: Optional[Mapping[str, Type]] = None, **kwargs
-    ) -> None:
+    def __init__(self, *, watch_topics: Optional[Mapping[str, Type]] = None, **kwargs) -> None:
         super().__init__("_testing_ROS2TestEnvironment", **kwargs)
 
         # Collects the messages that were received
@@ -140,13 +138,10 @@ class ROS2TestEnvironment(Node):
             pass  # this is what we expect
         else:
             raise AssertionError(
-                f"A message was published on topic {topic} although none was expected: "
-                f"{repr(message)}"
+                f"A message was published on topic {topic} although none was expected: " f"{repr(message)}"
             ) from None
 
-    def assert_message_published(
-        self, topic: str, timeout: Optional[float] = _DEFAULT_TIMEOUT
-    ) -> RosMessage:
+    def assert_message_published(self, topic: str, timeout: Optional[float] = _DEFAULT_TIMEOUT) -> RosMessage:
         """Asserts a message is published on the given topic within after at most the given time.
 
         This method might return early if a message is received before the timeout as occurred.
@@ -214,9 +209,7 @@ class ROS2TestEnvironment(Node):
         while count < number:
             start = time()
             try:
-                collected_messages.append(
-                    self.assert_message_published(topic, timeout=remaining_time)
-                )
+                collected_messages.append(self.assert_message_published(topic, timeout=remaining_time))
             except AssertionError:
                 raise AssertionError(
                     f"Only {count} messages out of {number} expected ones were published on "

@@ -28,11 +28,15 @@ jobs:
           pip install --upgrade pip setuptools
           python -m pip install -e '.[dev]'
       -
+        name: Format with black
+        run: |
+          black --check .
+      -
+        name: Lint with ruff
+        run: |
+          ruff check .
+      -
         name: Testing (with pytest)
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
           python -m pytest
-      #-
-      #  name: Lint with ruff
-      #  run: |
-      #    ruff check .

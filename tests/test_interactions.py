@@ -86,9 +86,7 @@ class TestSingleNode(SharedTestCases, TestCase):
     def test_publisher(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)
 
-    @with_single_node(
-        Talker, watch_topics={"/chatter": String}, parameters={"/start_value": -42}
-    )
+    @with_single_node(Talker, watch_topics={"/chatter": String}, parameters={"/start_value": -42})
     def test_parameter_set(self, env: ROS2TestEnvironment) -> None:
         response: String = env.assert_message_published("/chatter")
         self.assertEqual(response.data, "Hello World: -42")
@@ -132,15 +130,11 @@ class TestLaunchFile(SharedTestCases, TestCase):
     def test_publisher_yaml(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 
-    @with_launch_file(
-        BASE / "talker.py", watch_topics={"/chatter": String}, debug_launch_file=True
-    )
+    @with_launch_file(BASE / "talker.py", watch_topics={"/chatter": String}, debug_launch_file=True)
     def test_debugging(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 
-    @with_launch_file(
-        BASE / "talker.yaml", watch_topics={"/chatter": String}, debug_launch_file=True
-    )
+    @with_launch_file(BASE / "talker.yaml", watch_topics={"/chatter": String}, debug_launch_file=True)
     def test_debugging_yaml(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 

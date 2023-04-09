@@ -24,14 +24,15 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import InvalidHandle, Node
 from rclpy.parameter import Parameter
 
-# Function manipulation
-from makefun import remove_signature_parameters
-
 # Environment
 from .env import ROS2TestEnvironment
 
 # Helpers
 from .launch_file import LaunchFileProvider
+
+# Function manipulation
+from makefun import remove_signature_parameters  # isort: skip
+
 
 __all__ = ["with_launch_file", "with_single_node"]
 

@@ -32,7 +32,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "black~=23.1",
-  "isort",
   "ruff",
   "pytest",
   "pytest-cov",
@@ -59,7 +58,7 @@ line-length = 110
 profile = "black"
 
 [tool.ruff]
-select = ["E", "F", "W", "N", "UP"]
+select = ["E", "F", "W", "I", "N", "UP"]
 
 # Same as Black
 line-length = 110
