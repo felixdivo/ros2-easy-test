@@ -33,11 +33,11 @@ jobs:
           echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
       -
         name: Install dependencies
+        run: which ros2
+      - 
+        name: Testing (with pytest)
         run: |
-          which ros
-          which python
-          which pip
-          pip install -e .[dev]    
+          pytest
       - run: |
           pytest --collect-only
     #   -
