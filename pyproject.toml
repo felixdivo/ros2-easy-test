@@ -26,7 +26,7 @@ urls = { Homepage = "https://github.com/felixdivo/ros2-easy-test" }
 dependencies = [
   "makefun>=1.15.1"
 ]
-# The package is discovered autoamtically (including the py.typed file):
+# The package is discovered automatically (including the py.typed file):
 # https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
 
 [project.optional-dependencies]
