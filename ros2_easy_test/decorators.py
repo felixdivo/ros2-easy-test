@@ -307,7 +307,8 @@ def with_launch_file(  # noqa: C901
                     except NameError:
                         pass  # Maybe, the launch process was not even started
                     else:
-                        # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
+                        # Signal the child launch process to finish
+                        # This is much like pressing Ctrl+C on the console
                         ros2_process.send_signal(SIGINT)
                         try:
                             # Might raise a TimeoutExpired if it takes too long
