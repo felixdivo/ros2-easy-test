@@ -7,16 +7,14 @@
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh"
   },
-  "features": {
-    "ghcr.io/devcontainers/features/python:1": {}
-  },
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "redhat.vscode-yaml",
         "bungcip.better-toml",
-        "trond-snekvik.simple-rst"
+        "trond-snekvik.simple-rst",
+        "GitHub.vscode-github-actions"
       ]
     }
   },

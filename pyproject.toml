@@ -23,19 +23,16 @@ classifiers = [
   "Typing :: Typed",
 ]
 urls = { Homepage = "https://github.com/felixdivo/ros2-easy-test" }
-# The package is discovered autoamtically https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
-# This includes the py.typed file
 dependencies = [
   "makefun>=1.15.1"
 ]
+# The package is discovered automatically (including the py.typed file):
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
 
 [project.optional-dependencies]
 dev = [
   "black~=23.1",
-  "isort",
-  "pylint~=2.17.0",  # Explicitly pin the version since it changes frequently and is disrupting
-  "hacking",
-  "flake8-bugbear",
+  "ruff",
   "pytest",
   "pytest-cov",
   "hypothesis",  # To demonstrate how it works with this
@@ -54,10 +51,14 @@ testpaths = [
     "tests",  # for the actual tests
 ]
 
-[tool.flake8]
-max-line-length = 88
-select = ["C", "E", "F", "W", "B", "B950"]
-extend-ignore = ["E203", "E501"]
-
 [tool.isort]
 profile = "black"
+
+[tool.ruff]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+# Same as Black
+line-length = 88
+
+# The lowest supported version
+target-version = "py38"

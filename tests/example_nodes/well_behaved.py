@@ -1,6 +1,7 @@
 from example_interfaces.srv import AddTwoInts
 from rclpy.node import Node
 from std_msgs.msg import String
+from rclpy.qos import QoSProfile, QoSHistoryPolicy
 
 
 class Talker(Node):
@@ -12,7 +13,8 @@ class Talker(Node):
         self.declare_parameter("/start_value", value=0)  # Set a default
         self._counter = self.get_parameter("/start_value").value
 
-        self._pub = self.create_publisher(String, "/chatter", 0)
+        qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+        self._pub = self.create_publisher(String, "/chatter", qos_profile)
         self._timer = self.create_timer(1.0, self.timer_callback)
 
     def timer_callback(self) -> None:
@@ -24,9 +26,10 @@ class EchoNode(Node):
     def __init__(self, *args, **kwargs):
         super().__init__("copycat_talker", *args, **kwargs)
 
-        mouth = self.create_publisher(String, "/mouth", 0)
+        qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+        mouth = self.create_publisher(String, "/mouth", qos_profile)
         # Immediately forwards it and also holds a reference to the publisher:
-        self.create_subscription(String, "/ear", mouth.publish, 0)
+        self.create_subscription(String, "/ear", mouth.publish, qos_profile)
 
 
 class AddTwoIntsServer(Node):
