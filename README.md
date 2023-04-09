@@ -1,9 +1,14 @@
 # ROS2 easy-test
 
-[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-green)](https://devguide.python.org/versions/)
-[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-green)](https://docs.ros.org/en/rolling/Releases.html)
+[![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg)](https://pypi.org/project/ros2-easy-test/)
+[![image](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://pypi.python.org/pypi/ruff)
+[![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 
-[![Python package](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
+[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-green)](https://docs.ros.org/en/rolling/Releases.html)
+[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-green)](https://devguide.python.org/versions/)
+
+[![code style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
+[![linter](https://img.shields.io/badge/linter-ruff-black)](https://github.com/charliermarsh/ruff)
 
 A Python test framework for ROS2 allowing for:
 - simple and expressive assertions based on message/service interactions (black box testing)
@@ -131,5 +136,4 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 
 - Publish docs, reference from repo/README
 - Make public, spread the word
-- Add a helper for async service calls with a timeout
 - push to PyPI
