@@ -13,12 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # TODO: add ros:iron-ros-core when it's available
+        # TODO: add ros:iron-ros-core when it is available
         container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
         # python-version: ["3.8", "3.9", "3.10", "3.11", "3.12.0-alpha.7"]
-    container:
-      # image: ros:humble-ros-core
-      image: ${{ matrix.container }}
+    container: ${{ matrix.container }}
 
     steps:
       - 
