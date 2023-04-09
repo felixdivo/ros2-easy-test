@@ -51,6 +51,9 @@ testpaths = [
     "tests",  # for the actual tests
 ]
 
+[tool.black]
+line-length = 110
+
 [tool.isort]
 profile = "black"
 
@@ -58,7 +61,7 @@ profile = "black"
 select = ["E", "F", "W", "I", "N", "UP"]
 
 # Same as Black
-line-length = 88
+line-length = 110
 
 # The lowest supported version
 target-version = "py38"

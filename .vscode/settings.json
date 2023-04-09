@@ -8,5 +8,5 @@
         ".hypothesis": true,
     },
     "python.formatting.provider": "black",
-    "editor.rulers": [88]
+    "editor.rulers": [110]
 }
