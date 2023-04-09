@@ -8,7 +8,7 @@
 FROM ros:humble-ros-core
 
 # Install runtime dependencies
-RUN apt update -q && apt install -qy zsh ros-$ROS_DISTRO-example-interfaces
+RUN apt-get update -q && apt-get install -qy zsh ros-$ROS_DISTRO-example-interfaces
 
 # Ensure sourced ROS environment at startup
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc

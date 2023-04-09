@@ -28,8 +28,11 @@ jobs:
       -
         name: Install dependencies
         run: |
-          apt update -q && apt install -qy zsh ros-$ROS_DISTRO-example-interfaces
+          apt-get update -q && apt-get install -qy zsh ros-$ROS_DISTRO-example-interfaces
           echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+          python -V
+          which python
+          which pip
           pip install -e .[dev]
       - run: |
           pytest --collect-only
