@@ -10,16 +10,15 @@ jobs:
       run:
         shell: bash
 
-    container:
-      # image: ros:humble-ros-core
-      image: ${{ matrix.container }}
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # TODO: add ros:iron-ros-core when it's available
         container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
         # python-version: ["3.8", "3.9", "3.10", "3.11", "3.12.0-alpha.7"]
+    container:
+      # image: ros:humble-ros-core
+      image: ${{ matrix.container }}
 
     steps:
       - 
@@ -35,15 +34,16 @@ jobs:
         run: |
           apt-get update -q && apt-get install -qy zsh ros-$ROS_DISTRO-example-interfaces
           echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc
+          cat ~/.bashrc
       -
-        name: Install dependencies
-        run: which ros2
-      - 
+        name: Check dependencies
+        run: ros2 --help
+      - run: |
+          pytest --collect-only
+      -
         name: Testing (with pytest)
         run: |
           pytest
-      - run: |
-          pytest --collect-only
     #   -
     #     name: Lint with ruff
     #     run: |
@@ -51,7 +51,3 @@ jobs:
     #       ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
     #       # default set of ruff rules with GitHub Annotations
     #       ruff --format=github --target-version=py37 .
-    #   -
-    #     name: Test with pytest
-    #     run: |
-    #       pytest
