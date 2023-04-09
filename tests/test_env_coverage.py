@@ -13,6 +13,9 @@ from ros2_easy_test import ROS2TestEnvironment, with_single_node
 from .example_nodes.well_behaved import EchoNode, Talker
 
 
+from . import is_ros_version
+
+
 @with_single_node(EchoNode, watch_topics={"/not_existing": Empty})
 def test_plain_function(env: ROS2TestEnvironment) -> None:
     env.assert_no_message_published("/not_existing", time_span=0.5)
@@ -58,7 +61,7 @@ class TestSingleNodesForEnvCoverage(TestCase):
     @mark.xfail(
         raises=Exception,
         reason="specifiying a wrong message type is a common mistake and shall fail loudly",
-        strict=True,
+        strict=not is_ros_version("foxy"),  # It does fail on foxy
     )
     @with_single_node(EchoNode, watch_topics={"/mouth": Empty})
     def test_wrong_topic_type(self, env: ROS2TestEnvironment) -> None:
