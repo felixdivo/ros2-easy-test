@@ -20,7 +20,7 @@ from .example_nodes.failing import (
     NodeRaiseInInit,
     NodeRaiseInTimer,
     NodeRaiseOnRequest,
-    OnPurposeFail,
+    OnPurposeError,
 )
 
 BASE = Path(__file__).parent / "example_launch_files"
@@ -65,7 +65,7 @@ class TestSingleNode(SharedTestCases, TestCase):
     """This test case uses the ``with_single_node`` decorator to set up the test environment."""
 
     @mark.xfail(
-        raises=OnPurposeFail,
+        raises=OnPurposeError,
         reason="Failures in the node's __init__ method should be propagated to the test.",
         strict=True,
     )
@@ -74,7 +74,7 @@ class TestSingleNode(SharedTestCases, TestCase):
         pass
 
     @mark.xfail(
-        raises=OnPurposeFail,  # Not AssertionError, since that is probably secondary
+        raises=OnPurposeError,  # Not AssertionError, since that is probably secondary
         reason=(
             "Failures in the node's __init__ method should be propagated to the test "
             "(even if the test fails, since thats likely the reason for the failure)."
@@ -128,7 +128,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
     """This test case uses the ``with_launch_file`` decorator to set up the test environment."""
 
     @mark.xfail(
-        raises=OnPurposeFail,
+        raises=OnPurposeError,
         reason="Failures in the node's __init__ method should be propagated to the test.",
         strict=False,  # TODO: It would be nice to fix this some time -> make it strict=True
     )

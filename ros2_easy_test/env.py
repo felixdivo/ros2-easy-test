@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Mapping, Optional, Type
 # ROS
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-from rclpy.qos import QoSProfile, QoSHistoryPolicy
+from rclpy.qos import QoSHistoryPolicy, QoSProfile
 
 RosMessage = Any  # We can't be more specific for now
 

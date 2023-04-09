@@ -6,13 +6,13 @@ Warning:
 """
 
 # Standard library
+from functools import wraps
+from inspect import signature
 from pathlib import Path
 from signal import SIGINT
 from subprocess import Popen, TimeoutExpired
 from threading import Thread
 from time import sleep
-from functools import wraps
-from inspect import signature
 
 # Typing
 from typing import Any, Callable, Dict, Optional, Type, Union
@@ -24,15 +24,14 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import InvalidHandle, Node
 from rclpy.parameter import Parameter
 
+# Function manipulation
+from makefun import remove_signature_parameters
+
 # Environment
 from .env import ROS2TestEnvironment
 
 # Helpers
 from .launch_file import LaunchFileProvider
-
-# Function manipulation
-from makefun import remove_signature_parameters
-
 
 __all__ = ["with_launch_file", "with_single_node"]
 

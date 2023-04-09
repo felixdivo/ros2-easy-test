@@ -9,7 +9,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 
-class OnPurposeFail(RuntimeError):
+class OnPurposeError(RuntimeError):
     """Raised on purpose to demonstrate the behavior of the library."""
 
 
@@ -17,7 +17,7 @@ class NodeRaiseInInit(Node):
     def __init__(self, *args, **kwargs) -> Never:
         super().__init__("this_will_be_quick", *args, **kwargs)
 
-        raise OnPurposeFail("the init method failed on purpose")
+        raise OnPurposeError("the init method failed on purpose")
 
 
 class NodeRaiseInTimer(Node):
@@ -27,7 +27,7 @@ class NodeRaiseInTimer(Node):
         self._timer = self.create_timer(0.1, self.timer_callback)
 
     def timer_callback(self) -> Never:
-        raise OnPurposeFail(
+        raise OnPurposeError(
             "something went wrong on purpose to demonstrate the behavior"
         )
 
@@ -43,4 +43,4 @@ class NodeRaiseOnRequest(Node):
         self.create_service(AddTwoInts, "add_two_ints", self.callback)
 
     def callback(self, *_, **__) -> Never:
-        raise OnPurposeFail("you should have never called me, I'm a bad node")
+        raise OnPurposeError("you should have never called me, I'm a bad node")
