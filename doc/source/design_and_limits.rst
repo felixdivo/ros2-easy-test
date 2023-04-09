@@ -26,6 +26,8 @@ Current Limitations
   Also, some nodes or complex launch scenarios might need considerable time to process information.
   You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
+  It might be possible to reduce the required ``warmup_time``,
+  since it is unclear why setting it too low breaks *all* message exchanges and maybe there is a solvable bug causing it.
 - Currently, using services only works from ROS2 version Humble onwards, and not on Foxy.
   I do not intend to investigate further, sice `that version will reach end of life soon <https://endoflife.date/ros2>`__.
 

@@ -183,7 +183,7 @@ def with_launch_file(  # noqa: C901
     launch_file: Union[Path, str],
     *,
     debug_launch_file: bool = False,
-    warmup_time: float = 2,
+    warmup_time: float = 5,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
@@ -205,7 +205,7 @@ def with_launch_file(  # noqa: C901
             Strange bugs will occur when this value is set too low: No messages can be exchanged,
             independently of how long the test waits.
             The default should suffice on most computers,
-            it is rather conservative and high numbers will slow down each test case.
+            it is rather conservative and higher numbers will slow down each test case even more.
         shutdown_timeout:
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
