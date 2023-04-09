@@ -6,6 +6,8 @@ except ImportError:
 
 from example_interfaces.srv import AddTwoInts
 from rclpy.node import Node
+from rclpy.qos import QoSHistoryPolicy, QoSProfile
+
 from std_msgs.msg import String
 
 
@@ -35,8 +37,9 @@ class NodeRaiseOnRequest(Node):
         super().__init__("just_call_it", *args, **kwargs)
 
         # Evene though we don't use this publisher, we add it to make the topic visible
-        self._mouth = self.create_publisher(String, "/mouth", 0)
-        self.create_subscription(String, "/ear", self.callback, 0)
+        qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+        self._mouth = self.create_publisher(String, "/mouth", qos_profile)
+        self.create_subscription(String, "/ear", self.callback, qos_profile)
 
         self.create_service(AddTwoInts, "add_two_ints", self.callback)
 
