@@ -183,7 +183,7 @@ def with_launch_file(  # noqa: C901
     launch_file: Union[Path, str],
     *,
     debug_launch_file: bool = False,
-    warmup_time: float = 1,
+    warmup_time: float = 2,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
