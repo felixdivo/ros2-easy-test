@@ -23,9 +23,9 @@ Current Limitations
   A lot of them are marked with a ``TODO:``, since it is currently not straightforward to detect such issues.
 - A failing service might deadlock a test. Consider calling services asynchronously with timeouts.
 - It takes some time to set up the test environment each time, particularly when using ``@with_launch_file``.
+  Also, some nodes or complex launch scenarios might need considerable time to process information.
   You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
-  There is probably room for improvement here, especially with reducing the required warm-up time.
 
 Design Considerations
 ---------------------
