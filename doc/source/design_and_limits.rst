@@ -5,8 +5,9 @@ Current Limitations
 -------------------
 
 .. note::
-  Contributions to address these or other shortcomings are more than welcome!
-  There are also various ``TODO:`` comments throughout the repository -- approaching any of those will benefit the library a lot!
+  **Contributions to address these or other shortcomings are more than welcome!**
+  There are also various ``TODO:`` comments on smaller concrete issues throughout the repository --
+  approaching any of those will benefit the library a lot!
 
   `Pull requests <https://github.com/felixdivo/ros2-easy-test/pulls>`__ are the way to go.  
   If you are unsure about anything, feel free to open an `issue <https://github.com/felixdivo/ros2-easy-test/issues>`__.
