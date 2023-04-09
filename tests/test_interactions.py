@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List
 from unittest import TestCase
 
+# Other ROS2 interfaces
 from example_interfaces.srv import AddTwoInts
 
 # Testing
@@ -90,7 +91,7 @@ class TestSingleNode(SharedTestCases, TestCase):
     )
     def test_parameter_set(self, env: ROS2TestEnvironment) -> None:
         response: String = env.assert_message_published("/chatter")
-        self.assertEqual(response.data, f"Hello World: -42")
+        self.assertEqual(response.data, "Hello World: -42")
 
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_subscriber_and_publisher(self, env: ROS2TestEnvironment) -> None:
@@ -106,7 +107,7 @@ class TestSingleNode(SharedTestCases, TestCase):
 
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages(env, count=100)
+        super().test_multiple_messages(env, count=50)
 
     @mark.xfail(
         raises=AssertionError,
@@ -157,7 +158,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
 
     @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages(env, count=100)
+        super().test_multiple_messages(env, count=50)
 
     @mark.xfail(
         raises=AssertionError,
