@@ -130,7 +130,6 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 ## TODOs
 
 - Publish docs, reference from repo/README
-- Make test run in CI
 - Make public, spread the word
 - Add a helper for async service calls with a timeout
 - push to PyPI

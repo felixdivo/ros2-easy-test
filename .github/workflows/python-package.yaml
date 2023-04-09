@@ -6,17 +6,20 @@ on: [push]
 
 jobs:
   build:
-    defaults:
-      run:
-        shell: bash
+    # We do not want to waste resources, and our tests are likely to deadlock once in a while when developing
+    timeout-minutes: 30
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false  # Tests may behave very different across these systems
       matrix:
         # TODO: add ros:iron-ros-core when it is available
         container: ["ros:foxy-ros-core", "ros:humble-ros-core", "ros:rolling-ros-core"]
     container: ${{ matrix.container }}
 
+    defaults:
+      run:
+        shell: bash
     steps:
       - 
         name: Checkout repository
@@ -28,11 +31,11 @@ jobs:
           pip install --upgrade pip setuptools
           python -m pip install -e '.[dev]'
       -
-        name: Format with black
+        name: Format (with black)
         run: |
           black --check .
       -
-        name: Lint with ruff
+        name: Lint (with ruff)
         run: |
           ruff check .
       -

@@ -5,8 +5,9 @@ Current Limitations
 -------------------
 
 .. note::
-  Contributions to address these or other shortcomings are more than welcome!
-  There are also various ``TODO:`` comments throughout the repository -- approaching any of those will benefit the library a lot!
+  **Contributions to address these or other shortcomings are more than welcome!**
+  There are also various ``TODO:`` comments on smaller concrete issues throughout the repository --
+  approaching any of those will benefit the library a lot!
 
   `Pull requests <https://github.com/felixdivo/ros2-easy-test/pulls>`__ are the way to go.  
   If you are unsure about anything, feel free to open an `issue <https://github.com/felixdivo/ros2-easy-test/issues>`__.
@@ -22,9 +23,13 @@ Current Limitations
   A lot of them are marked with a ``TODO:``, since it is currently not straightforward to detect such issues.
 - A failing service might deadlock a test. Consider calling services asynchronously with timeouts.
 - It takes some time to set up the test environment each time, particularly when using ``@with_launch_file``.
+  Also, some nodes or complex launch scenarios might need considerable time to process information.
   You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
-  There is probably room for improvement here, especially with reducing the required warm-up time.
+  It might be possible to reduce the required ``warmup_time``,
+  since it is unclear why setting it too low breaks *all* message exchanges and maybe there is a solvable bug causing it.
+- Currently, using services only works from ROS2 version Humble onwards, and not on Foxy.
+  I do not intend to investigate further, sice `that version will reach end of life soon <https://endoflife.date/ros2>`__.
 
 Design Considerations
 ---------------------

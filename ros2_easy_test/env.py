@@ -59,6 +59,8 @@ class ROS2TestEnvironment(Node):
         self._subscriber_mailboxes_lock = RLock()
         self._subscriber_mailboxes: Dict[str, SimpleQueue[RosMessage]] = {}
 
+        self._qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+
         # Set up the subscribers, which place the messages in the mailboxes
         for topic, message_type in (watch_topics or {}).items():
 
@@ -70,8 +72,7 @@ class ROS2TestEnvironment(Node):
                 self._subscriber_mailboxes[topic] = SimpleQueue()
 
             # After the mailboxes are set up, we can start receiving messages
-            qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
-            self.create_subscription(message_type, topic, callback, qos_profile)
+            self.create_subscription(message_type, topic, callback, self._qos_profile)
 
         # Prepare to collect publishers; these are set up on the fly when used the first time in `publish()`
         self._registered_publishers_lock = RLock()
@@ -115,8 +116,7 @@ class ROS2TestEnvironment(Node):
             try:
                 publisher = self._registered_publishers[topic]
             except KeyError:
-                qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
-                publisher = self.create_publisher(type(message), topic, qos_profile)
+                publisher = self.create_publisher(type(message), topic, self._qos_profile)
                 self._registered_publishers[topic] = publisher
 
         publisher.publish(message)

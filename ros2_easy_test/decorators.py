@@ -18,7 +18,6 @@ from time import sleep
 from typing import Any, Callable, Dict, Optional, Type, Union
 
 # ROS
-import rclpy
 from rclpy.context import Context
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import InvalidHandle, Node
@@ -40,7 +39,7 @@ __all__ = ["with_launch_file", "with_single_node"]
 # From python 3.10+ on, we should make these typing.TypeAlias'es
 # Currently not possible to type the following any better
 TestFunctionBefore = Callable[..., None]
-TestFunctionAfter = Callable[..., None]  # The same but taking one param less (the env)
+TestFunctionAfter = Callable[..., None]  # The same but taking one kwarg less (the env)
 
 
 #: The time to give a node for a successful shutdown.
@@ -89,7 +88,7 @@ def with_single_node(
         def wrapper(*args_inner, **kwargs_inner) -> None:
             context = Context()
             try:
-                rclpy.init(context=context)
+                context.init()
 
                 # Package the given parameters up in the ROS2 appropriate format
                 parameters_tuples = parameters or {}
@@ -166,10 +165,10 @@ def with_single_node(
                 # "The following exception was never retrieved: [...]" message.
 
             finally:
-                rclpy.try_shutdown(context=context)
+                context.try_shutdown()
 
-                # Make sure that the context is freed afterwards. This sanity check should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+            # Make sure that the context is freed afterwards. This sanity check should never fail.
+            assert not context.ok(), "Context did not properly shut down after test."
 
         # This is required to make pytest fixtures work
         # In principle, we could make the parameter name easily adjustable,
@@ -192,7 +191,7 @@ def with_launch_file(  # noqa: C901
 
     Note:
         Your test function *must* accept the environment as a keyword-parameter called ``env``,
-        e.g. ``def test(env: ROS2TestEnvironment)``.
+        e.g. ``def my_test(env: ROS2TestEnvironment): ...``.
 
     Args:
         launch_file: Either:
@@ -205,10 +204,8 @@ def with_launch_file(  # noqa: C901
             The time to sleep while letting the ROS2 system spin up. Must be zero or larger.
             Strange bugs will occur when this value is set too low: No messages can be exchanged,
             independently of how long the test waits.
-            If you set this to zero and a test case fails very fast, this will crash the launch process
-            and generate unexpected exit codes and test results.
             The default should suffice on most computers,
-            it is rather conservative and high numbers will slow down each test case.
+            it is rather conservative and higher numbers will slow down each test case even more.
         shutdown_timeout:
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
@@ -226,21 +223,20 @@ def with_launch_file(  # noqa: C901
         def wrapper(*args_inner, **kwargs_inner) -> None:
             # Provide the launch file
             with LaunchFileProvider(launch_file) as launch_file_path:
-                # Inherits stdout and stderr from parent, so logging reaches the console
-                additional_parameters = ["--debug"] if debug_launch_file else []
-                process = Popen(  # pylint: disable=consider-using-with
-                    [
-                        "ros2",
-                        "launch",
-                        str(launch_file_path),
-                        "--noninteractive",
-                        *additional_parameters,
-                    ]
-                )
+                # Prepare the "ros2 launch" child process
+                # It inherits stdout and stderr from parent, so logging reaches the (pytest) console
+                ros2_debug_parameters = ["--debug"] if debug_launch_file else []
+                ros2_parameters = [
+                    "ros2",
+                    "launch",
+                    str(launch_file_path),
+                    "--noninteractive",
+                    *ros2_debug_parameters,
+                ]
 
                 context = Context()
                 try:
-                    rclpy.init(context=context)
+                    context.init()
 
                     # We need at least two threads: One to spin() and one to execute the test case
                     # (as the latter blocks). We better provide 4, since more nodes/tasks might get spun up
@@ -248,11 +244,19 @@ def with_launch_file(  # noqa: C901
                     executor = MultiThreadedExecutor(num_threads=4, context=context)
 
                     try:
+                        # We first start the environment, such that any topics that are watched can be
+                        # captured rigth from the start
                         environment = ROS2TestEnvironment(context=context, **kwargs)
                         assert executor.add_node(environment), "failed to add environment"
 
-                        # Give the launch process time to start up
-                        # We do it here such that the environment may spin too, while we wait
+                        # We do not need any warmp time here, as the environment is fully ready once the
+                        # node class (the environment) is instantiated.
+
+                        # Now, we are ready to start the system under test using "ros2 launch"
+                        ros2_process = Popen(ros2_parameters)
+
+                        # Give the launch process time to start up. Otherwise, the timeouts on the first
+                        # test asserts will be off and the system wil generally behave strangely.
                         executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
@@ -291,20 +295,26 @@ def with_launch_file(  # noqa: C901
                     assert not executor.get_nodes(), "The executor still holds some nodes."
 
                 finally:
-                    rclpy.try_shutdown(context=context)
+                    context.try_shutdown()
 
-                # Make sure that the context is freed afterwards. This sanity check should never fail.
-                assert not context.ok(), "Context did not properly shut down after test."
+                    # Make sure that the context is freed afterwards. This sanity check should never fail.
+                    assert not context.ok(), "Context did not properly shut down after test."
 
-                # Signal the child launch process to finish; This is much like pressing Ctrl+C on the console
-                process.send_signal(SIGINT)
-                try:
-                    # Might raise a TimeoutExpired if it takes too long
-                    return_code = process.wait(timeout=shutdown_timeout / 2)
-                except TimeoutExpired:  # pragma: no cover
-                    process.terminate()
-                    # return_code will be larger than 130
-                    return_code = process.wait(timeout=shutdown_timeout / 2)
+                    try:
+                        ros2_process
+                    except NameError:
+                        pass  # Maybe, the launch process was not even started
+                    else:
+                        # Signal the child launch process to finish
+                        # This is much like pressing Ctrl+C on the console
+                        ros2_process.send_signal(SIGINT)
+                        try:
+                            # Might raise a TimeoutExpired if it takes too long
+                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                        except TimeoutExpired:  # pragma: no cover
+                            ros2_process.terminate()
+                            # return_code will be larger than 130
+                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
