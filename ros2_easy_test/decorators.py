@@ -183,7 +183,7 @@ def with_launch_file(  # noqa: C901
     launch_file: Union[Path, str],
     *,
     debug_launch_file: bool = False,
-    warmup_time: float = 5,
+    warmup_time: float = 1,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
@@ -191,7 +191,7 @@ def with_launch_file(  # noqa: C901
 
     Note:
         Your test function *must* accept the environment as a keyword-parameter called ``env``,
-        e.g. ``def test(env: ROS2TestEnvironment)``.
+        e.g. ``def my_test(env: ROS2TestEnvironment): ...``.
 
     Args:
         launch_file: Either:
@@ -204,8 +204,6 @@ def with_launch_file(  # noqa: C901
             The time to sleep while letting the ROS2 system spin up. Must be zero or larger.
             Strange bugs will occur when this value is set too low: No messages can be exchanged,
             independently of how long the test waits.
-            If you set this to zero and a test case fails very fast, this will crash the launch process
-            and generate unexpected exit codes and test results.
             The default should suffice on most computers,
             it is rather conservative and high numbers will slow down each test case.
         shutdown_timeout:
@@ -258,7 +256,7 @@ def with_launch_file(  # noqa: C901
                         ros2_process = Popen(ros2_parameters)
 
                         # Give the launch process time to start up. Otherwise, the timeouts on the first
-                        # test asserts will be off
+                        # test asserts will be off and the system wil generally behave strangely.
                         executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
