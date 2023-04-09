@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # TODO: add ros:iron-ros-core when it is available; check if earlier versions can easily be supported
+        # TODO: add ros:iron-ros-core when it is available
         container: ["ros:foxy-ros-core", "ros:humble-ros-core", "ros:rolling-ros-core"]
     container: ${{ matrix.container }}
 
@@ -32,10 +32,7 @@ jobs:
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
           python -m pytest
-    #   -
-    #     name: Lint with ruff
-    #     run: |
-    #       # stop the build if there are Python syntax errors or undefined names
-    #       ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
-    #       # default set of ruff rules with GitHub Annotations
-    #       ruff --format=github --target-version=py37 .
+      #-
+      #  name: Lint with ruff
+      #  run: |
+      #    ruff check .
