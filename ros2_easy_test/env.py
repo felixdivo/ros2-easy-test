@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Mapping, Optional, Type
 # ROS
 from rclpy.node import Node
 from rclpy.publisher import Publisher
+from rclpy.qos import QoSProfile, QoSHistoryPolicy
 
 RosMessage = Any  # We can't be more specific for now
 
@@ -73,7 +74,8 @@ class ROS2TestEnvironment(Node):
                 self._subscriber_mailboxes[topic] = SimpleQueue()
 
             # After the mailboxes are set up, we can start receiving messages
-            self.create_subscription(message_type, topic, callback, 0)
+            qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+            self.create_subscription(message_type, topic, callback, qos_profile)
 
         # Prepare to collect publishers; these are set up on the fly when used the first time in `publish()`
         self._registered_publishers_lock = RLock()
@@ -116,18 +118,19 @@ class ROS2TestEnvironment(Node):
             try:
                 publisher = self._registered_publishers[topic]
             except KeyError:
-                publisher = self.create_publisher(type(message), topic, 0)
+                qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+                publisher = self.create_publisher(type(message), topic, qos_profile)
                 self._registered_publishers[topic] = publisher
 
         publisher.publish(message)
 
-        # TODO:
+        # TODO: remove this in a separate PR and adjust alls pub/sub lines in the repo
         # This is apparently needed to allow the node to react (else, not all messages will get published!).
         # It is not clear why exactly this is required, and it shouldn't be from what the docs say.
         # However, setting this to a value below 0.02 caused very reliable issues on three separate setups.
         # Instead of removing this line (and getting unhappy like me), one should probably file an issue
         # in the ROS bug tracker.
-        sleep(0.1)
+        #sleep(0.001)
 
     def assert_no_message_published(self, topic: str, time_span: float = 0.5) -> None:
         """Asserts that no message is published on the given topic within the given time.

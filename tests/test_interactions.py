@@ -73,7 +73,7 @@ class SharedTestCases(ABC):
         all_messages: List[String] = env.assert_messages_published(
             "/mouth",
             number=count,
-            max_total_timeout=5,
+            max_total_timeout=10,
         )
         expected = [String(data=f"Hi #{identifier}") for identifier in range(count)]
         self.assertListEqual(all_messages, expected)
@@ -107,7 +107,7 @@ class TestSingleNode(SharedTestCases, TestCase):
 
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages(env, count=50)
+        super().test_multiple_messages(env, count=1000)
 
     @mark.xfail(
         raises=AssertionError,
@@ -158,7 +158,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
 
     @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
-        super().test_multiple_messages(env, count=50)
+        super().test_multiple_messages(env, count=1000)
 
     @mark.xfail(
         raises=AssertionError,
