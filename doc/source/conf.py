@@ -7,23 +7,21 @@
 # -- Path setup --------------------------------------------------------------
 
 # import ros2_easy_test  # noqa: E402
-from collections import defaultdict
-ros2_easy_test = defaultdict(str)  # TODO
 
 # -- Project information -----------------------------------------------------
 
 project = "ros2_easy_test"
-copyright = ros2_easy_test.__author__
-author = ros2_easy_test.__author__
+copyright = "sdf"# ros2_easy_test.__author__
+author = "sdf"# ros2_easy_test.__author__
 
 # The version info for the project, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = ros2_easy_test.__version__.split("-", maxsplit=1)[0]
+version ="0.0.0"# ros2_easy_test.__version__.split("-", maxsplit=1)[0]
 # The full version, including alpha/beta/rc tags
-release = ros2_easy_test.__version__
+release = "0.0.0"#ros2_easy_test.__version__
 
 # -- General configuration ---------------------------------------------------
 
