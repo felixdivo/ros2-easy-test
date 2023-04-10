@@ -5,12 +5,12 @@
 
 [![Python package](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 
-A Python test framework for ROS2 allowing for:
+A Python test framework for [ROS2](https://ros.org/) allowing for:
 - simple and expressive assertions based on message/service interactions (black box testing)
 - easy integration of existing nodes and launch files
 - testing of nodes implemented in any programming language (C++, Python, ...)
 - works with and without tools like `colcon test` and `pytest`
-- is minimalistic and has very few dependencies
+- is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/pyproject.toml)
 - is tested, used in practice, documented, and maintained
 
 ## Installation
@@ -101,21 +101,25 @@ Some hints:
 
 ## Limitations, Design, and Other Projects
 
-See [TODO: Link to docs](#Limitations, Design, and Other Projects)
+See [the documentation on that](https://ros2-easy-test.readthedocs.io/en/latest/design_and_limits.html).
 
 ## Contributing
 
-You can install the development dependencies with `pip install -e ".[dev]"`. After this, you will have access to the configured formatters `black` and `isort`.
+You can install the development dependencies with `pip install -e ".[dev]"`. After this, you will have access to the configured formatters `black .` and `ruff check .`.
 
 You can run the test with simply `pytest`. Coverage reports and timings will be printed on the command line, and a fresh line-by-line coverage report is in `htmlcov/index.html`.
 
 Building the documentation is simple too:
 ```shell
+# Install the required dependencies
+pip install -e ".[doc]"
+
+# Build the documentation
 cd doc
 make html
 # open build/html/index.html in you browser
 
-# You can also run a small webserver with
+# You can also run a small webserver to serve the static files with
 cd build/html
 python -m http.server
 ```
@@ -129,6 +133,5 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 
 ## TODOs
 
-- Publish docs, reference from repo/README
 - spread the word
 - push to PyPI
