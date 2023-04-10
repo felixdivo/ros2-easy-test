@@ -6,7 +6,9 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import ros2_easy_test  # noqa: E402
+# import ros2_easy_test  # noqa: E402
+from collections import defaultdict
+ros2_easy_test = defaultdict(str)  # TODO
 
 # -- Project information -----------------------------------------------------
 
