@@ -53,7 +53,7 @@ For more complex scenarios involving multiple nodes using a launch file (both no
 ```python
 @with_launch_file(
     "example_launch_file.yaml",
-    watch_topics={"/some/interesting/topic": ColorRGBA},
+    watch_topics={"/some/interesting/response": ColorRGBA},
 )
 def test_simple_update_launch_file(env: ROS2TestEnvironment) -> None:
     env.publish("/topic/for/node_input", ColorRGBA(r=0.5, g=0.2, b=0.9, a=1.0))
@@ -129,7 +129,6 @@ Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanc
 
 ## TODOs
 
-- Decide on a name
 - Publish docs, reference from repo/README
-- Make public, spread the word
+- spread the word
 - push to PyPI
