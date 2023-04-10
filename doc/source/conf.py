@@ -11,11 +11,11 @@ from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 
-project = "ros2_easy_test"
+project = "ROS2 easy-test"
 
 # From: https://stackoverflow.com/a/5872024/3753684
-with open(Path(__file__).parents[2] / project / "__init__.py") as init:
-    metadata = dict(re.findall('''__([a-z]+)__ = "([^']+)"''', init.read()))
+with open(Path(__file__).parents[2] / "ros2_easy_test" / "__init__.py") as init:
+    metadata = dict(re.findall('''__([a-z]+)__ = "([^"]+)"''', init.read()))
 
 copyright = f"2021, {metadata['author']}"
 author = metadata["author"]
@@ -97,4 +97,6 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
+assert "_" not in project, "underscores are not rendered as such in LaTeX"
+assert "_" not in author, "underscores are not rendered as such in LaTeX"
 latex_documents = [("index", "ros2_easy_test.tex", f"{project} Documentation", author, "manual")]
