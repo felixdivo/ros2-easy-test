@@ -2,11 +2,11 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg)](https://pypi.org/project/ros2-easy-test/)
 [![license](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
+[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-blue)](https://docs.ros.org/en/rolling/Releases.html)
+[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-blue)](https://devguide.python.org/versions/)
+
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
-
-[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-green)](https://docs.ros.org/en/rolling/Releases.html)
-[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-green)](https://devguide.python.org/versions/)
-
+[![Doc status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
 [![code style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
 [![linter](https://img.shields.io/badge/linter-ruff-black)](https://github.com/charliermarsh/ruff)
 
@@ -16,7 +16,7 @@ A Python test framework for ROS2 allowing for:
 - testing of nodes implemented in any programming language (C++, Python, ...)
 - works with and without tools like `colcon test` and `pytest`
 - is minimalistic and has very few dependencies
-- is tested, used in practice, documented, and maintained
+- is tested, used in practice, [documented](https://ros2-easy-test.readthedocs.io/en/latest/), and maintained
 
 ## Installation
 
