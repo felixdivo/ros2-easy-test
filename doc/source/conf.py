@@ -77,6 +77,8 @@ html_static_path = []  # '_static'
 
 html_sidebars = {"**": ["globaltoc.html", "relations.html", "sourcelink.html", "searchbox.html"]}
 
+autodoc_mock_imports = ["rclpy"]
+
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_engine = "pdflatex"

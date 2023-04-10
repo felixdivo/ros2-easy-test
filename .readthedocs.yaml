@@ -6,17 +6,6 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3"  # Latest stable CPython 3.x
-  jobs:
-    # Install rclpy
-    pre_system_dependencies:
-      # - apt update
-      - sudo apt-get install software-properties-common curl -yq
-      - sudo add-apt-repository universe
-      - sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-      - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-      - sudo apt-get update
-    post_system_dependencies:
-      - sudo apt-get install ros-rolling-base
 
 python:
   install:
