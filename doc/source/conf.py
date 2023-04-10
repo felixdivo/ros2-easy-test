@@ -4,24 +4,30 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+# -- Setup -------------------------------------------------------------------
 
-# import ros2_easy_test  # noqa: E402
+import re
+from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 
 project = "ros2_easy_test"
-copyright = "sdf"# ros2_easy_test.__author__
-author = "sdf"# ros2_easy_test.__author__
+
+# From: https://stackoverflow.com/a/5872024/3753684
+with open(Path(__file__).parents[2] / project / "__init__.py") as init:
+    metadata = dict(re.findall('''__([a-z]+)__ = "([^']+)"''', init.read()))
+
+copyright = f"2021, {metadata['author']}"
+author = metadata["author"]
 
 # The version info for the project, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version ="0.0.0"# ros2_easy_test.__version__.split("-", maxsplit=1)[0]
+version = metadata["version"].split("-", maxsplit=1)[0]
 # The full version, including alpha/beta/rc tags
-release = "0.0.0"#ros2_easy_test.__version__
+release = metadata["version"]
 
 # -- General configuration ---------------------------------------------------
 
@@ -84,9 +90,7 @@ autodoc_mock_imports = ["rclpy"]
 latex_engine = "pdflatex"
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
     "papersize": "a4paper",
-    # The font size ('10pt', '11pt' or '12pt').
     # 'pointsize': '10pt',
 }
 
