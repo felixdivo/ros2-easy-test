@@ -6,12 +6,13 @@ Current Limitations
 
 .. note::
   **Contributions to address these or other shortcomings are more than welcome!**
-  There are also various ``TODO:`` comments on smaller concrete issues throughout the repository --
+  There are also various ``TODO:`` comments on smaller concrete issues
+  `throughout the repository <https://github.com/search?q=repo%3Afelixdivo%2Fros2-easy-test+TODO%3A&type=code>`__ --
   approaching any of those will benefit the library a lot!
 
   `Pull requests <https://github.com/felixdivo/ros2-easy-test/pulls>`__ are the way to go.  
   If you are unsure about anything, feel free to open an `issue <https://github.com/felixdivo/ros2-easy-test/issues>`__.
-  See this project's `README <https://github.com/felixdivo/ros2-easy-test#Contributing>`__ for details on getting started.
+  See this project's `README <https://github.com/felixdivo/ros2-easy-test#Contributing>`__ for details on how to get started.
 
 - If a callback (e.g. of a subscriber in the node) raises an exception the test does not fail automatically with the exception as the reason, as that is currently
   `not supported in ROS2 <https://discourse.ros.org/t/what-is-the-expected-behavior-of-rclcpp-in-case-of-an-exception-raised-in-a-user-callback/27527>`__.
