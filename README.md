@@ -135,8 +135,3 @@ See [LICENSE](LICENSE).
 
 Initially developed by [Felix Divo](https://github.com/felixdivo) at [*Sailing Team Darmstadt e. V.*](https://www.st-darmstadt.de/), a student group devoted to robotic sailing based in Darmstadt, Germany.
 Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanced feedback.
-
-## TODOs
-
-- spread the word
-- push to PyPI
