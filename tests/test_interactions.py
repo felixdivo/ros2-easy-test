@@ -3,7 +3,6 @@
 # Standard library
 import unittest
 from abc import ABC
-from pathlib import Path
 from typing import List
 from unittest import TestCase
 
@@ -16,6 +15,9 @@ from std_msgs.msg import String
 
 # What we are testing
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
+
+# Helpers
+from . import LAUNCH_FILES
 
 # Module under test and interfaces
 from .example_nodes.well_behaved import AddTwoIntsServer, EchoNode, Talker
@@ -120,37 +122,35 @@ class TestSingleNode(SharedTestCases, TestCase):
 class TestLaunchFile(SharedTestCases, TestCase):
     """This test case uses the ``with_launch_file`` decorator to set up the test environment."""
 
-    BASE = Path(__file__).parent / "example_launch_files"
-
-    @with_launch_file(BASE / "talker.py", watch_topics={"/chatter": String})
+    @with_launch_file(LAUNCH_FILES / "talker.py", watch_topics={"/chatter": String})
     def test_publisher(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)
 
-    @with_launch_file(BASE / "talker.yaml", watch_topics={"/chatter": String})
+    @with_launch_file(LAUNCH_FILES / "talker.yaml", watch_topics={"/chatter": String})
     def test_publisher_yaml(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 
-    @with_launch_file(BASE / "talker.py", watch_topics={"/chatter": String}, debug_launch_file=True)
+    @with_launch_file(LAUNCH_FILES / "talker.py", watch_topics={"/chatter": String}, debug_launch_file=True)
     def test_debugging(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 
-    @with_launch_file(BASE / "talker.yaml", watch_topics={"/chatter": String}, debug_launch_file=True)
+    @with_launch_file(LAUNCH_FILES / "talker.yaml", watch_topics={"/chatter": String}, debug_launch_file=True)
     def test_debugging_yaml(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
 
-    @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
+    @with_launch_file(LAUNCH_FILES / "echo.yaml", watch_topics={"/mouth": String})
     def test_subscriber_and_publisher(self, env: ROS2TestEnvironment) -> None:
         super().test_subscriber_and_publisher(env)
 
-    @with_launch_file(BASE / "adder.yaml", warmup_time=2)
+    @with_launch_file(LAUNCH_FILES / "adder.yaml", warmup_time=2)
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
 
-    @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
+    @with_launch_file(LAUNCH_FILES / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:
         super().test_multiple_messages(env)
 
-    @with_launch_file(BASE / "echo.yaml", watch_topics={"/mouth": String})
+    @with_launch_file(LAUNCH_FILES / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages_stress_test(self, env: ROS2TestEnvironment) -> None:
         super().test_multiple_messages(env, count=1000)
 
@@ -159,7 +159,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
         reason="an assertion error should propagate to the test case",
         strict=True,
     )
-    @with_launch_file(BASE / "talker.yaml", warmup_time=2)
+    @with_launch_file(LAUNCH_FILES / "talker.yaml", warmup_time=2)
     def test_assertion_raised(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
 

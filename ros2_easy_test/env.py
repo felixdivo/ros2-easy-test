@@ -253,11 +253,18 @@ class ROS2TestEnvironment(Node):
 
         return messages
 
-    def clear_messages(self, topic: str) -> None:
-        """Clear all messages in the mailbox of the given ``topic``.
+    def clear_messages(self, topic: Optional[str] = None) -> None:
+        """Clear all messages in the mailbox of the given ``topic`` or in all mailboxes.
 
         Args:
-            topic: The topic to clear the mailbox of
+            topic: The topic to clear the mailbox of, or all topics if ``None``
         """
 
-        self.listen_for_messages(topic, time_span=None)  # ignore the result
+        if topic is None:
+            with self._subscriber_mailboxes_lock:  # This is reentrant
+                for topic in self._subscriber_mailboxes.keys():
+                    self.clear_messages(topic=topic)
+
+        else:
+            # There is not clear() in SimpleQueue
+            self.listen_for_messages(topic, time_span=None)  # ignore the result

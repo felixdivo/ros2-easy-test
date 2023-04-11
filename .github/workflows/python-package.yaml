@@ -7,7 +7,7 @@ on: [push]
 jobs:
   build:
     # We do not want to waste resources, and our tests are likely to deadlock once in a while when developing
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     runs-on: ubuntu-latest
     strategy:

@@ -1,4 +1,7 @@
 from os import environ
+from pathlib import Path
+
+LAUNCH_FILES = Path(__file__).parent / "example_launch_files"
 
 
 def is_ros_version(what: str) -> bool:

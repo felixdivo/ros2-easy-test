@@ -30,7 +30,8 @@ Current Limitations
   It might be possible to reduce the required ``warmup_time``,
   since it is unclear why setting it too low breaks *all* message exchanges and maybe there is a solvable bug causing it.
 - Currently, using services only works from ROS2 version Humble onwards, and not on Foxy.
-  I do not intend to investigate further, sice `that version will reach end of life soon <https://endoflife.date/ros2>`__.
+  Similarly, a few of the tests seem to freeze sometimes.
+  I do not intend to investigate further, sice `that version will reach end of life very soon <https://endoflife.date/ros2>`__.
 
 Design Considerations
 ---------------------
@@ -49,6 +50,7 @@ Goals
   `ROS2 terminology
   <https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Developer-Guide.html#testing>`__).
 - Be well-documented and easy to get started.
+- Support the most widely used platforms (that have not reached end of life yet). Be pragmatic.
 
 Constraints
 ~~~~~~~~~~~

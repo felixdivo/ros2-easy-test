@@ -3,19 +3,20 @@
 import sys
 
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch.actions import ExecuteProcess
 
 
 def generate_launch_description() -> LaunchDescription:
     return LaunchDescription(
         [
-            Node(
-                executable=sys.executable,
-                arguments=[
+            ExecuteProcess(
+                cmd=[
+                    sys.executable,
                     "tests/example_nodes/run_node.py",
                     "tests/example_nodes/well_behaved.py",
                     "Talker",
                 ],
+                output="screen",
             )
         ]
     )
