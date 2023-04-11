@@ -251,6 +251,8 @@ def with_launch_file(  # noqa: C901
 
                         # We do not need any warmp time here, as the environment is fully ready once the
                         # node class (the environment) is instantiated.
+                        # TODO
+                        executor.spin_until_future_complete(executor.create_task(sleep, 2))
 
                         # Now, we are ready to start the system under test using "ros2 launch"
                         ros2_process = Popen(ros2_parameters)
