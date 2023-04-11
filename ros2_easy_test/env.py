@@ -260,7 +260,7 @@ class ROS2TestEnvironment(Node):
             topic: The topic to clear the mailbox of, or all topics if ``None``
         """
 
-        if topic is not None:
+        if topic is None:
             with self._subscriber_mailboxes_lock:  # This is reentrant
                 for topic in self._subscriber_mailboxes.keys():
                     self.clear_messages(topic=topic)
