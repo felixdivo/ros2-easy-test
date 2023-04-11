@@ -57,6 +57,26 @@ class TestSingleNodesForEnvCoverage(TestCase):
         env.clear_messages("/mouth")
         env.assert_message_published("/mouth", timeout=0)  # Should raise
 
+    @mark.xfail(raises=AssertionError, reason="no query - no response", strict=True)
+    @with_single_node(EchoNode, watch_topics={"/mouth": String})
+    def test_mailbox_clearing_all(self, env: ROS2TestEnvironment) -> None:
+        """Almost the same as :func:`~test_mailbox_clearing`."""
+        # If we publish and clear the mailbox, we should not get a response
+        env.publish("/ear", String(data="Guude"))
+        sleep(0.5)  # Make sure that the response is definitely published to /mouth
+
+        env.clear_messages()  # All messages
+        env.assert_message_published("/mouth", timeout=0)  # Should raise
+
+    @mark.xfail(raises=Exception, reason="invalid call should raise", strict=True)
+    @with_single_node(EchoNode)
+    def test_mailbox_clearing_missing_topic(self, env: ROS2TestEnvironment) -> None:
+        env.clear_messages(topic="/that/does/not/exist")
+
+    @with_single_node(EchoNode)
+    def test_mailbox_clearing_no_topics(self, env: ROS2TestEnvironment) -> None:
+        env.clear_messages()  # This should work just fine (and do nothing)
+
     # It would be nice to have some more specific Exception type,
     # but it raises the private rclpy._rclpy_pybind11.RCLError
     @mark.xfail(
