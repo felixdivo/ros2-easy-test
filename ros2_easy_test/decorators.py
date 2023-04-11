@@ -249,9 +249,9 @@ def with_launch_file(  # noqa: C901
                         environment = ROS2TestEnvironment(context=context, **kwargs)
                         assert executor.add_node(environment), "failed to add environment"
 
-                        # We do not need any warmp time here, as the environment is fully ready once the
+                        # We should not need any warmp time here, as the environment is fully ready once the
                         # node class (the environment) is instantiated.
-                        # TODO
+                        # TODO: However, this warmup and cleaing seems to suppress some rather rare errors.
                         executor.spin_until_future_complete(executor.create_task(sleep, 2))
                         environment.clear_messages()
 
@@ -260,6 +260,7 @@ def with_launch_file(  # noqa: C901
 
                         # Give the launch process time to start up. Otherwise, the timeouts on the first
                         # test asserts will be off and the system wil generally behave strangely.
+                        # TODO: Ususally, this shouldn't need to be this high. Reducing it would be awesome.
                         executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
