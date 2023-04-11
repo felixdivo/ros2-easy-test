@@ -27,6 +27,7 @@ jobs:
           prerelease: false
 
   deploy-pypi:
+    needs: add-github-release
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
