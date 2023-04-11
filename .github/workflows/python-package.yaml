@@ -7,7 +7,7 @@ on: [push]
 jobs:
   build:
     # We do not want to waste resources, and our tests are likely to deadlock once in a while when developing
-    timeout-minutes: 15
+    timeout-minutes: 60
 
     runs-on: ubuntu-latest
     strategy:
@@ -44,3 +44,9 @@ jobs:
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
           python -m pytest
+      -
+        name: Testing (with pytest) - EXTENDED
+        run: |
+          source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
+          function __run_times { seq 1 $1| { shift; xargs -i -- "$@"; } }
+          __run_times 10 python -m pytest
