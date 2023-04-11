@@ -1,7 +1,7 @@
 # ROS2 easy-test
 
-[![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg)](https://pypi.org/project/ros2-easy-test/)
-[![license](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg?color=blue)](https://pypi.org/project/ros2-easy-test/)
+[![license](https://img.shields.io/pypi/l/ros2-easy-test.svg?color=blue)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
 [![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+%20(see%20limitations)-blue)](https://docs.ros.org/en/rolling/Releases.html)
 [![python version](https://img.shields.io/badge/python-3.8+%20(matching%20ROS)-blue)](https://devguide.python.org/versions/)
 
@@ -20,11 +20,10 @@ A Python test framework for [ROS2](https://ros.org/) allowing for:
 
 ## Installation
 
-At the moment, you can run the following to install this package.
+Just run:
 ```shell
-pip install git+git://github.com/felixdivo/ros2-easy-test
+pip install ros2-easy-test
 ```
-In the future, we intend to publish this repository to be easily installed with rosdep and via PyPI.
 
 ## Examples
 
