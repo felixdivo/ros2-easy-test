@@ -266,4 +266,5 @@ class ROS2TestEnvironment(Node):
                     self.clear_messages(topic=topic)
 
         else:
+            # There is not clear() in SimpleQueue
             self.listen_for_messages(topic, time_span=None)  # ignore the result
