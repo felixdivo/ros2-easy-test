@@ -253,6 +253,7 @@ def with_launch_file(  # noqa: C901
                         # node class (the environment) is instantiated.
                         # TODO
                         executor.spin_until_future_complete(executor.create_task(sleep, 2))
+                        environment.clear_messages()
 
                         # Now, we are ready to start the system under test using "ros2 launch"
                         ros2_process = Popen(ros2_parameters)
