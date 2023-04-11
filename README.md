@@ -2,8 +2,8 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg)](https://pypi.org/project/ros2-easy-test/)
 [![license](https://img.shields.io/pypi/l/ros2-easy-test.svg)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
-[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+-blue)](https://docs.ros.org/en/rolling/Releases.html)
-[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20the%20ROS%20version)-blue)](https://devguide.python.org/versions/)
+[![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+%20(see%20limitations)-blue)](https://docs.ros.org/en/rolling/Releases.html)
+[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20ROS)-blue)](https://devguide.python.org/versions/)
 
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 [![Doc status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
