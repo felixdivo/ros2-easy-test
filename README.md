@@ -11,12 +11,13 @@
 [![linter](https://img.shields.io/badge/linter-ruff-black)](https://github.com/charliermarsh/ruff)
 
 A Python test framework for [ROS2](https://ros.org/) allowing for:
-- simple and expressive assertions based on message/service interactions (black box testing)
+- simple and expressive assertions based on message and service interactions (black box testing)
 - easy integration of existing nodes and launch files
 - testing of nodes implemented in any programming language (C++, Python, ...)
 - works with and without tools like `colcon test` and `pytest`
 - is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/pyproject.toml)
-- is tested, used in practice, [documented](https://ros2-easy-test.readthedocs.io/en/latest/), and maintained
+- is typed and [documented](https://ros2-easy-test.readthedocs.io/en/latest/)
+- is tested, used in practice, and maintained
 
 ## Installation
 
