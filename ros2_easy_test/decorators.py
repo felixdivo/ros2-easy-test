@@ -50,6 +50,7 @@ def with_single_node(
     node_class: Type[Node],
     *,
     parameters: Optional[Dict[str, Any]] = None,
+    time_limit: float = 60,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
@@ -74,6 +75,10 @@ def with_single_node(
             Class of the node to instantiate. Assumed to accept no extra parameters besides **any** keyword
             arguments that are passed along to :class:`rclpy.node.Node`.
         parameters: The parameters to be set for the node as ``("key", value)`` pairs
+        time_limit:
+            The time in seconds to give the test case to complete.
+            If it takes longer than this, the test will fail.
+            Set to ``None`` to disable the timeout.
         shutdown_timeout:
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
@@ -119,13 +124,7 @@ def with_single_node(
                     test_function_task = executor.create_task(
                         test_function, *args_inner, env=environment, **kwargs_inner
                     )
-                    thread = Thread(
-                        target=executor.spin_until_future_complete,
-                        args=(test_function_task,),
-                        daemon=True,
-                    )
-                    thread.start()
-                    thread.join()
+                    executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
 
                 finally:
                     for running_node in executor.get_nodes():
@@ -153,6 +152,12 @@ def with_single_node(
                     raise Exception("The Environment did not properly shut down after test.")
 
                 assert not executor.get_nodes(), "The executor still holds some nodes."
+
+                if not test_function_task.done():
+                    raise Exception(
+                        f"The test case did not complete in time ({time_limit} seconds). "
+                        "Consider passing a higher time_limit or setting it to None to disable it."
+                    )
 
                 # Raise the exception that the test case might have raised, e.g. due to asserts
                 exception = test_function_task.exception()
@@ -184,6 +189,7 @@ def with_launch_file(  # noqa: C901
     *,
     debug_launch_file: bool = False,
     warmup_time: float = 5,
+    time_limit: Optional[float] = 60,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
@@ -206,6 +212,10 @@ def with_launch_file(  # noqa: C901
             independently of how long the test waits.
             The default should suffice on most computers,
             it is rather conservative and higher numbers will slow down each test case even more.
+        time_limit:
+            The time in seconds to give the test case to complete.
+            If it takes longer than this, the test will fail.
+            Set to ``None`` to disable the timeout.
         shutdown_timeout:
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
@@ -266,14 +276,7 @@ def with_launch_file(  # noqa: C901
                         test_function_task = executor.create_task(
                             test_function, *args_inner, env=environment, **kwargs_inner
                         )
-
-                        thread = Thread(
-                            target=executor.spin_until_future_complete,
-                            args=(test_function_task,),
-                            daemon=True,
-                        )
-                        thread.start()
-                        thread.join()
+                        executor.spin_until_future_complete(test_function_task, timeout=time_limit)
 
                     finally:
                         # This should only kill the environment, no other node is registered
@@ -323,6 +326,13 @@ def with_launch_file(  # noqa: C901
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
                 test_function_exception = test_function_task.exception()
+
+                # TODO handle in conjunction with the other failure possibilities
+                if not test_function_task.done():
+                    raise Exception(
+                        f"The test case did not complete in time ({time_limit} seconds). "
+                        "Consider passing a higher time_limit or setting it to None to disable it."
+                    )
 
                 if return_code_problematic:
                     if test_function_exception is None:
