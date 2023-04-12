@@ -275,7 +275,7 @@ def with_launch_file(  # noqa: C901
                         test_function_task = executor.create_task(
                             test_function, *args_inner, env=environment, **kwargs_inner
                         )
-                        executor.spin_until_future_complete(test_function_task, timeout=time_limit)
+                        executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
 
                     finally:
                         # This should only kill the environment, no other node is registered
