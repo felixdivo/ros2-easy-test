@@ -11,7 +11,6 @@ from inspect import signature
 from pathlib import Path
 from signal import SIGINT
 from subprocess import Popen, TimeoutExpired
-from threading import Thread
 from time import sleep
 
 # Typing
