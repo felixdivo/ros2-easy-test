@@ -45,6 +45,9 @@ TestFunctionAfter = Callable[..., None]  # The same but taking one kwarg less (t
 _DEFAULT_SHUTDOWN_TIMEOUT: float = 2
 
 
+# TODO: Test timeouts
+
+
 def with_single_node(
     node_class: Type[Node],
     *,
@@ -125,6 +128,16 @@ def with_single_node(
                     )
                     executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
 
+                    test_function_exception = test_function_task.exception()
+                    if not test_function_task.done():
+                        # Then test_function_exception can only be None, so we can overwrite it
+                        test_function_exception = TimeoutError(
+                            f"The test case did not complete in time ({time_limit} seconds). "
+                            "Consider passing a higher time_limit or setting it to None to disable it."
+                        )
+                        # Then, make sure to kill the test function as cleanup
+                        test_function_task.cancel()
+
                 finally:
                     for running_node in executor.get_nodes():
                         running_node.destroy_node()
@@ -152,16 +165,9 @@ def with_single_node(
 
                 assert not executor.get_nodes(), "The executor still holds some nodes."
 
-                if not test_function_task.done():
-                    raise Exception(
-                        f"The test case did not complete in time ({time_limit} seconds). "
-                        "Consider passing a higher time_limit or setting it to None to disable it."
-                    )
-
                 # Raise the exception that the test case might have raised, e.g. due to asserts
-                exception = test_function_task.exception()
-                if exception is not None:
-                    raise exception from None
+                if test_function_exception is not None:
+                    raise test_function_exception from None
 
                 # TODO: We should also raise exceptions that are raised in callbacks, but that's tricky
                 # because executor.spin_until_future_complete will not raise them.
@@ -277,6 +283,16 @@ def with_launch_file(  # noqa: C901
                         )
                         executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
 
+                        test_function_exception = test_function_task.exception()
+                        if not test_function_task.done():
+                            # Then test_function_exception can only be None, so we can overwrite it
+                            test_function_exception = TimeoutError(
+                                f"The test case did not complete in time ({time_limit} seconds). "
+                                "Consider passing a higher time_limit or setting it to None to disable it."
+                            )
+                            # Then, make sure to kill the test function as cleanup
+                            test_function_task.cancel()
+
                     finally:
                         # This should only kill the environment, no other node is registered
                         for node in executor.get_nodes():
@@ -324,21 +340,13 @@ def with_launch_file(  # noqa: C901
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}
-                test_function_exception = test_function_task.exception()
-
-                # TODO handle in conjunction with the other failure possibilities
-                if not test_function_task.done():
-                    raise Exception(
-                        f"The test case did not complete in time ({time_limit} seconds). "
-                        "Consider passing a higher time_limit or setting it to None to disable it."
-                    )
 
                 if return_code_problematic:
                     if test_function_exception is None:
                         raise AssertionError(
                             f"The ROS launch process FAILED with exit code {return_code} "
                             "(please inspect stdout and stderr) BUT the test case SUCCEEDED."
-                        )
+                        ) from None
 
                     raise AssertionError(
                         f"The ROS launch process FAILED with exit code {return_code} "
