@@ -7,6 +7,7 @@ from typing import List
 from unittest import TestCase
 
 # Other ROS2 interfaces
+import rclpy
 from example_interfaces.srv import AddTwoInts
 
 # Testing
@@ -62,7 +63,8 @@ class SharedTestCases(ABC):
 
         # Call the service asynchronously
         future = adder.call_async(request)
-        env.executor.spin_until_future_complete(future, timeout_sec=2)
+        # env.executor.spin_until_future_complete(future, timeout_sec=2)
+        rclpy.spin_until_future_complete(self, future, timeout_sec=2)
         self.assertIsNone(future.exception())
         result: int = future.result().sum
         self.assertEqual(result, desired_sum)
