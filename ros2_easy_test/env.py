@@ -3,7 +3,7 @@
 # Standard library
 from queue import Empty, SimpleQueue
 from threading import RLock
-from time import sleep, time
+from time import sleep, monotonic
 
 # Typing
 from typing import Any, Dict, List, Mapping, Optional, Type
@@ -207,7 +207,7 @@ class ROS2TestEnvironment(Node):
         collected_messages: List[RosMessage] = []
 
         while count < number:
-            start = time()
+            start = monotonic()
             try:
                 collected_messages.append(self.assert_message_published(topic, timeout=remaining_time))
             except AssertionError:
@@ -217,7 +217,7 @@ class ROS2TestEnvironment(Node):
                 ) from None
             else:
                 if remaining_time is not None:
-                    remaining_time = max(0.0, remaining_time - (time() - start))
+                    remaining_time = max(0.0, remaining_time - (monotonic() - start))
                 count += 1
 
         assert len(collected_messages) == number, "internal counting error"
