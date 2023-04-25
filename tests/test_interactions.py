@@ -75,7 +75,7 @@ class SharedTestCases(ABC):
         all_messages: List[String] = env.assert_messages_published(
             "/mouth",
             number=count,
-            max_total_timeout=10,
+            max_total_timeout=5 + count * 0.05,
         )
         expected = [String(data=f"Hi #{identifier}") for identifier in range(count)]
         self.assertListEqual(all_messages, expected)
