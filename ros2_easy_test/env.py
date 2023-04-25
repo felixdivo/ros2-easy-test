@@ -3,7 +3,7 @@
 # Standard library
 from queue import Empty, SimpleQueue
 from threading import RLock
-from time import sleep, monotonic
+from time import monotonic, sleep
 
 # Typing
 from typing import Any, Dict, List, Mapping, Optional, Type
