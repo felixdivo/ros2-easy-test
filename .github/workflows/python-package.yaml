@@ -26,7 +26,7 @@ jobs:
         name: Checkout repository
         uses: actions/checkout@v3
       -
-        name: Install dependencies and the pakage
+        name: Install dependencies and the package
         run: |
           apt-get update -q && apt-get install -qy python3-pip python-is-python3 ros-$ROS_DISTRO-example-interfaces
           pip install --upgrade pip setuptools
