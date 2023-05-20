@@ -1,12 +1,13 @@
 """This module provides the environment by which tests can interact with nodes."""
 
 # Standard library
+from importlib import import_module
 from queue import Empty, SimpleQueue
 from threading import RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Type
+from typing import Any, Type, Dict, List, Mapping, Optional, Type
 
 # ROS
 from rclpy.node import Node
@@ -298,27 +299,40 @@ class ROS2TestEnvironment(Node):
         else:
             raise TimeoutError(f"Future did not complete within {timeout} seconds")
 
-    def _get_service_client(self, srv_type: SrvType, srv_name: str) -> Client:
+    def _get_service_client(self, name: str, request_class: Type) -> Client:
         """Returns the service client for the given service name."""
 
         with self._registered_services_lock:
             try:
-                return self._registered_services[srv_name]
+                return self._registered_services[name]
             except KeyError:
-                client = self.create_client(srv_type, srv_name)
-                self._registered_services[srv_name] = client
+                # Get the type of the service
+                # This is a bit tricky but relieves the user from passing it explicitly
+                module = import_module(request_class.__module__)
+                # We cut away the trailing "_Request" from the type name, which has length 8
+                base_type_name = request_class.__name__[:-8]
+                base_type_class: Type = getattr(module, base_type_name)
+
+                client = self.create_client(base_type_class, name)
+                self._registered_services[name] = client
                 return client
 
     def call_service(
-        self, srv_type: SrvType, srv_name: str, request: SrvTypeRequest, timeout: Optional[float] = 10
+        self,
+        name: str,
+        request: SrvTypeRequest,
+        timeout_availability: Optional[float] = 1,
+        timeout_call: Optional[float] = 10,
     ) -> SrvTypeResponse:
         """Calls the given service with the given request and returns the response.
 
+        The service type if inferred automatically from the request type.
+
         Args:
-            srv_type: The type of the service
-            srv_name: The name of the service
+            name: The name of the service
             request: The request to send to the service
-            timeout: The timeout to wait for the service
+            timeout_availability: The timeout to wait for the service to be available
+            timeout_call: The timeout to wait for the service to respond
 
         Returns:
             The response of the service
@@ -326,5 +340,10 @@ class ROS2TestEnvironment(Node):
         Raises:
             TimeoutError: If the service did not respond within the timeout
         """
-        future = self._get_service_client(srv_type, srv_name).call_async(request)
-        return self.await_future(future, timeout=timeout)
+        client = self._get_service_client(name, type(request))
+        is_ready = client.wait_for_service(timeout_availability)
+        if not is_ready:
+            raise TimeoutError(f"Service {name} did not become ready within {timeout_availability} seconds")
+
+        future = client.call_async(request)
+        return self.await_future(future, timeout=timeout_call)

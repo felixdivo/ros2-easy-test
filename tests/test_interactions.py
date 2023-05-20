@@ -53,7 +53,7 @@ class SharedTestCases(ABC):
         desired_sum = -500 + 73
 
         # Call the service asynchronously
-        result: int = env.call_service(AddTwoInts, "add_two_ints", request).sum
+        result: int = env.call_service("add_two_ints", request).sum
         self.assertEqual(result, desired_sum)
 
     def test_service_manual(self, env: ROS2TestEnvironment) -> None:
