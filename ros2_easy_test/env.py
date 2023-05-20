@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Mapping, Optional, Type
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.qos import QoSHistoryPolicy, QoSProfile
+from rclpy.task import Future
+from rclpy.client import Client, SrvType, SrvTypeRequest, SrvTypeResponse
 
 RosMessage = Any  # We can't be more specific for now
 
@@ -78,6 +80,10 @@ class ROS2TestEnvironment(Node):
         self._registered_publishers_lock = RLock()
         self._registered_publishers: Dict[str, Publisher] = {}
 
+        # Similarly for services
+        self._registered_services_lock = RLock()
+        self._registered_services: Dict[str, Client] = {}
+
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
 
@@ -98,6 +104,16 @@ class ROS2TestEnvironment(Node):
 
             return self._subscriber_mailboxes[topic]
 
+    def _get_publisher(self, topic: str, msg_type: Type) -> Publisher:
+        """Get or else create the correct publisher and cache it."""
+        with self._registered_publishers_lock:
+            try:
+                return self._registered_publishers[topic]
+            except KeyError:
+                publisher = self.create_publisher(type, msg_type, self._qos_profile)
+                self._registered_publishers[topic] = publisher
+                return publisher
+
     def publish(self, topic: str, message: RosMessage) -> None:
         """Publish the message on the topic.
 
@@ -109,17 +125,7 @@ class ROS2TestEnvironment(Node):
             message: The message to be sent. It's type must match the one of all other messages sent on this
                 ``topic`` before and after.
         """
-
-        # Get or else create the correct publisher and cache it
-        publisher: Publisher
-        with self._registered_publishers_lock:
-            try:
-                publisher = self._registered_publishers[topic]
-            except KeyError:
-                publisher = self.create_publisher(type(message), topic, self._qos_profile)
-                self._registered_publishers[topic] = publisher
-
-        publisher.publish(message)
+        self._get_publisher(topic, type(message)).publish(message)
 
     def assert_no_message_published(self, topic: str, time_span: float = 0.5) -> None:
         """Asserts that no message is published on the given topic within the given time.
@@ -268,3 +274,57 @@ class ROS2TestEnvironment(Node):
         else:
             # There is not clear() in SimpleQueue
             self.listen_for_messages(topic, time_span=None)  # ignore the result
+
+    def await_future(self, future: Future, timeout: Optional[float] = 10) -> Any:
+        """Clear all messages in the mailbox of the given ``topic`` or in all mailboxes.
+
+        Args:
+            future: The future to wait for
+            timeout: The timeout to wait for the future
+
+        Raises:
+            TimeoutError: If the future did not complete within the timeout
+            Exception: If the future completed with an exception
+
+        Returns:
+            The result of the future
+        """
+
+        # This does not work with the default executor, so we use the one from the node
+        self.executor.spin_until_future_complete(future, timeout_sec=timeout)
+
+        if future.done():
+            return future.result()
+        else:
+            raise TimeoutError(f"Future did not complete within {timeout} seconds")
+
+    def _get_service_client(self, srv_type: SrvType, srv_name: str) -> Client:
+        """Returns the service client for the given service name."""
+
+        with self._registered_services_lock:
+            try:
+                return self._registered_services[srv_name]
+            except KeyError:
+                client = self.create_client(srv_type, srv_name)
+                self._registered_services[srv_name] = client
+                return client
+
+    def call_service(
+        self, srv_type: SrvType, srv_name: str, request: SrvTypeRequest, timeout: Optional[float] = 10
+    ) -> SrvTypeResponse:
+        """Calls the given service with the given request and returns the response.
+
+        Args:
+            srv_type: The type of the service
+            srv_name: The name of the service
+            request: The request to send to the service
+            timeout: The timeout to wait for the service
+
+        Returns:
+            The response of the service
+
+        Raises:
+            TimeoutError: If the service did not respond within the timeout
+        """
+        future = self._get_service_client(srv_type, srv_name).call_async(request)
+        return self.await_future(future, timeout=timeout)
