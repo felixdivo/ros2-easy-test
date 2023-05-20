@@ -79,6 +79,7 @@ def with_single_node(
         parameters: The parameters to be set for the node as ``("key", value)`` pairs
         time_limit:
             The time in seconds to give the test case to complete.
+            This only applies to the test function, not the node setup etc.
             If it takes longer than this, the test will fail.
             Set to ``None`` to disable the timeout.
         shutdown_timeout:
@@ -219,6 +220,7 @@ def with_launch_file(  # noqa: C901
             it is rather conservative and higher numbers will slow down each test case even more.
         time_limit:
             The time in seconds to give the test case to complete.
+            This only applies to the test function, not the node setup etc.
             If it takes longer than this, the test will fail.
             Set to ``None`` to disable the timeout.
         shutdown_timeout:
