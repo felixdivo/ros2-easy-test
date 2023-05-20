@@ -45,9 +45,6 @@ TestFunctionAfter = Callable[..., None]  # The same but taking one kwarg less (t
 _DEFAULT_SHUTDOWN_TIMEOUT: float = 2
 
 
-# TODO: Test timeouts
-
-
 def with_single_node(
     node_class: Type[Node],
     *,
