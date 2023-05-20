@@ -63,8 +63,8 @@ class SharedTestCases(ABC):
 
         # Call the service asynchronously
         future = adder.call_async(request)
-        # env.executor.spin_until_future_complete(future, timeout_sec=2)  #TODO
-        rclpy.spin_until_future_complete(self, future, timeout_sec=2)
+        # TODO: One should find a way to make this work with the default executor
+        env.executor.spin_until_future_complete(future, timeout_sec=2)
         self.assertIsNone(future.exception())
         result: int = future.result().sum
         self.assertEqual(result, desired_sum)
