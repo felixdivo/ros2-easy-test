@@ -7,7 +7,6 @@ from typing import List
 from unittest import TestCase
 
 # Other ROS2 interfaces
-import rclpy
 from example_interfaces.srv import AddTwoInts
 
 # Testing
