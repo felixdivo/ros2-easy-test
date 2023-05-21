@@ -200,7 +200,7 @@ def with_launch_file(  # noqa: C901
     launch_file: Union[Path, str],
     *,
     debug_launch_file: bool = False,
-    warmup_time: float = 5,
+    warmup_time: float = 2,
     time_limit: Optional[float] = 60,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
@@ -268,13 +268,13 @@ def with_launch_file(  # noqa: C901
 
                     try:
                         # We first start the environment, such that any topics that are watched can be
-                        # captured rigth from the start
+                        # captured right from the start
                         environment = ROS2TestEnvironment(context=context, **kwargs)
                         assert executor.add_node(environment), "failed to add environment"
 
-                        # We should not need any warmp time here, as the environment is fully ready once the
+                        # We should not need any warmup time here, as the environment is fully ready once the
                         # node class (the environment) is instantiated.
-                        # TODO: However, this warmup and cleaing seems to suppress some rather rare errors.
+                        # TODO: However, this warmup and cleaning seems to suppress some rather rare errors.
                         executor.spin_until_future_complete(executor.create_task(sleep, 2))
                         environment.clear_messages()
 
