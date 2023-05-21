@@ -78,8 +78,9 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = [
-    'launch.*',
-    'example_interfaces.*',
-    'std_msgs.*',
+    "rclpy.*",  # For the CI pipeline to work
+    "launch.*",
+    "example_interfaces.*",
+    "std_msgs.*",
 ]
 ignore_missing_imports = true
