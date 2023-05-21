@@ -35,16 +35,17 @@ class ROS2TestEnvironment(Node):
     Then, a mailbox is created for each topic and incoming messages are collected each (without a limit).
     This is performed in the background, meaning that for example :meth:`~assert_message_published` may return
     a message that was collected before the method was called.
-    To prevent this from happening, one might use:meth:`clear_messages` (although the concurrency is often the
-    desired behaviour).
+    To prevent this from happening, one might use :meth:`~clear_messages`
+    (although the concurrency is often the desired behaviour).
     Also, mind the ``timeout`` / ``time_span`` arguments as they determine how long to wait while checking the
     assertion (default: ``1`` second).
     Asserting that a message is sent or failing to assert that no message is sent will return early.
 
+    **Services** are handled similarly to publishers, being created on the fly when used for the first time.
+
     Note:
         The :class:`ROS2TestEnvironment` is a :class:`rclpy.node.Node` too, which allows to implement custom
-        functionality too. In particular, one can simply call services using code similar to:
-        ``client = env.create_client(GetLocalTangentPoint, "/service/get_local_tangent_point")``.
+        functionality too.
 
     Note:
         Timings and timeouts in this class are only approximate.
@@ -326,7 +327,7 @@ class ROS2TestEnvironment(Node):
         timeout_availability: Optional[float] = 1,
         timeout_call: Optional[float] = 10,
     ) -> SrvTypeResponse:  # type: ignore[type-var]
-        """Calls the given service with the given request and returns the response.
+        """Calls the given service with the given request once available and returns the response.
 
         The service type if inferred automatically from the request type.
 
