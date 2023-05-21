@@ -3,12 +3,13 @@
 [![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg?color=blue)](https://pypi.org/project/ros2-easy-test/)
 [![license](https://img.shields.io/pypi/l/ros2-easy-test.svg?color=blue)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
 [![ros2 version](https://img.shields.io/badge/ROS2-Foxy%20Fitzroy+%20(see%20limitations)-blue)](https://docs.ros.org/en/rolling/Releases.html)
-[![python version](https://img.shields.io/badge/python-3.8+%20(matching%20ROS)-blue)](https://devguide.python.org/versions/)
+[![Python version](https://img.shields.io/badge/python-3.8+%20(matching%20ROS)-blue)](https://devguide.python.org/versions/)
 
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
-[![Doc status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
+[![documentation status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
 [![code style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
 [![linter](https://img.shields.io/badge/linter-ruff-black)](https://github.com/charliermarsh/ruff)
+[![static type checker](https://img.shields.io/badge/static%20typing-mypy-black)](https://mypy-lang.org/)
 
 A Python test framework for [ROS2](https://ros.org/) allowing for:
 - simple and expressive assertions based on message and service interactions (black box testing)
