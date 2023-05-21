@@ -40,6 +40,15 @@ jobs:
         run: |
           ruff check .
       -
+        name: Type check main code (with mypy)
+        run: |
+          mypy ros2_easy_test
+      -
+        name: Type check tests (with mypy)
+        continue-on-error: true  # We do not want to fail the build if the type checker fails on the tests
+        run: |
+          mypy tests
+      -
         name: Testing (with pytest)
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS

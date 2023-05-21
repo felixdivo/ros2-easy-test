@@ -7,14 +7,14 @@ from threading import RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Type, Dict, List, Mapping, Optional, Type
+from typing import Any, Dict, List, Mapping, Optional, Type, cast
 
 # ROS
+from rclpy.client import Client, SrvTypeRequest, SrvTypeResponse
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.qos import QoSHistoryPolicy, QoSProfile
 from rclpy.task import Future
-from rclpy.client import Client, SrvType, SrvTypeRequest, SrvTypeResponse
 
 RosMessage = Any  # We can't be more specific for now
 
@@ -111,7 +111,7 @@ class ROS2TestEnvironment(Node):
             try:
                 return self._registered_publishers[topic]
             except KeyError:
-                publisher = self.create_publisher(type, msg_type, self._qos_profile)
+                publisher = self.create_publisher(msg_type, topic, self._qos_profile)
                 self._registered_publishers[topic] = publisher
                 return publisher
 
@@ -292,7 +292,9 @@ class ROS2TestEnvironment(Node):
         """
 
         # This does not work with the default executor, so we use the one from the node
-        self.executor.spin_until_future_complete(future, timeout_sec=timeout)
+        assert self.executor, "executor is not set"
+        # The type ignore is needed due to a bug in ROS2 Humble+
+        self.executor.spin_until_future_complete(future, timeout_sec=timeout)  # type: ignore[arg-type]
 
         if future.done():
             return future.result()
@@ -323,7 +325,7 @@ class ROS2TestEnvironment(Node):
         request: SrvTypeRequest,
         timeout_availability: Optional[float] = 1,
         timeout_call: Optional[float] = 10,
-    ) -> SrvTypeResponse:
+    ) -> SrvTypeResponse:  # type: ignore[type-var]
         """Calls the given service with the given request and returns the response.
 
         The service type if inferred automatically from the request type.
@@ -341,9 +343,10 @@ class ROS2TestEnvironment(Node):
             TimeoutError: If the service did not respond within the timeout
         """
         client = self._get_service_client(name, type(request))
-        is_ready = client.wait_for_service(timeout_availability)
+        # The type ignore is needed due to a bug in ROS2 Humble+
+        is_ready = client.wait_for_service(timeout_availability)  # type: ignore[arg-type]
         if not is_ready:
             raise TimeoutError(f"Service {name} did not become ready within {timeout_availability} seconds")
 
         future = client.call_async(request)
-        return self.await_future(future, timeout=timeout_call)
+        return cast(SrvTypeResponse, self.await_future(future, timeout=timeout_call))

@@ -42,6 +42,7 @@ class LaunchFileProvider(ContextManager[Path]):
             if not isinstance(launch_file_path, Path):
                 launch_file_path = Path(self._launch_file)
         else:
+            assert isinstance(self._launch_file, str)
             directory = TemporaryDirectory()
             self._exit_list.append(cast(ContextManager[str], directory))
             directory_name = Path(directory.__enter__())

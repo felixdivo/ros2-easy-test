@@ -14,7 +14,7 @@ from subprocess import Popen, TimeoutExpired
 from time import sleep
 
 # Typing
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Coroutine, Dict, Optional, Type, TypeVar, Union
 
 # ROS
 from rclpy.context import Context
@@ -37,8 +37,10 @@ __all__ = ["with_launch_file", "with_single_node"]
 
 # From python 3.10+ on, we should make these typing.TypeAlias'es
 # Currently not possible to type the following any better
-TestFunctionBefore = Callable[..., None]
-TestFunctionAfter = Callable[..., None]  # The same but taking one kwarg less (the env)
+_TestReturnType = TypeVar("_TestReturnType", None, Coroutine[Any, Any, None])
+TestFunctionBefore = Callable[..., _TestReturnType]
+# The same but taking one kwarg less (the env), which we can't statically type
+TestFunctionAfter = Callable[..., _TestReturnType]
 
 
 #: The time to give a node for a successful shutdown.
@@ -49,7 +51,7 @@ def with_single_node(
     node_class: Type[Node],
     *,
     parameters: Optional[Dict[str, Any]] = None,
-    time_limit: float = 60,
+    time_limit: Optional[float] = 60,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
@@ -103,9 +105,11 @@ def with_single_node(
 
                 node: Node
                 if ros_parameters:
-                    node = node_class(parameter_overrides=ros_parameters, context=context)
+                    node = node_class(  # type: ignore[call-arg]
+                        parameter_overrides=ros_parameters, context=context
+                    )
                 else:
-                    node = node_class(context=context)
+                    node = node_class(context=context)  # type: ignore[call-arg]
 
                 # We need at least two threads: One to spin() and one to execute the test case (as the latter
                 # blocks). We better provide 4, since more nodes/tasks might get spun up by some tests and
@@ -124,7 +128,10 @@ def with_single_node(
                     test_function_task = executor.create_task(
                         test_function, *args_inner, env=environment, **kwargs_inner
                     )
-                    executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
+                    # The type ignore is needed due to a bug in ROS2 Humble+
+                    executor.spin_until_future_complete(
+                        test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                    )
 
                     test_function_exception = test_function_task.exception()
                     if not test_function_task.done():
@@ -181,7 +188,9 @@ def with_single_node(
         # This is required to make pytest fixtures work
         # In principle, we could make the parameter name easily adjustable,
         # but that is probably a rare use case
-        wrapper.__signature__ = remove_signature_parameters(signature(test_function), "env")
+        wrapper.__signature__ = remove_signature_parameters(  # type: ignore[attr-defined]
+            signature(test_function), "env"
+        )
         return wrapper
 
     return decorator
@@ -280,7 +289,10 @@ def with_launch_file(  # noqa: C901
                         test_function_task = executor.create_task(
                             test_function, *args_inner, env=environment, **kwargs_inner
                         )
-                        executor.spin_until_future_complete(test_function_task, timeout_sec=time_limit)
+                        # The type ignore is needed due to a bug in ROS2 Humble+
+                        executor.spin_until_future_complete(
+                            test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                        )
 
                         test_function_exception = test_function_task.exception()
                         if not test_function_task.done():
@@ -359,7 +371,9 @@ def with_launch_file(  # noqa: C901
         # This is required to make pytest fixtures work
         # In principle, we could make the parameter name easily adjustable,
         # but that is probably a rare use case
-        wrapper.__signature__ = remove_signature_parameters(signature(test_function), "env")
+        wrapper.__signature__ = remove_signature_parameters(  # type: ignore[attr-defined]
+            signature(test_function), "env"
+        )
         return wrapper
 
     return decorator
