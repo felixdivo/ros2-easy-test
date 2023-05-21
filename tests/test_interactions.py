@@ -116,6 +116,7 @@ class TestSingleNode(SharedTestCases, TestCase):
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
 
+    @mark.xfail(raises=ValueError, reason="See https://github.com/ros2/rclpy/pull/1129")
     @with_single_node(AddTwoIntsServer)
     def test_service_manual(self, env: ROS2TestEnvironment) -> None:
         super().test_service_manual(env)
@@ -165,6 +166,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
 
+    @mark.xfail(raises=ValueError, reason="See https://github.com/ros2/rclpy/pull/1129")
     @with_launch_file(LAUNCH_FILES / "adder.yaml", warmup_time=2)
     def test_service_manual(self, env: ROS2TestEnvironment) -> None:
         super().test_service_manual(env)
