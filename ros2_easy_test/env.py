@@ -278,7 +278,7 @@ class ROS2TestEnvironment(Node):
             self.listen_for_messages(topic, time_span=None)  # ignore the result
 
     def await_future(self, future: Future, timeout: Optional[float] = 10) -> Any:
-        """Clear all messages in the mailbox of the given ``topic`` or in all mailboxes.
+        """Waits for the given future to complete.
 
         Args:
             future: The future to wait for
