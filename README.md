@@ -81,16 +81,16 @@ Using `ROS2TestEnvironment`, you can call:
 - `publish(topic: str, message: RosMessage) -> None`
 - `listen_for_messages(topic: str, time_span: float) -> List[RosMessage]`
 - `clear_messages(topic: str) -> None` to forget all messages that have been received so far.
+- `call_service(name: str, request: Request, timeout_availability: Optional[float], timeout_call: Optional[float]) -> Response`
 
 Note that `ROS2TestEnvironment` is a `rclpy.node.Node` and thus has all the methods of a ROS2 node. 
-As an example, you can create a service by `env.create_service(...)` and then use it with `env.call(...)`.
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.
 
 ### What you can test (recommended way of obtaining messages)
 
 Using `ROS2TestEnvironment`, you can assert:
-- `assert_message_published(topic: str, timeout: float) -> RosMessage`
-- `assert_no_message_published(topic: str, timeout: float) -> None`
+- `assert_message_published(topic: str, timeout: Optional[float]) -> RosMessage`
+- `assert_no_message_published(topic: str, timeout: Optional[float]) -> None`
 - `assert_messages_published(topic: str, number: int, ...) -> List[RosMessage]`
 
 Generally, you can always test that no exceptions are thrown, e.g., when nodes are initialized (see limitations below).

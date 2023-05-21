@@ -48,6 +48,15 @@ class SharedTestCases(ABC):
         self.assertSequenceEqual(all_messages, [String(data="Guude")])
 
     def test_service(self, env: ROS2TestEnvironment) -> None:
+        # Set up the request
+        request = AddTwoInts.Request(a=-500, b=73)
+        desired_sum = -500 + 73
+
+        # Call the service asynchronously
+        result: int = env.call_service("add_two_ints", request).sum
+        self.assertEqual(result, desired_sum)
+
+    def test_service_manual(self, env: ROS2TestEnvironment) -> None:
         # Set up the service
         adder = env.create_client(AddTwoInts, "add_two_ints")
         self.assertTrue(adder.wait_for_service(timeout_sec=5))
@@ -60,9 +69,14 @@ class SharedTestCases(ABC):
         result: int = adder.call(request).sum
         self.assertEqual(result, desired_sum)
 
-        # Call the service asynchronously
+        # Call the service asynchronously with a helper
         future = adder.call_async(request)
-        # TODO: One should find a way to make this work with the default executor
+        result: int = env.await_future(future, timeout=2).sum
+        self.assertEqual(result, desired_sum)
+
+        # Call the service asynchronously completely manually
+        future = adder.call_async(request)
+        # This needs to be done via the executor of the node, see ROS2TestEnvironment::await_future
         env.executor.spin_until_future_complete(future, timeout_sec=2)
         self.assertIsNone(future.exception())
         result: int = future.result().sum
@@ -101,6 +115,11 @@ class TestSingleNode(SharedTestCases, TestCase):
     @with_single_node(AddTwoIntsServer)
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
+
+    @mark.xfail(raises=ValueError, reason="See https://github.com/ros2/rclpy/pull/1129")
+    @with_single_node(AddTwoIntsServer)
+    def test_service_manual(self, env: ROS2TestEnvironment) -> None:
+        super().test_service_manual(env)
 
     @with_single_node(EchoNode, watch_topics={"/mouth": String})
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:
@@ -146,6 +165,11 @@ class TestLaunchFile(SharedTestCases, TestCase):
     @with_launch_file(LAUNCH_FILES / "adder.yaml", warmup_time=2)
     def test_service(self, env: ROS2TestEnvironment) -> None:
         super().test_service(env)
+
+    @mark.xfail(raises=ValueError, reason="See https://github.com/ros2/rclpy/pull/1129")
+    @with_launch_file(LAUNCH_FILES / "adder.yaml", warmup_time=2)
+    def test_service_manual(self, env: ROS2TestEnvironment) -> None:
+        super().test_service_manual(env)
 
     @with_launch_file(LAUNCH_FILES / "echo.yaml", watch_topics={"/mouth": String})
     def test_multiple_messages(self, env: ROS2TestEnvironment) -> None:

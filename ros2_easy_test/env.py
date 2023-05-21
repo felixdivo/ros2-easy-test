@@ -1,17 +1,20 @@
 """This module provides the environment by which tests can interact with nodes."""
 
 # Standard library
+from importlib import import_module
 from queue import Empty, SimpleQueue
 from threading import RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Type
+from typing import Any, Dict, List, Mapping, Optional, Type, cast
 
 # ROS
+from rclpy.client import Client, SrvTypeRequest, SrvTypeResponse
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.qos import QoSHistoryPolicy, QoSProfile
+from rclpy.task import Future
 
 RosMessage = Any  # We can't be more specific for now
 
@@ -32,16 +35,17 @@ class ROS2TestEnvironment(Node):
     Then, a mailbox is created for each topic and incoming messages are collected each (without a limit).
     This is performed in the background, meaning that for example :meth:`~assert_message_published` may return
     a message that was collected before the method was called.
-    To prevent this from happening, one might use:meth:`clear_messages` (although the concurrency is often the
-    desired behaviour).
+    To prevent this from happening, one might use :meth:`~clear_messages`
+    (although the concurrency is often the desired behaviour).
     Also, mind the ``timeout`` / ``time_span`` arguments as they determine how long to wait while checking the
     assertion (default: ``1`` second).
     Asserting that a message is sent or failing to assert that no message is sent will return early.
 
+    **Services** are handled similarly to publishers, being created on the fly when used for the first time.
+
     Note:
         The :class:`ROS2TestEnvironment` is a :class:`rclpy.node.Node` too, which allows to implement custom
-        functionality too. In particular, one can simply call services using code similar to:
-        ``client = env.create_client(GetLocalTangentPoint, "/service/get_local_tangent_point")``.
+        functionality too.
 
     Note:
         Timings and timeouts in this class are only approximate.
@@ -78,6 +82,10 @@ class ROS2TestEnvironment(Node):
         self._registered_publishers_lock = RLock()
         self._registered_publishers: Dict[str, Publisher] = {}
 
+        # Similarly for services
+        self._registered_services_lock = RLock()
+        self._registered_services: Dict[str, Client] = {}
+
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
 
@@ -98,6 +106,16 @@ class ROS2TestEnvironment(Node):
 
             return self._subscriber_mailboxes[topic]
 
+    def _get_publisher(self, topic: str, msg_type: Type) -> Publisher:
+        """Get or else create the correct publisher and cache it."""
+        with self._registered_publishers_lock:
+            try:
+                return self._registered_publishers[topic]
+            except KeyError:
+                publisher = self.create_publisher(msg_type, topic, self._qos_profile)
+                self._registered_publishers[topic] = publisher
+                return publisher
+
     def publish(self, topic: str, message: RosMessage) -> None:
         """Publish the message on the topic.
 
@@ -109,17 +127,7 @@ class ROS2TestEnvironment(Node):
             message: The message to be sent. It's type must match the one of all other messages sent on this
                 ``topic`` before and after.
         """
-
-        # Get or else create the correct publisher and cache it
-        publisher: Publisher
-        with self._registered_publishers_lock:
-            try:
-                publisher = self._registered_publishers[topic]
-            except KeyError:
-                publisher = self.create_publisher(type(message), topic, self._qos_profile)
-                self._registered_publishers[topic] = publisher
-
-        publisher.publish(message)
+        self._get_publisher(topic, type(message)).publish(message)
 
     def assert_no_message_published(self, topic: str, time_span: float = 0.5) -> None:
         """Asserts that no message is published on the given topic within the given time.
@@ -268,3 +276,78 @@ class ROS2TestEnvironment(Node):
         else:
             # There is not clear() in SimpleQueue
             self.listen_for_messages(topic, time_span=None)  # ignore the result
+
+    def await_future(self, future: Future, timeout: Optional[float] = 10) -> Any:
+        """Waits for the given future to complete.
+
+        Args:
+            future: The future to wait for
+            timeout: The timeout to wait for the future
+
+        Raises:
+            TimeoutError: If the future did not complete within the timeout
+            Exception: If the future completed with an exception
+
+        Returns:
+            The result of the future
+        """
+
+        # This does not work with the default executor, so we use the one from the node
+        assert self.executor, "executor is not set"
+        # The type ignore is needed due to a bug in ROS2 Humble+
+        self.executor.spin_until_future_complete(future, timeout_sec=timeout)  # type: ignore[arg-type]
+
+        if future.done():
+            return future.result()
+        else:
+            raise TimeoutError(f"Future did not complete within {timeout} seconds")
+
+    def _get_service_client(self, name: str, request_class: Type) -> Client:
+        """Returns the service client for the given service name."""
+
+        with self._registered_services_lock:
+            try:
+                return self._registered_services[name]
+            except KeyError:
+                # Get the type of the service
+                # This is a bit tricky but relieves the user from passing it explicitly
+                module = import_module(request_class.__module__)
+                # We cut away the trailing "_Request" from the type name, which has length 8
+                base_type_name = request_class.__name__[:-8]
+                base_type_class: Type = getattr(module, base_type_name)
+
+                client = self.create_client(base_type_class, name)
+                self._registered_services[name] = client
+                return client
+
+    def call_service(
+        self,
+        name: str,
+        request: SrvTypeRequest,
+        timeout_availability: Optional[float] = 1,
+        timeout_call: Optional[float] = 10,
+    ) -> SrvTypeResponse:  # type: ignore[type-var]
+        """Calls the given service with the given request once available and returns the response.
+
+        The service type if inferred automatically from the request type.
+
+        Args:
+            name: The name of the service
+            request: The request to send to the service
+            timeout_availability: The timeout to wait for the service to be available
+            timeout_call: The timeout to wait for the service to respond
+
+        Returns:
+            The response of the service
+
+        Raises:
+            TimeoutError: If the service did not respond within the timeout
+        """
+        client = self._get_service_client(name, type(request))
+        # The type ignore is needed due to a bug in ROS2 Humble+
+        is_ready = client.wait_for_service(timeout_availability)  # type: ignore[arg-type]
+        if not is_ready:
+            raise TimeoutError(f"Service {name} did not become ready within {timeout_availability} seconds")
+
+        future = client.call_async(request)
+        return cast(SrvTypeResponse, self.await_future(future, timeout=timeout_call))

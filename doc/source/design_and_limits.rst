@@ -22,14 +22,15 @@ Current Limitations
 - Similar "silent" crashes can occur in other places, including timers and services.
   See ``tests/test_failing_nodes.py`` for unit tests on that behavior.
   A lot of them are marked with a ``TODO:``, since it is currently not straightforward to detect such issues.
-- A failing service might deadlock a test. Consider calling services asynchronously with timeouts.
+- A failing service might deadlock a test. Consider calling services asynchronously with timeouts, e.g. with
+  :meth:`~ros2_easy_test.env.ROS2TestEnvironment.call_service` or :meth:`~ros2_easy_test.env.ROS2TestEnvironment.await_future`.
 - It takes some time to set up the test environment each time, particularly when using ``@with_launch_file``.
   Also, some nodes or complex launch scenarios might need considerable time to process information.
   You may wish to append ``--durations=0 --durations-min=1.0`` to your pytest call to show the slowest tests
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
   It might be possible to reduce the required ``warmup_time``,
   since it is unclear why setting it too low breaks *all* message exchanges and maybe there is a solvable bug causing it.
-- Currently, using services only works from ROS2 version Humble onwards, and not on Foxy.
+- Currently, interacting via services only works from ROS2 version Humble onwards, and not on Foxy.
   Similarly, a few of the tests seem to freeze sometimes.
   I do not intend to investigate further, sice `that version will reach end of life very soon <https://endoflife.date/ros2>`__.
 
@@ -55,8 +56,9 @@ Goals
 Constraints
 ~~~~~~~~~~~
 
-- Be easy to maintain by needing only a few lines of code (below a thousand). Thus, actions and services are
-  currently not supported. Also, only use public APIs wherever possible.
+- Be easy to maintain by needing only a few lines of code (below a thousand).
+  Thus, actions are currently not supported.
+  Also, we only use public APIs wherever possible.
 - Don't reinvent the wheel and benefit from future improvements: Use existing functionality of Python and
   ROS2. This includes: :mod:`unittest`, :mod:`pytest`, and the
   `ROS2 launch system <https://design.ros2.org/articles/roslaunch.html>`__.
