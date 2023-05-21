@@ -129,6 +129,10 @@ cd build/html
 python -m http.server
 ```
 
+## Changelog
+
+See [Releases](https://github.com/felixdivo/ros2-easy-test/releases).
+
 ## License
 
 See [LICENSE](LICENSE).
