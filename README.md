@@ -30,13 +30,13 @@ pip install ros2-easy-test
 ## Examples
 
 The following two examples show off the usage of the Python decorators `@with_single_node` and `@with_launch_file`, which provide the core functionality of this package.
-To get a better grasp of their inner workings, have a look at their implementation [here](ros2_easy_test/decorators.py).
+To get a better understanding of their inner workings, please have a look at their implementation [here](ros2_easy_test/decorators.py).
 Besides the simple examples here, you can embed everything in `unittest.TestCase` as well. 
 To check out how, have a look at the provided [tests/](tests/) for some advanced examples.
 
 ### Testing a Node
 
-Simple settings where a single node shall be tested can make use of the decorator `@with_single_node` as in the following example.
+Simple settings where a single node shall be tested can use the decorator `@with_single_node` as in the following example.
 
 ```python
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
@@ -84,7 +84,10 @@ Using `ROS2TestEnvironment`, you can call:
 - `clear_messages(topic: str) -> None` to forget all messages that have been received so far.
 - `call_service(name: str, request: Request, timeout_availability: Optional[float], timeout_call: Optional[float]) -> Response`
 
-Note that `ROS2TestEnvironment` is a `rclpy.node.Node` and thus has all the methods of a ROS2 node. 
+Note that `ROS2TestEnvironment` is a [`rclpy.node.Node`](https://docs.ros2.org/latest/api/rclpy/api/node.html) and thus has all the methods of a ROS2 node.
+So feel free to call offer a service with `env.create_service()`, interface with an action using `ActionClient(env, DoTheThing, 'maker')`, etc., to cover more specific use cases.
+Extend as you please!
+
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.
 
 ### What you can test (recommended way of obtaining messages)
@@ -115,7 +118,7 @@ You can install the development dependencies with `pip install -e ".[dev]"`. Aft
 
 You can run the test with simply `pytest`. Coverage reports and timings will be printed on the command line, and a fresh line-by-line coverage report is in `htmlcov/index.html`.
 
-Building the documentation is simple too:
+Building the documentation is simple, too:
 ```shell
 # Install the required dependencies
 pip install -e ".[doc]"
