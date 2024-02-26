@@ -1,6 +1,7 @@
 """This module provides the environment by which tests can interact with nodes."""
 
 # Standard library
+from dataclasses import dataclass, field
 from importlib import import_module
 from queue import Empty, SimpleQueue
 from threading import RLock
@@ -10,6 +11,9 @@ from time import monotonic, sleep
 from typing import Any, Dict, List, Mapping, Optional, Type, cast
 
 # ROS
+from rclpy.action import ActionClient
+from rclpy.action.client import ClientGoalHandle
+from rclpy.callback_groups import CallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.client import Client, SrvTypeRequest, SrvTypeResponse
 from rclpy.node import Node
 from rclpy.publisher import Publisher
@@ -22,6 +26,36 @@ __all__ = ["ROS2TestEnvironment"]
 
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
 _DEFAULT_TIMEOUT: Optional[float] = 2
+
+
+@dataclass
+class ActionObjects:
+    """A class to handle objects related to an action."""
+
+    client: ActionClient
+    send_goal_future: Optional[Future] = None
+    get_result_future: Optional[Future] = None
+
+    goal_handle: Optional[ClientGoalHandle] = None
+    feedbacks: List[Any] = field(default_factory=list)
+    result: Optional[Any] = None
+
+    def feedback_callback(self, feedback_msg: Any):
+        """Callback for action feedback messages."""
+        print(f"{feedback_msg.feedback=}")
+        self.feedbacks.append(feedback_msg.feedback)
+
+    def goal_response_callback(self, future: Future):
+        """
+        Callback for send_goal response messages.
+
+        The primary function of this callback is to set the set the get_result_future.
+        """
+        goal_handle = future.result()
+        assert goal_handle is not None
+        if not goal_handle.accepted:
+            return
+        self.get_result_future = goal_handle.get_result_async()
 
 
 class ROS2TestEnvironment(Node):
@@ -85,6 +119,14 @@ class ROS2TestEnvironment(Node):
         # Similarly for services
         self._registered_services_lock = RLock()
         self._registered_services: Dict[str, Client] = {}
+
+        # Similarly for actions
+        # A MutuallyExclusive CallbackGroup is required to force all the callbacks: goal_response, feedback
+        # and goal_done to run sequentially. Without this we get a race condition between goal_response and
+        # feedback.
+        self._action_cb_group: CallbackGroup = MutuallyExclusiveCallbackGroup()
+        self._registered_actions_lock = RLock()
+        self._registered_actions: Dict[str, ActionObjects] = {}
 
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
@@ -351,3 +393,66 @@ class ROS2TestEnvironment(Node):
 
         future = client.call_async(request)
         return cast(SrvTypeResponse, self.await_future(future, timeout=timeout_call))
+
+    def _get_action_objects(self, name: str, action_type: Type) -> ActionObjects:
+        """Returns the service client for the given service name."""
+
+        with self._registered_actions_lock:
+            try:
+                return self._registered_actions[name]
+            except KeyError:
+                objects = ActionObjects(
+                    client=ActionClient(self, action_type, name, callback_group=self._action_cb_group)
+                )
+                self._registered_actions[name] = objects
+                return objects
+
+    def send_action_goal_and_wait_for_response(
+        self,
+        name: str,
+        action_type: Type,
+        goal_msg: Any,
+        timeout_availability: Optional[float] = 1,
+        timeout_send_goal: Optional[float] = 1,
+        timeout_get_result: Optional[float] = 10,
+    ) -> tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]:
+        """Sends the goal to the given action and returns the response, feedbacks and result.
+
+        The action type is inferred automatically from the request type.
+
+        Args:
+            name: The name of the service
+            request: The request to send to the service
+            timeout_availability: The timeout to wait for the service to be available
+            timeout_call: The timeout to wait for the service to respond
+
+        Returns:
+            The response of the service
+
+        Raises:
+            TimeoutError: If the service did not respond within the timeout
+        """
+        action_objects = self._get_action_objects(name, action_type)
+
+        is_ready = action_objects.client.wait_for_server(timeout_availability)
+        if not is_ready:
+            raise TimeoutError(f"Action {name} did not become ready within {timeout_availability} seconds")
+
+        action_objects.send_goal_future = action_objects.client.send_goal_async(
+            goal_msg, feedback_callback=action_objects.feedback_callback
+        )
+        action_objects.send_goal_future.add_done_callback(action_objects.goal_response_callback)
+
+        action_objects.goal_handle = self.await_future(
+            action_objects.send_goal_future, timeout=timeout_send_goal
+        )
+
+        # Spin so we have a goal_response_callback and get_result_future is set.
+        while action_objects.get_result_future is None:
+            self.executor.spin_once()
+
+        action_objects.result = self.await_future(
+            action_objects.get_result_future, timeout=timeout_get_result
+        )
+
+        return action_objects.goal_handle, action_objects.feedbacks, action_objects.result
