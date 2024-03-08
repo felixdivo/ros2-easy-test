@@ -16,7 +16,7 @@ from ..example_nodes.well_behaved import EchoNode
 @composite
 def ros2_preserved_string(draw: DrawFn) -> str:
     """We need to exclude NULL characters, because they are not preserved by ROS2."""
-    return draw(text(alphabet=characters(blacklist_categories=("Cs",), min_codepoint=1)))
+    return draw(text(alphabet=characters(blacklist_categories=["Cs",], min_codepoint=1)))
 
 
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
