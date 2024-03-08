@@ -32,7 +32,7 @@ pip install ros2-easy-test
 The following two examples show off the usage of the Python decorators `@with_single_node` and `@with_launch_file`, which provide the core functionality of this package.
 To get a better understanding of their inner workings, please have a look at their implementation [here](ros2_easy_test/decorators.py).
 Besides the simple examples here, you can embed everything in `unittest.TestCase` as well. 
-To check out how, have a look at the provided [tests/](tests/) for some advanced examples.
+To check out how, have a look at the provided test in [tests/demo/](tests/demo/) for some advanced examples.
 
 ### Testing a Node
 
