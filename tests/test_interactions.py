@@ -66,21 +66,21 @@ class SharedTestCases(ABC):
         desired_sum = -500 + 73
 
         # Call the service synchronously
-        result: int = adder.call(request).sum
-        self.assertEqual(result, desired_sum)
+        result_sync: int = adder.call(request).sum
+        self.assertEqual(result_sync, desired_sum)
 
         # Call the service asynchronously with a helper
         future = adder.call_async(request)
-        result: int = env.await_future(future, timeout=2).sum
-        self.assertEqual(result, desired_sum)
+        result_async_auto: int = env.await_future(future, timeout=2).sum
+        self.assertEqual(result_async_auto, desired_sum)
 
         # Call the service asynchronously completely manually
         future = adder.call_async(request)
         # This needs to be done via the executor of the node, see ROS2TestEnvironment::await_future
         env.executor.spin_until_future_complete(future, timeout_sec=2)
         self.assertIsNone(future.exception())
-        result: int = future.result().sum
-        self.assertEqual(result, desired_sum)
+        result_async: int = future.result().sum
+        self.assertEqual(result_async, desired_sum)
 
     def test_multiple_messages(self, env: ROS2TestEnvironment, count: int = 5) -> None:
         for identifier in range(count):

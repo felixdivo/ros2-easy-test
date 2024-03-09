@@ -34,7 +34,8 @@ if __name__ == "__main__":
 
     # Import the file
     spec = spec_from_file_location("my_module", file_path)
-    assert spec is not None, f"{file_path} is not a valid file."
+    if spec is None:
+        raise RuntimeError(f"{file_path} is not a valid Python file.")
     my_module = module_from_spec(spec)
     spec.loader.exec_module(my_module)
     node_class = getattr(my_module, node_class_name)

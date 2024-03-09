@@ -30,9 +30,6 @@ Current Limitations
   (`more info <https://docs.pytest.org/en/latest/how-to/usage.html#profiling-test-execution-duration>`__).
   It might be possible to reduce the required ``warmup_time``,
   since it is unclear why setting it too low breaks *all* message exchanges and maybe there is a solvable bug causing it.
-- Currently, interacting via services only works from ROS2 version Humble onwards, and not on Foxy.
-  Similarly, a few of the tests seem to freeze sometimes.
-  I do not intend to investigate further, sice `that version will reach end of life very soon <https://endoflife.date/ros2>`__.
 
 Design Considerations
 ---------------------
