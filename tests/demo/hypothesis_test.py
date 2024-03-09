@@ -30,7 +30,7 @@ def ros2_preserved_string(draw: DrawFn) -> str:
 
 @with_single_node(EchoNode, watch_topics={"/mouth": String})
 @given(some_message=ros2_preserved_string())
-@settings(max_examples=10)  # Remember that these tests are costly
+@settings(max_examples=10, deadline=1000)  # Remember that these tests are costly
 def test_on_same_node(some_message: str, env: ROS2TestEnvironment) -> None:
     """This creates a single node and tests it with Hypothesis against many values."""
 
