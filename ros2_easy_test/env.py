@@ -8,7 +8,7 @@ from threading import RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Type, cast
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, cast
 
 # ROS
 from rclpy.action import ActionClient
@@ -29,7 +29,7 @@ _DEFAULT_TIMEOUT: Optional[float] = 2
 
 
 @dataclass
-class ActionObjects:
+class _ActionObjects:
     """A class to handle objects related to an action."""
 
     client: ActionClient
@@ -49,7 +49,7 @@ class ActionObjects:
         """
         Callback for send_goal response messages.
 
-        The primary function of this callback is to set the set the get_result_future.
+        The primary function of this callback is to set :atttr:`get_result_future`.
         """
         goal_handle = future.result()
         assert goal_handle is not None
@@ -126,7 +126,7 @@ class ROS2TestEnvironment(Node):
         # feedback.
         self._action_cb_group: CallbackGroup = MutuallyExclusiveCallbackGroup()
         self._registered_actions_lock = RLock()
-        self._registered_actions: Dict[str, ActionObjects] = {}
+        self._registered_actions: Dict[str, _ActionObjects] = {}
 
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
@@ -394,15 +394,22 @@ class ROS2TestEnvironment(Node):
         future = client.call_async(request)
         return cast(SrvTypeResponse, self.await_future(future, timeout=timeout_call))
 
-    def _get_action_objects(self, name: str, action_type: Type) -> ActionObjects:
+    def _get_action_objects(self, name: str, goal_class: Type) -> _ActionObjects:
         """Returns the service client for the given service name."""
 
         with self._registered_actions_lock:
             try:
                 return self._registered_actions[name]
             except KeyError:
-                objects = ActionObjects(
-                    client=ActionClient(self, action_type, name, callback_group=self._action_cb_group)
+                # Get the type of the action.
+                # This is a bit tricky but relieves the user from passing it explicitly
+                module = import_module(goal_class.__module__)
+                # We cut away the trailing "_Goal" from the type name, which has length 5
+                base_type_name = goal_class.__name__[:-5]
+                base_type_class: Type = getattr(module, base_type_name)
+
+                objects = _ActionObjects(
+                    client=ActionClient(self, base_type_class, name, callback_group=self._action_cb_group)
                 )
                 self._registered_actions[name] = objects
                 return objects
@@ -410,29 +417,31 @@ class ROS2TestEnvironment(Node):
     def send_action_goal_and_wait_for_response(
         self,
         name: str,
-        action_type: Type,
         goal_msg: Any,
         timeout_availability: Optional[float] = 1,
         timeout_send_goal: Optional[float] = 1,
         timeout_get_result: Optional[float] = 10,
-    ) -> tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]:
+    ) -> Tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]:
         """Sends the goal to the given action and returns the response, feedbacks and result.
-
-        The action type is inferred automatically from the request type.
+        Send the goal request to the action server, return the goal handle, all the feedback responses and the
+        final result.
 
         Args:
-            name: The name of the service
-            request: The request to send to the service
-            timeout_availability: The timeout to wait for the service to be available
-            timeout_call: The timeout to wait for the service to respond
-
-        Returns:
-            The response of the service
+            name (str): The name of the action
+            goal_msg (Any): Goal message to send to the action server.
+            timeout_availability (Optional[float]): The timeout to wait for the service to be available.
+                                                    Defaults to 1.
+            timeout_send_goal (Optional[float]): _description_. Defaults to 1.
+            timeout_get_result (Optional[float]): _description_. Defaults to 10.
 
         Raises:
-            TimeoutError: If the service did not respond within the timeout
+            TimeoutError: If the action server does not respond within the specified timeouts.
+
+        Returns:
+            Tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]: Return the goal handle for
+            the request, feedback responses and the goal result.
         """
-        action_objects = self._get_action_objects(name, action_type)
+        action_objects = self._get_action_objects(name, type(goal_msg))
 
         is_ready = action_objects.client.wait_for_server(timeout_availability)
         if not is_ready:

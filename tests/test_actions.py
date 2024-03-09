@@ -1,4 +1,4 @@
-"""Tests the base functionality of the library."""
+"""Tests that actions can be checked correctly."""
 
 
 from action_msgs.msg import GoalStatus
@@ -17,10 +17,8 @@ def test_fibonacci_action(env: ROS2TestEnvironment) -> None:
     """Test action."""
 
     goal_handle, feedbacks, result_response = env.send_action_goal_and_wait_for_response(
-        name="fibonacci", action_type=Fibonacci, goal_msg=Fibonacci.Goal(order=4)
+        name="fibonacci", goal_msg=Fibonacci.Goal(order=4)
     )
-    print(f"{type(goal_handle)=}")
-
     assert isinstance(goal_handle, ClientGoalHandle)
     assert goal_handle.accepted is True
     assert goal_handle.status == GoalStatus.STATUS_SUCCEEDED
