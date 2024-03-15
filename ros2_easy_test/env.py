@@ -398,21 +398,18 @@ class ROS2TestEnvironment(Node):
         """Returns the service client for the given service name."""
 
         with self._registered_actions_lock:
-            try:
-                return self._registered_actions[name]
-            except KeyError:
-                # Get the type of the action.
-                # This is a bit tricky but relieves the user from passing it explicitly
-                module = import_module(goal_class.__module__)
-                # We cut away the trailing "_Goal" from the type name, which has length 5
-                base_type_name = goal_class.__name__[:-5]
-                base_type_class: Type = getattr(module, base_type_name)
+            # Get the type of the action.
+            # This is a bit tricky but relieves the user from passing it explicitly
+            module = import_module(goal_class.__module__)
+            # We cut away the trailing "_Goal" from the type name, which has length 5
+            base_type_name = goal_class.__name__[:-5]
+            base_type_class: Type = getattr(module, base_type_name)
 
-                objects = _ActionObjects(
-                    client=ActionClient(self, base_type_class, name, callback_group=self._action_cb_group)
-                )
-                self._registered_actions[name] = objects
-                return objects
+            objects = _ActionObjects(
+                client=ActionClient(self, base_type_class, name, callback_group=self._action_cb_group)
+            )
+            self._registered_actions[name] = objects
+            return objects
 
     def send_action_goal_and_wait_for_response(
         self,
@@ -421,25 +418,23 @@ class ROS2TestEnvironment(Node):
         timeout_availability: Optional[float] = 1,
         timeout_send_goal: Optional[float] = 1,
         timeout_get_result: Optional[float] = 10,
-    ) -> Tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]:
+    ) -> Tuple[Optional[ClientGoalHandle], List[Any], Optional[Any]]:
         """Sends the goal to the given action and returns the response, feedbacks and result.
         Send the goal request to the action server, return the goal handle, all the feedback responses and the
         final result.
 
         Args:
-            name (str): The name of the action
-            goal_msg (Any): Goal message to send to the action server.
-            timeout_availability (Optional[float]): The timeout to wait for the service to be available.
-                                                    Defaults to 1.
-            timeout_send_goal (Optional[float]): _description_. Defaults to 1.
-            timeout_get_result (Optional[float]): _description_. Defaults to 10.
+            name: The name of the action
+            goal_msg: Goal message to send to the action server.
+            timeout_availability: The timeout to wait for the service to be available. Defaults to 1.
+            timeout_send_goal: Timeout in seconds for send goal. Defaults to 1.
+            timeout_get_result: Timeout in seconds for get result. Defaults to 10.
 
         Raises:
             TimeoutError: If the action server does not respond within the specified timeouts.
 
         Returns:
-            Tuple[Optional[ClientGoalHandle], Optional[List[Any]], Optional[Any]]: Return the goal handle for
-            the request, feedback responses and the goal result.
+            Return the goal handle for the request, feedback responses and the goal result.
         """
         action_objects = self._get_action_objects(name, type(goal_msg))
 
