@@ -199,6 +199,7 @@ def with_single_node(
 def with_launch_file(  # noqa: C901
     launch_file: Union[Path, str],
     *,
+    parameters: Optional[Dict[str, Any]] = None,
     debug_launch_file: bool = False,
     warmup_time: float = 2,
     time_limit: Optional[float] = 60,
@@ -215,6 +216,7 @@ def with_launch_file(  # noqa: C901
         launch_file: Either:
             1) The path to the launch file to start for the test.
             2) The literal launch file (must contain a newline to be detected as such).
+        parameters: The parameters to be set for the node as ``("key", value)`` pairs
         debug_launch_file: If set to ``True``, instruct ``ros2 launch`` to be more verbose and run in debug
             mode. It only affects the output on failing tests.
             However, it might also cause sudden failures, therefore the default is ``False``.
@@ -253,9 +255,13 @@ def with_launch_file(  # noqa: C901
                     "ros2",
                     "launch",
                     str(launch_file_path),
-                    "--noninteractive",
-                    *ros2_debug_parameters,
                 ]
+                if parameters:
+                    assert isinstance(parameters, dict), "Only dictionaries are allowed for parameters."
+                    ros2_parameters.extend(
+                        [f"{key}:={value}" for key, value in parameters.items()]
+                    )
+                ros2_parameters.extend(["--noninteractive", *ros2_debug_parameters])
 
                 context = Context()
                 try:
