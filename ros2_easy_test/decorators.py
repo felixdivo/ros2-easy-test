@@ -257,10 +257,7 @@ def with_launch_file(  # noqa: C901
                     str(launch_file_path),
                 ]
                 if parameters:
-                    assert isinstance(parameters, dict), "Only dictionaries are allowed for parameters."
-                    ros2_parameters.extend(
-                        [f"{key}:={value}" for key, value in parameters.items()]
-                    )
+                    ros2_parameters.extend([f"{key}:={value}" for key, value in parameters.items()])
                 ros2_parameters.extend(["--noninteractive", *ros2_debug_parameters])
 
                 context = Context()
