@@ -146,6 +146,15 @@ class TestLaunchFile(SharedTestCases, TestCase):
     def test_publisher(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)
 
+    @with_launch_file(
+        LAUNCH_FILES / "talker_with_params.py",
+        watch_topics={"/chatter": String},
+        parameters={"start_value": -42},
+    )
+    def test_parameter_set(self, env: ROS2TestEnvironment) -> None:
+        response: String = env.assert_message_published("/chatter")
+        self.assertEqual(response.data, "Hello World: -42")
+
     @with_launch_file(LAUNCH_FILES / "talker.yaml", watch_topics={"/chatter": String})
     def test_publisher_yaml(self, env: ROS2TestEnvironment) -> None:
         super().test_publisher(env)  # Should work just like the normal test
