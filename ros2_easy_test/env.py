@@ -1,6 +1,7 @@
 """This module provides the environment by which tests can interact with nodes."""
 
 # Standard library
+from collections import defaultdict
 from importlib import import_module
 from queue import Empty, SimpleQueue
 from threading import RLock
@@ -53,9 +54,17 @@ class ROS2TestEnvironment(Node):
     Args:
         watch_topics: The topics (and their type) to watch for incoming messages.
             You may pass ``None`` to not watch any topic.
+        qos_profile: The topics and their qos profile to subscribe to or publish on.
+            You may pass ``None`` to use the default profile.
     """
 
-    def __init__(self, *, watch_topics: Optional[Mapping[str, Type]] = None, **kwargs) -> None:
+    def __init__(
+        self,
+        *,
+        watch_topics: Optional[Mapping[str, Type]] = None,
+        qos_profiles: Optional[Mapping[str, QoSProfile]] = None,
+        **kwargs,
+    ) -> None:
         super().__init__("_testing_ROS2TestEnvironment", **kwargs)
 
         # Collects the messages that were received
@@ -63,7 +72,9 @@ class ROS2TestEnvironment(Node):
         self._subscriber_mailboxes_lock = RLock()
         self._subscriber_mailboxes: Dict[str, SimpleQueue[RosMessage]] = {}
 
-        self._qos_profile = QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)
+        self._qos_profiles = defaultdict(
+            lambda: QoSProfile(history=QoSHistoryPolicy.KEEP_ALL), qos_profiles or {}
+        )
 
         # Set up the subscribers, which place the messages in the mailboxes
         for topic, message_type in (watch_topics or {}).items():
@@ -76,7 +87,7 @@ class ROS2TestEnvironment(Node):
                 self._subscriber_mailboxes[topic] = SimpleQueue()
 
             # After the mailboxes are set up, we can start receiving messages
-            self.create_subscription(message_type, topic, callback, self._qos_profile)
+            self.create_subscription(message_type, topic, callback, self._qos_profiles[topic])
 
         # Prepare to collect publishers; these are set up on the fly when used the first time in `publish()`
         self._registered_publishers_lock = RLock()
@@ -112,7 +123,7 @@ class ROS2TestEnvironment(Node):
             try:
                 return self._registered_publishers[topic]
             except KeyError:
-                publisher = self.create_publisher(msg_type, topic, self._qos_profile)
+                publisher = self.create_publisher(msg_type, topic, self._qos_profiles[topic])
                 self._registered_publishers[topic] = publisher
                 return publisher
 
