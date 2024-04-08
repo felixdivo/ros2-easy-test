@@ -1,6 +1,6 @@
 from example_interfaces.srv import AddTwoInts
 from rclpy.node import Node
-from rclpy.qos import QoSHistoryPolicy, QoSProfile
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSHistoryPolicy, QoSProfile
 from std_msgs.msg import String
 
 
@@ -30,6 +30,14 @@ class EchoNode(Node):
         mouth = self.create_publisher(String, "/mouth", qos_profile)
         # Immediately forwards it and also holds a reference to the publisher:
         self.create_subscription(String, "/ear", mouth.publish, qos_profile)
+
+
+class LatchingNode(Node):
+    def __init__(self, *args, **kwargs):
+        super().__init__("latching_publisher", *args, **kwargs)
+
+        qos_profile = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL, history=HistoryPolicy.KEEP_ALL)
+        self.create_publisher(String, "/hello", qos_profile).publish(String(data="Hello World"))
 
 
 class AddTwoIntsServer(Node):
