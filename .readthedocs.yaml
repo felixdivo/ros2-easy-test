@@ -10,7 +10,7 @@ build:
 python:
   install:
     - method: pip
-      path: .
+      path: ros2_easy_test
       extra_requirements:
         - doc
 
