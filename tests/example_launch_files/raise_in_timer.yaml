@@ -1,5 +1,0 @@
-launch:
-- executable:
-    name: NodeRaiseInTimer
-    cmd: python tests/example_nodes/run_node.py tests/example_nodes/failing.py NodeRaiseInTimer
-    output: screen

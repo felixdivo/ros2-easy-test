@@ -1,0 +1,5 @@
+launch:
+- executable:
+    name: AddTwoIntsServer
+    cmd: python ros2_easy_test/tests/example_nodes/run_node.py ros2_easy_test/tests/example_nodes/well_behaved.py AddTwoIntsServer
+    output: screen

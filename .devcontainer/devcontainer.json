@@ -14,7 +14,8 @@
         "redhat.vscode-yaml",
         "bungcip.better-toml",
         "trond-snekvik.simple-rst",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "ms-python.black-formatter"
       ]
     }
   },

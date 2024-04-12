@@ -4,7 +4,7 @@ on message passing between nodes.
 """
 
 __author__ = "Felix Divo <felix.divo@sailingteam.tu-darmstadt.de>"
-__version__ = "0.2.0.post1"
+__version__ = "0.3.0"
 
 from .decorators import with_launch_file, with_single_node
 from .env import ROS2TestEnvironment
