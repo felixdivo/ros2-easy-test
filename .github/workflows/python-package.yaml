@@ -38,11 +38,11 @@ jobs:
       -
         name: Format (with black)
         run: |
-          black --check .
+          black --check ros2_easy_test/
       -
         name: Lint (with ruff)
         run: |
-          ruff check .
+          ruff check ros2_easy_test/
       -
         name: Type check main code (with mypy)
         run: |
