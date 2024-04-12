@@ -149,7 +149,7 @@ class TestLaunchFile(SharedTestCases, TestCase):
     @with_launch_file(
         LAUNCH_FILES / "talker_with_params.py",
         watch_topics={"/chatter": String},
-        parameters={"start_value": -42},
+        launch_arguments={"start_value": -42},
     )
     def test_parameter_set(self, env: ROS2TestEnvironment) -> None:
         response: String = env.assert_message_published("/chatter")
