@@ -19,5 +19,5 @@
       ]
     }
   },
-  "postStartCommand": "pip install -e '.[dev,doc]'"
+  "postStartCommand": "python -m pip install -e './ros2_easy_test[dev,doc]'"
 }

@@ -2,7 +2,6 @@ from xml.etree import ElementTree
 
 from setuptools import find_packages, setup
 
-
 # Try to get package info
 # Since checking everything for existence would be cumbersome, we disable strict typing here
 # mypy: no-strict-optional

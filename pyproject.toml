@@ -4,8 +4,8 @@
 # -v prints the test case names to see deadlocks
 addopts = "-Werror --color=yes --cov=ros2_easy_test --doctest-modules --cov-report html --durations=0 --durations-min=3.0 -v"
 testpaths = [
-    "ros2_easy_test",  # for the doctests
-    "tests",  # for the actual tests
+    "ros2_easy_test/ros2_easy_test",  # for the doctests
+    "ros2_easy_test/tests",  # for the actual tests
 ]
 
 [tool.black]
