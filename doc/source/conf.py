@@ -14,7 +14,7 @@ from pathlib import Path
 project = "ROS2 easy-test"
 
 # From: https://stackoverflow.com/a/5872024/3753684
-with open(Path(__file__).parents[2] / "ros2_easy_test" / "__init__.py") as init:
+with open(Path(__file__).parents[2] / "ros2_easy_test" / "ros2_easy_test" / "__init__.py") as init:
     metadata = dict(re.findall('''__([a-z]+)__ = "([^"]+)"''', init.read()))
 
 copyright = f"2021, {metadata['author']}"
