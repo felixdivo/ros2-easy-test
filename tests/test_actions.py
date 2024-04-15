@@ -16,7 +16,7 @@ from .example_nodes.minimal_action_server_with_context import MinimalActionServe
 def test_fibonacci_action(env: ROS2TestEnvironment) -> None:
     """Test action."""
 
-    goal_handle, feedbacks, result_response = env.send_action_goal_and_wait_for_response(
+    goal_handle, feedbacks, result_response = env.send_action_goal_and_wait_for_result(
         name="fibonacci", goal_msg=Fibonacci.Goal(order=4)
     )
     assert isinstance(goal_handle, ClientGoalHandle)

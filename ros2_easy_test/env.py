@@ -126,7 +126,7 @@ class ROS2TestEnvironment(Node):
         # feedback.
         self._action_cb_group: CallbackGroup = MutuallyExclusiveCallbackGroup()
         self._registered_actions_lock = RLock()
-        self._registered_actions: Dict[str, _ActionObjects] = {}
+        self._registered_action_clients: Dict[str, ActionClient] = {}
 
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
@@ -398,25 +398,27 @@ class ROS2TestEnvironment(Node):
         """Returns the service client for the given service name."""
 
         with self._registered_actions_lock:
-            # Get the type of the action.
-            # This is a bit tricky but relieves the user from passing it explicitly
-            module = import_module(goal_class.__module__)
-            # We cut away the trailing "_Goal" from the type name, which has length 5
-            base_type_name = goal_class.__name__[:-5]
-            base_type_class: Type = getattr(module, base_type_name)
+            try:
+                client = self._registered_action_clients[name]
+            except KeyError:
+                # Get the type of the action.
+                # This is a bit tricky but relieves the user from passing it explicitly
+                module = import_module(goal_class.__module__)
+                # We cut away the trailing "_Goal" from the type name, which has length 5
+                base_type_name = goal_class.__name__[:-5]
+                base_type_class: Type = getattr(module, base_type_name)
 
-            objects = _ActionObjects(
-                client=ActionClient(self, base_type_class, name, callback_group=self._action_cb_group)
-            )
-            self._registered_actions[name] = objects
-            return objects
+                client = ActionClient(self, base_type_class, name, callback_group=self._action_cb_group)
+                self._registered_action_clients[name] = client
 
-    def send_action_goal_and_wait_for_response(
+            return _ActionObjects(client=client)
+    def send_action_goal_and_wait_for_result(
         self,
         name: str,
         goal_msg: Any,
         timeout_availability: Optional[float] = 1,
         timeout_send_goal: Optional[float] = 1,
+        timeout_get_result_future: Optional[float] = 1,
         timeout_get_result: Optional[float] = 10,
     ) -> Tuple[Optional[ClientGoalHandle], List[Any], Optional[Any]]:
         """Sends the goal to the given action and returns the response, feedbacks and result.
@@ -426,7 +428,9 @@ class ROS2TestEnvironment(Node):
         Args:
             name: The name of the action
             goal_msg: Goal message to send to the action server.
-            timeout_availability: The timeout to wait for the service to be available. Defaults to 1.
+            timeout_availability: The timeout to wait for the action to be available. Defaults to 1.
+            timeout_get_result_future: Timeout in seconds for first callback which sets the get_result_future.
+                                       Defaults to 1.
             timeout_send_goal: Timeout in seconds for send goal. Defaults to 1.
             timeout_get_result: Timeout in seconds for get result. Defaults to 10.
 
@@ -452,8 +456,13 @@ class ROS2TestEnvironment(Node):
         )
 
         # Spin so we have a goal_response_callback and get_result_future is set.
+        get_result_future_start = monotonic()
         while action_objects.get_result_future is None:
             self.executor.spin_once()
+            if monotonic() - get_result_future_start > timeout_get_result_future:
+                raise AssertionError(f"Get result future not set within {timeout_get_result_future=}")
+            sleep(1e-6)
+
 
         action_objects.result = self.await_future(
             action_objects.get_result_future, timeout=timeout_get_result

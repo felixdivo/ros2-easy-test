@@ -64,6 +64,9 @@ class MinimalActionServerWithContext(Node):
         feedback_msg = Fibonacci.Feedback()
         feedback_msg.sequence = [0, 1]
 
+        # Helps avoid race condition in testing.
+        time.sleep(.1)
+
         # Start executing the action
         for i in range(1, goal_handle.request.order):
             if goal_handle.is_cancel_requested:
@@ -80,7 +83,7 @@ class MinimalActionServerWithContext(Node):
             goal_handle.publish_feedback(feedback_msg)
 
             # Sleep for demonstration purposes
-            time.sleep(.001)
+            time.sleep(.01)
 
         goal_handle.succeed()
 
