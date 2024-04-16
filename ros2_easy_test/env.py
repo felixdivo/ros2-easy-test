@@ -54,8 +54,9 @@ class ROS2TestEnvironment(Node):
     Args:
         watch_topics: The topics (and their type) to watch for incoming messages.
             You may pass ``None`` to not watch any topic.
-        qos_profile: The topics and their qos profile to subscribe to or publish on.
+        qos_profile: The topics and their QoS profile to subscribe to or publish on.
             You may pass ``None`` to use the default profile.
+            All topics without an explicit profile use ``QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)``.
     """
 
     def __init__(
