@@ -48,6 +48,7 @@ def test_simple_publisher(env: ROS2TestEnvironment) -> None:
     response: String = env.assert_message_published("/chatter", timeout=5)
     assert response.data == "Hello World: 0"
 ```
+It is also possible to specify custom QoSProfiles for the `ROS2TestEnvironment` to use when subscribing or publishing on the specified topics. See [`tests/demo/latching_topic_test.py`](tests/demo/latching_topic_test.py) for an example. If no profile is specified, the default `QoSProfile(history=QoSHistoryPolicy.KEEP_ALL)` is used.
 
 You can optionally provide more parameters to the test setting, i.e., additionally pass `parameters={"some.thing": 30.2}` to the decorator.
 The argument of the test function receiving the `ROS2TestEnvironment` *must* be named `env`.
