@@ -22,15 +22,26 @@ jobs:
       run:
         shell: bash
     steps:
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v3
+      # -
+      #   name: Install dependencies and the package
+      #   run: |
+      #     apt-get update -q
+      #     apt-get install -qy python3-pip python-is-python3 python3-colcon-ros ros-$ROS_DISTRO-example-interfaces
+      #     pip install --upgrade pip setuptools
+      #     python -m pip install -e './ros2_easy_test[dev]'
       -
-        name: Install dependencies and the package
-        run: |
-          apt-get update -q && apt-get install -qy python3-pip python-is-python3 python3-colcon-ros ros-$ROS_DISTRO-example-interfaces
-          pip install --upgrade pip setuptools
-          python -m pip install -e './ros2_easy_test[dev]'
+        name: Setup ROS
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+      -
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          package-name: ros2_easy_test
+          target-ros2-distro: humble
       -
         name: Check that colcon build works
         run: |

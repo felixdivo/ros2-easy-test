@@ -4,9 +4,6 @@
     "dockerfile": "../Dockerfile",
     "context": ".."
   },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "zsh"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
