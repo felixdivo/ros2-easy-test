@@ -183,3 +183,9 @@ qtcreator-*
 
 # Catkin custom files
 CATKIN_IGNORE
+
+############ CUSTOM ############
+
+# Gets created in the CI pipeline, but we don't want ruff to look at it
+ros_ws/build
+ros_ws/install
