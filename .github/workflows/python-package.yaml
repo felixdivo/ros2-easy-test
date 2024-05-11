@@ -37,7 +37,7 @@ jobs:
       -
         uses: ros-tooling/action-ros-ci@v0.3
         with:
-          target-ros2-distro: $ROS_DISTRO
+          target-ros2-distro: "$ROS_DISTRO"
           package-name: ros2_easy_test
           skip-tests: true
       -
