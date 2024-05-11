@@ -12,6 +12,7 @@ testpaths = [
 line-length = 110
 # The lowest supported version
 target-version = "py38"
+exclude = ["ros_ws/**"]  # Gets created by the CI pipeline
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
