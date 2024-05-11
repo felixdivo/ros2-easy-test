@@ -24,7 +24,6 @@ def _launch_setup(context: LaunchContext, start_value: LaunchConfiguration):
 
 
 def generate_launch_description() -> LaunchDescription:
-
     declared_arguments = []
 
     declared_arguments.append(
