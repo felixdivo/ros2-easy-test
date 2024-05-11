@@ -29,13 +29,15 @@ jobs:
         name: Install dependencies
         run: |
           apt-get update -q
-          apt-get install -qy python3-pip python-is-python3 ros-dev-tools ros-$ROS_DISTRO-example-interfaces
+          apt-get install -qy python3-pip python-is-python3 ros-dev-tools
           rosdep init
+          # There seems to be no other way to install the PiPI dependencies:
+          export PIP_BREAK_SYSTEM_PACKAGES=1
           pip install -e './ros2_easy_test[dev]'
       -
         uses: ros-tooling/action-ros-ci@v0.3
         with:
-          target-ros2-distro: "humble"
+          target-ros2-distro: $ROS_DISTRO
           package-name: ros2_easy_test
           skip-tests: true
       -
