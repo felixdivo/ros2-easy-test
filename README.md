@@ -144,4 +144,4 @@ See [Releases](https://github.com/felixdivo/ros2-easy-test/releases).
 See [LICENSE](LICENSE).
 
 Initially developed by [Felix Divo](https://github.com/felixdivo) at [*Sailing Team Darmstadt e. V.*](https://www.st-darmstadt.de/), a student group devoted to robotic sailing based in Darmstadt, Germany.
-Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanced feedback, and all the other awesome contributors for their help and support!
+Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanced feedback, and all [the other awesome contributors](https://github.com/felixdivo/ros2-easy-test/graphs/contributors) for their help and support!
