@@ -36,7 +36,7 @@ setup(
         "Typing :: Typed",
     ],
     requires_python=">=3.8",
-    install_requires=["setuptools", "makefun>=1.15.2"],
+    install_requires=["makefun>=1.15.2"],
     extras_require={
         "dev": [
             "black~=24.2",

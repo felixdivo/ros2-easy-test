@@ -8,7 +8,8 @@
 FROM ros:humble-ros-core
 
 # Install runtime dependencies
-RUN apt-get update -q && apt-get install -qy python3-pip python-is-python3 git ros-dev-tools ros-$ROS_DISTRO-example-interfaces
+RUN apt-get update -q && apt-get install -qy python3-pip python-is-python3 git ros-dev-tools
+RUN rosdep init && rosdep update
 
 # Need to have setuptools version 64+ for editable installs
 RUN pip install --upgrade pip setuptools

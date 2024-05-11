@@ -16,5 +16,5 @@
       ]
     }
   },
-  "postStartCommand": "python -m pip install -e './ros2_easy_test[dev,doc]'"
+  "postStartCommand": "rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev,doc]'"
 }
