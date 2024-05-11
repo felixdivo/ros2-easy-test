@@ -30,11 +30,7 @@ jobs:
         run: |
           apt-get update -q
           apt-get install -qy python3-pip python-is-python3 ros-dev-tools
-          # source /opt/ros/$ROS_DISTRO/setup.bash
           rosdep init
-          # rosdep update
-          # rosdep install --from-paths ros2_easy_test
-          # colcon build --symlink-install
           # There seems to be no other way to install the PiPI dependencies:
           export PIP_BREAK_SYSTEM_PACKAGES=1
           pip install -e './ros2_easy_test[dev]'
@@ -53,7 +49,7 @@ jobs:
       -
         name: Lint (with ruff)
         run: |
-          ruff check ros2_easy_test/
+          ruff check
       -
         name: Type check main code (with mypy)
         run: |

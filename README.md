@@ -7,8 +7,7 @@
 
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 [![documentation status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
-[![code style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
-[![linter](https://img.shields.io/badge/linter-ruff-black)](https://github.com/charliermarsh/ruff)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![static type checker](https://img.shields.io/badge/static%20typing-mypy-black)](https://mypy-lang.org/)
 
 A Python test framework for [ROS2](https://ros.org/) allowing for:
@@ -114,7 +113,10 @@ See [the documentation on that](https://ros2-easy-test.readthedocs.io/en/latest/
 
 ## Contributing
 
-You can install the development dependencies with `pip install -e ".[dev]"`. After this, you will have access to the configured formatters `black .` and `ruff check .`.
+Basic installation is easiest with the porvided `Dockerfile`.
+For the last piece of setup, either open it in the provided [Devcontainer](https://code.visualstudio.com/docs/remote/containers) or maunally run `rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev]` afterward.
+
+After this, you will have access to the configured formatter (`ruff format`) and linter (`ruff check`).
 
 You can run the test with simply `pytest`. Coverage reports and timings will be printed on the command line, and a fresh line-by-line coverage report is in `htmlcov/index.html`.
 
@@ -142,4 +144,4 @@ See [Releases](https://github.com/felixdivo/ros2-easy-test/releases).
 See [LICENSE](LICENSE).
 
 Initially developed by [Felix Divo](https://github.com/felixdivo) at [*Sailing Team Darmstadt e. V.*](https://www.st-darmstadt.de/), a student group devoted to robotic sailing based in Darmstadt, Germany.
-Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanced feedback.
+Thanks to [Simon Kohaut](https://github.com/simon-kohaut) for his kind and nuanced feedback, and all the other awesome contributors for their help and support!
