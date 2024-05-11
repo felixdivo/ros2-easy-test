@@ -30,22 +30,22 @@ jobs:
         run: |
           apt-get update -q
           apt-get install -qy python3-pip python-is-python3 ros-dev-tools
-          source /opt/ros/$ROS_DISTRO/setup.bash
+          # source /opt/ros/$ROS_DISTRO/setup.bash
           rosdep init
-          rosdep update
-          rosdep install --from-paths ros2_easy_test
-          colcon build --symlink-install
+          # rosdep update
+          # rosdep install --from-paths ros2_easy_test
+          # colcon build --symlink-install
           # There seems to be no other way to install the PiPI dependencies:
           export PIP_BREAK_SYSTEM_PACKAGES=1
           pip install -e './ros2_easy_test[dev]'
-      # - run: echo "ROS_DISTRO=$ROS_DISTRO" >> "$GITHUB_OUTPUT"
-      #   id: save_envs
-      # -
-      #   uses: ros-tooling/action-ros-ci@v0.3
-      #   with:
-      #     target-ros2-distro: ${{ steps.save_envs.outputs.ROS_DISTRO }}
-      #     package-name: ros2_easy_test
-      #     skip-tests: true
+      - run: echo "ROS_DISTRO=$ROS_DISTRO" >> "$GITHUB_OUTPUT"
+        id: save_envs
+      -
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          target-ros2-distro: ${{ steps.save_envs.outputs.ROS_DISTRO }}
+          package-name: ros2_easy_test
+          skip-tests: true
       -
         name: Format (with ruff)
         run: |
@@ -66,5 +66,5 @@ jobs:
       -
         name: Testing (with pytest)
         run: |
-          # source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
+          source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
           python -m pytest
