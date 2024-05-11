@@ -30,6 +30,7 @@ jobs:
         run: |
           apt-get update -q
           apt-get install -qy python3-pip python-is-python3 ros-dev-tools ros-$ROS_DISTRO-example-interfaces
+          rosdep init
         # pip install --upgrade pip setuptools
         # python -m pip install -e './ros2_easy_test[dev]'
       -
