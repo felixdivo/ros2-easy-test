@@ -91,7 +91,7 @@ class TestSingleNodesForEnvCoverage(TestCase):
     @mark.xfail(
         raises=Exception,
         reason="specifiying a wrong message type is a common mistake and shall fail loudly",
-        strict=not is_ros_version("foxy"),  # It does fail on foxy
+        strict=True,
     )
     @with_single_node(EchoNode, watch_topics={"/mouth": Empty})
     def test_wrong_topic_type(self, env: ROS2TestEnvironment) -> None:

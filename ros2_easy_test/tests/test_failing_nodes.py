@@ -121,7 +121,6 @@ class TestSingleNode(SharedTestCases, TestCase):
         reason="Failures in a service callback should be propagated to the test.",
         strict=False,  # TODO: It would be nice to fix this some time -> make it strict=True
         # At least this one doesn't deadlock, but it still doesn't work
-        run=not is_ros_version("foxy"),  # TODO: Somehow deadlocks
     )
     @with_single_node(NodeRaiseOnRequest)
     def test_service_callback_failure_async(self, env: ROS2TestEnvironment) -> None:
@@ -185,7 +184,6 @@ class TestLaunchFile(SharedTestCases, TestCase):
         reason="Failures in a service callback should be propagated to the test.",
         strict=False,  # TODO: It would be nice to fix this some time -> make it strict=True
         # At least this one doesn't deadlock, but it still doesn't work
-        run=not is_ros_version("foxy"),  # TODO: Somehow deadlocks
     )
     @with_launch_file(BASE / "raise_on_request.yaml", warmup_time=2)
     def test_service_callback_failure_async(self, env: ROS2TestEnvironment) -> None:
