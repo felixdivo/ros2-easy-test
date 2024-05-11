@@ -8,20 +8,16 @@ testpaths = [
     "ros2_easy_test/tests",  # for the actual tests
 ]
 
-[tool.black]
-line-length = 110
-
-[tool.isort]
-profile = "black"
-
 [tool.ruff]
-# Same as Black
 line-length = 110
 # The lowest supported version
 target-version = "py38"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.mypy]
 warn_return_any = true

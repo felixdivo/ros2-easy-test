@@ -41,9 +41,9 @@ jobs:
           package-name: ros2_easy_test
           skip-tests: true
       -
-        name: Format (with black)
+        name: Format (with ruff)
         run: |
-          black --check ros2_easy_test/
+          ruff format --check
       -
         name: Lint (with ruff)
         run: |
@@ -60,5 +60,5 @@ jobs:
       -
         name: Testing (with pytest)
         run: |
-          source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
+          # source /opt/ros/$ROS_DISTRO/setup.bash  # Activate ROS
           python -m pytest

@@ -39,7 +39,6 @@ setup(
     install_requires=["makefun>=1.15.2"],
     extras_require={
         "dev": [
-            "black~=24.2",
             "ruff",
             "mypy",
             "pytest",

@@ -130,7 +130,8 @@ def with_single_node(
                     )
                     # The type ignore is needed due to a bug in ROS2 Humble+
                     executor.spin_until_future_complete(
-                        test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                        test_function_task,
+                        timeout_sec=time_limit,  # type: ignore[arg-type]
                     )
 
                     test_function_exception = test_function_task.exception()
@@ -291,7 +292,8 @@ def with_launch_file(  # noqa: C901
                         )
                         # The type ignore is needed due to a bug in ROS2 Humble+
                         executor.spin_until_future_complete(
-                            test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                            test_function_task,
+                            timeout_sec=time_limit,  # type: ignore[arg-type]
                         )
 
                         test_function_exception = test_function_task.exception()
