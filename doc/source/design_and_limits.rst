@@ -34,7 +34,7 @@ Current Limitations
 Design Considerations
 ---------------------
 
-These were the initial design considerations. Over time, this may shift.
+These were (mostly) the initial design considerations. Over time, this may shift.
 
 Goals
 ~~~~~
@@ -44,20 +44,20 @@ Goals
 - Allow for concise tests. Little to no infrastructure code should be required for typical scenarios.
 - Automate common checks where possible (e.g. nodes should not crash).
 - Support testing single and multiple nodes in combination (i.e. support *Unit tests* (of single nodes),
-  *Integration tests* and *System tests* as per
-  `ROS2 terminology
-  <https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Developer-Guide.html#testing>`__).
+  *Integration tests*, and *System tests* as per
+  `ROS2 terminology <https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Developer-Guide.html#testing>`__).
 - Be well-documented and easy to get started.
-- Support the most widely used platforms (that have not reached end of life yet). Be pragmatic.
+- Support the most widely used platforms (that have not `reached end-of-life <https://docs.ros.org/en/rolling/Releases.html>`__ yet).
+  Be pragmatic.
 
 Constraints
 ~~~~~~~~~~~
 
 - Be easy to maintain by needing only a few lines of code (below a thousand).
-  Thus, actions are currently not supported.
-  Also, we only use public APIs wherever possible.
-- Don't reinvent the wheel and benefit from future improvements: Use existing functionality of Python and
-  ROS2. This includes: :mod:`unittest`, :mod:`pytest`, and the
+  We only use public APIs wherever possible.
+- Don't reinvent the wheel and benefit from future improvements:
+  Use existing functionality of Python and ROS2.
+  This includes: :mod:`unittest`, :mod:`pytest`, and the
   `ROS2 launch system <https://design.ros2.org/articles/roslaunch.html>`__.
 - Efficiency is not a primary concern as this mini-framework is intended to only be used for testing
   and not in a real robot deployment, where performance is much more of a concern.
