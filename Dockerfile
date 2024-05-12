@@ -11,6 +11,9 @@ FROM ros:humble-ros-core
 RUN apt-get update -q && apt-get install -qy python3-pip python-is-python3 git ros-dev-tools
 RUN rosdep init && rosdep update
 
+# Make sure we can install packages with pip on Jazzy+
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
 # Need to have setuptools version 64+ for editable installs
 RUN pip install --upgrade pip setuptools
 
