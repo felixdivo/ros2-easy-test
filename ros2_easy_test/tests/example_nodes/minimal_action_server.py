@@ -24,7 +24,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 
 
-class MinimalActionServerWithContext(Node):
+class MinimalActionServer(Node):
     def __init__(self, *args, **kwargs):
         super().__init__("minimal_action_server", *args, **kwargs)
 
