@@ -11,7 +11,7 @@ from std_msgs.msg import String
 
 
 class OnPurposeError(RuntimeError):
-    """Raised on purpose to demonstrate the behavior of the library."""
+    """Raised on purpose to demonstrate the behavior and correctness of the library."""
 
 
 class NodeRaiseInInit(Node):
