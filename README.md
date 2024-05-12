@@ -111,6 +111,7 @@ Some hints:
 ## Limitations, Design, and Other Projects
 
 See [the documentation on that](https://ros2-easy-test.readthedocs.io/en/latest/design_and_limits.html).
+Please read it before suggesting major features or changes.
 
 ## Contributing
 
