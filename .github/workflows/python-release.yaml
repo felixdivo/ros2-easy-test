@@ -27,7 +27,7 @@ jobs:
           prerelease: false
 
   deploy-to-pypi:
-    needs: add-github-release  # This is important to keep thins in sync
+    needs: add-github-release  # This is important to keep things in sync
     name: Deploy as PyPI Package
     runs-on: ubuntu-latest
     steps:
