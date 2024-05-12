@@ -28,6 +28,7 @@ warn_unused_configs = true
 module = [
     "rclpy.*",  # For the CI pipeline to work
     "launch.*",
+    "launch_ros.*",
     "std_msgs.*",
     "action_msgs.*",
     "example_interfaces.*",

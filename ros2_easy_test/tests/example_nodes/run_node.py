@@ -39,6 +39,7 @@ if __name__ == "__main__":
     if spec is None:
         raise RuntimeError(f"{file_path} is not a valid Python file.")
     my_module = module_from_spec(spec)
+    assert spec.loader is not None, "spec.loader is None, this should not happen."
     spec.loader.exec_module(my_module)
     node_class = getattr(my_module, node_class_name)
 
