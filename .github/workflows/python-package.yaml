@@ -14,8 +14,7 @@ jobs:
       fail-fast: false  # Tests may behave very different across these systems
       matrix:
         # We test on all supported LTS versions and the latest rolling release
-        # TODO: Add `ros:jazzy-ros-core`
-        container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
+        container: ["ros:humble-ros-core", "ros:jazzy-ros-core", "ros:rolling-ros-core"]
     container: ${{ matrix.container }}
 
     defaults:
