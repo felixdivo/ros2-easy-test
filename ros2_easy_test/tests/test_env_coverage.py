@@ -11,7 +11,7 @@ from std_msgs.msg import Empty, String
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
 
 # Helpers
-from . import LAUNCH_FILES, is_ros_version
+from . import LAUNCH_FILES
 
 # Module under test and interfaces
 from .example_nodes.well_behaved import EchoNode, Talker

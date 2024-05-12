@@ -15,9 +15,6 @@ from std_msgs.msg import Empty, String
 # What we are testing
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
 
-# Helpers
-from . import is_ros_version
-
 # Module under test and interfaces
 from .example_nodes.failing import (
     NodeRaiseInInit,
