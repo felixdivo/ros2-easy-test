@@ -1,76 +1,24 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
-dynamic = ["version"]
-name = "ros2_easy_test"
-authors = [
-  { name = "Felix Divo", email = "felix.divo@sailingteam.tu-darmstadt.de" },
-]
-description = "A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions."
-readme = "README.md"
-requires-python = ">=3.8"
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent",
-  "Natural Language :: English",
-  "License :: OSI Approved :: MIT License",
-  "Intended Audience :: Developers",
-  "Framework :: Robot Framework :: Library",
-  "Topic :: Software Development :: Testing",
-  "Topic :: Software Development :: Testing :: BDD",
-  "Typing :: Typed",
-]
-urls = { Homepage = "https://github.com/felixdivo/ros2-easy-test" }
-dependencies = [
-  "makefun>=1.15.2"
-]
-# The package is discovered automatically (including the py.typed file):
-# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#flat-layout
-
-[project.optional-dependencies]
-dev = [
-  "black~=24.2",
-  "ruff",
-  "mypy",
-  "pytest",
-  "pytest-cov",
-  "pytest-sugar",
-  "hypothesis",  # To demonstrate how it works with this
-]
-doc = [
-  "sphinx",
-  "sphinx_rtd_theme",
-]
-
-[tool.setuptools.dynamic]
-version = { attr = "ros2_easy_test.__version__" }
-
 [tool.pytest.ini_options]
 # We want errors to fail loudly to not miss any exceptions in the background
 # The latter part shows the duration of the slowest tests
 # -v prints the test case names to see deadlocks
 addopts = "-Werror --color=yes --cov=ros2_easy_test --doctest-modules --cov-report html --durations=0 --durations-min=3.0 -v"
 testpaths = [
-    "ros2_easy_test",  # for the doctests
-    "tests",  # for the actual tests
+    "ros2_easy_test/ros2_easy_test",  # for the doctests
+    "ros2_easy_test/tests",  # for the actual tests
 ]
 
-[tool.black]
-line-length = 110
-
-[tool.isort]
-profile = "black"
-
 [tool.ruff]
-# Same as Black
 line-length = 110
 # The lowest supported version
 target-version = "py38"
+exclude = ["ros_ws/**"]  # Gets created by the CI pipeline
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.mypy]
 warn_return_any = true

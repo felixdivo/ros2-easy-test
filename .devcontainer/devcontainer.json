@@ -4,9 +4,6 @@
     "dockerfile": "../Dockerfile",
     "context": ".."
   },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "zsh"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,9 +11,10 @@
         "redhat.vscode-yaml",
         "bungcip.better-toml",
         "trond-snekvik.simple-rst",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "ms-python.black-formatter"
       ]
     }
   },
-  "postStartCommand": "pip install -e '.[dev,doc]'"
+  "postStartCommand": "rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev,doc]'"
 }

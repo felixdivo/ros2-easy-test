@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false  # Tests may behave very different across these systems
       matrix:
-        # We do not test on ros:foxy-ros-core, since it causes many problems in the CI pipeline
-        # TODO: add ros:iron-ros-core when it is available
+        # We test on all supported LTS versions and the latest rolling release
+        # TODO: Add `ros:jazzy-ros-core`
         container: ["ros:humble-ros-core", "ros:rolling-ros-core"]
     container: ${{ matrix.container }}
 
@@ -22,32 +22,43 @@ jobs:
       run:
         shell: bash
     steps:
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v3
       -
-        name: Install dependencies and the package
+        name: Install dependencies
         run: |
-          apt-get update -q && apt-get install -qy python3-pip python-is-python3 ros-$ROS_DISTRO-example-interfaces
-          pip install --upgrade pip setuptools
-          python -m pip install -e '.[dev]'
+          apt-get update -q
+          apt-get install -qy python3-pip python-is-python3 ros-dev-tools
+          rosdep init
+          # There seems to be no other way to install the PiPI dependencies:
+          export PIP_BREAK_SYSTEM_PACKAGES=1
+          pip install -e './ros2_easy_test[dev]'
+      - run: echo "ROS_DISTRO=$ROS_DISTRO" >> "$GITHUB_OUTPUT"
+        id: save_envs
       -
-        name: Format (with black)
+        uses: ros-tooling/action-ros-ci@v0.3
+        with:
+          target-ros2-distro: ${{ steps.save_envs.outputs.ROS_DISTRO }}
+          package-name: ros2_easy_test
+          skip-tests: true
+      -
+        name: Format (with ruff)
         run: |
-          black --check .
+          ruff format --check
       -
         name: Lint (with ruff)
         run: |
-          ruff check .
+          ruff check
       -
         name: Type check main code (with mypy)
         run: |
-          mypy ros2_easy_test
+          mypy ros2_easy_test/ros2_easy_test
       -
         name: Type check tests (with mypy)
         continue-on-error: true  # We do not want to fail the build if the type checker fails on the tests
         run: |
-          mypy tests
+          mypy ros2_easy_test/tests
       -
         name: Testing (with pytest)
         run: |

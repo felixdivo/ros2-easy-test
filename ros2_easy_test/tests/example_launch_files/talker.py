@@ -12,8 +12,8 @@ def generate_launch_description() -> LaunchDescription:
             ExecuteProcess(
                 cmd=[
                     sys.executable,
-                    "tests/example_nodes/run_node.py",
-                    "tests/example_nodes/well_behaved.py",
+                    "ros2_easy_test/tests/example_nodes/run_node.py",
+                    "ros2_easy_test/tests/example_nodes/well_behaved.py",
                     "Talker",
                 ],
                 output="screen",

@@ -130,7 +130,8 @@ def with_single_node(
                     )
                     # The type ignore is needed due to a bug in ROS2 Humble+
                     executor.spin_until_future_complete(
-                        test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                        test_function_task,
+                        timeout_sec=time_limit,  # type: ignore[arg-type]
                     )
 
                     test_function_exception = test_function_task.exception()
@@ -294,7 +295,8 @@ def with_launch_file(  # noqa: C901
                         )
                         # The type ignore is needed due to a bug in ROS2 Humble+
                         executor.spin_until_future_complete(
-                            test_function_task, timeout_sec=time_limit  # type: ignore[arg-type]
+                            test_function_task,
+                            timeout_sec=time_limit,  # type: ignore[arg-type]
                         )
 
                         test_function_exception = test_function_task.exception()
@@ -341,16 +343,18 @@ def with_launch_file(  # noqa: C901
                     except NameError:
                         pass  # Maybe, the launch process was not even started
                     else:
-                        # Signal the child launch process to finish
-                        # This is much like pressing Ctrl+C on the console
-                        ros2_process.send_signal(SIGINT)
-                        try:
-                            # Might raise a TimeoutExpired if it takes too long
-                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
-                        except TimeoutExpired:  # pragma: no cover
-                            ros2_process.terminate()
-                            # return_code will be larger than 130
-                            return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                        return_code = ros2_process.poll()
+                        if return_code is None:
+                            # Signal the child launch process to finish
+                            # This is much like pressing Ctrl+C on the console
+                            ros2_process.send_signal(SIGINT)
+                            try:
+                                # Might raise a TimeoutExpired if it takes too long
+                                return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
+                            except TimeoutExpired:  # pragma: no cover
+                                ros2_process.terminate()
+                                # return_code will be larger than 130
+                                return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
                 return_code_problematic = return_code not in {0, 130}

@@ -11,7 +11,7 @@ from std_msgs.msg import Empty, String
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
 
 # Helpers
-from . import LAUNCH_FILES, is_ros_version
+from . import LAUNCH_FILES
 
 # Module under test and interfaces
 from .example_nodes.well_behaved import EchoNode, Talker
@@ -91,7 +91,7 @@ class TestSingleNodesForEnvCoverage(TestCase):
     @mark.xfail(
         raises=Exception,
         reason="specifiying a wrong message type is a common mistake and shall fail loudly",
-        strict=not is_ros_version("foxy"),  # It does fail on foxy
+        strict=True,
     )
     @with_single_node(EchoNode, watch_topics={"/mouth": Empty})
     def test_wrong_topic_type(self, env: ROS2TestEnvironment) -> None:

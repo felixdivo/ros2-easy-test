@@ -13,8 +13,8 @@ def _launch_setup(context: LaunchContext, start_value: LaunchConfiguration):
         Node(
             executable=sys.executable,
             arguments=[
-                "tests/example_nodes/run_node.py",
-                "tests/example_nodes/well_behaved.py",
+                "ros2_easy_test/tests/example_nodes/run_node.py",
+                "ros2_easy_test/tests/example_nodes/well_behaved.py",
                 "Talker",
             ],
             parameters=[{"/start_value": int(context.perform_substitution(start_value))}],
@@ -24,7 +24,6 @@ def _launch_setup(context: LaunchContext, start_value: LaunchConfiguration):
 
 
 def generate_launch_description() -> LaunchDescription:
-
     declared_arguments = []
 
     declared_arguments.append(
