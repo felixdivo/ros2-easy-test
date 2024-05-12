@@ -7,16 +7,18 @@ from importlib.util import module_from_spec, spec_from_file_location
 from typing import Type
 
 import rclpy
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
 
 def main(node_class: Type[Node]) -> None:
     rclpy.init()
+    executor = MultiThreadedExecutor(num_threads=2)
 
     node = node_class()
 
     try:
-        rclpy.spin(node)
+        rclpy.spin(node, executor=executor)
     except KeyboardInterrupt:
         pass  # Ignore Ctrl+C
     finally:
