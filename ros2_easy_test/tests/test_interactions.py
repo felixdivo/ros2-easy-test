@@ -7,6 +7,7 @@ from typing import List
 from unittest import TestCase
 
 # Other ROS2 interfaces
+from example_interfaces.action import Fibonacci
 from example_interfaces.srv import AddTwoInts
 
 # Testing
@@ -20,6 +21,7 @@ from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_no
 from . import LAUNCH_FILES
 
 # Module under test and interfaces
+from .example_nodes.minimal_action_server import MinimalActionServer
 from .example_nodes.well_behaved import AddTwoIntsServer, EchoNode, Talker
 
 
@@ -95,6 +97,27 @@ class SharedTestCases(ABC):
         expected = [String(data=f"Hi #{identifier}") for identifier in range(count)]
         self.assertListEqual(all_messages, expected)
 
+    def test_calling_an_action(self, env: ROS2TestEnvironment) -> None:
+        feedbacks, result = env.send_action_goal_and_wait_for_result(
+            name="fibonacci", goal=Fibonacci.Goal(order=4)
+        )
+
+        assert len(feedbacks) == 3
+        assert feedbacks == [
+            Fibonacci.Feedback(sequence=[0, 1, 1]),
+            Fibonacci.Feedback(sequence=[0, 1, 1, 2]),
+            Fibonacci.Feedback(sequence=[0, 1, 1, 2, 3]),
+        ]
+
+        assert result == Fibonacci.Result(sequence=[0, 1, 1, 2, 3])
+
+        # We call it again to test if resources are reused properly
+        feedbacks2, result2 = env.send_action_goal_and_wait_for_result(
+            name="fibonacci", goal=Fibonacci.Goal(order=3)
+        )
+        assert feedbacks2 == feedbacks[:2]
+        assert result2 == Fibonacci.Result(sequence=[0, 1, 1, 2])
+
 
 class TestSingleNode(SharedTestCases, TestCase):
     """This test case uses the ``with_single_node`` decorator to set up the test environment."""
@@ -136,6 +159,10 @@ class TestSingleNode(SharedTestCases, TestCase):
     @with_single_node(EchoNode)
     def test_assertion_raised(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
+
+    @with_single_node(MinimalActionServer)
+    def test_calling_an_action(self, env: ROS2TestEnvironment) -> None:
+        super().test_calling_an_action(env)
 
 
 class TestLaunchFile(SharedTestCases, TestCase):
@@ -194,6 +221,10 @@ class TestLaunchFile(SharedTestCases, TestCase):
     @with_launch_file(LAUNCH_FILES / "talker.yaml", warmup_time=2)
     def test_assertion_raised(self, env: ROS2TestEnvironment) -> None:
         self.fail("This should fail the test case")
+
+    @with_launch_file(LAUNCH_FILES / "fibonacci_action.yaml")
+    def test_calling_an_action(self, env: ROS2TestEnvironment) -> None:
+        super().test_calling_an_action(env)
 
 
 if __name__ == "__main__":

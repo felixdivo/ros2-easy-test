@@ -1,6 +1,8 @@
 # Modified from original example in examples_rclpy_minimal_action_server.server as follows:
 #       1. pass *args, **kwargs to __init__ and super().__init__.
 #       2. Reduce sleep times.
+#       3. Reject goal requests with order < 0.
+#       4. Cleanup/modernization.
 #
 # Copyright 2019 Open Source Robotics Foundation, Inc.
 #
@@ -45,8 +47,12 @@ class MinimalActionServer(Node):
     def goal_callback(self, goal_request):
         """Accept or reject a client request to begin an action."""
         # This server allows multiple goals in parallel
-        self.get_logger().info("Received goal request")
-        return GoalResponse.ACCEPT
+        if goal_request.order < 0:
+            self.get_logger().info("Rejecting goal request")
+            return GoalResponse.REJECT
+        else:
+            self.get_logger().info("Accepting goal request")
+            return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
         """Accept or reject a client request to cancel an action."""
