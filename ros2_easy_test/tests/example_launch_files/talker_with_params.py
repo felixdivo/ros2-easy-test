@@ -24,22 +24,16 @@ def _launch_setup(context: LaunchContext, start_value: LaunchConfiguration):
 
 
 def generate_launch_description() -> LaunchDescription:
-    declared_arguments = []
-
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "start_value",
-            default_value="0",
-            description="The start value.",
-        )
-    )
-
     return LaunchDescription(
-        declared_arguments
-        + [
+        [
+            DeclareLaunchArgument(
+                "start_value",
+                default_value="0",
+                description="The start value.",
+            ),
             OpaqueFunction(
                 function=_launch_setup,
                 args=[LaunchConfiguration("start_value")],
-            )
+            ),
         ]
     )
