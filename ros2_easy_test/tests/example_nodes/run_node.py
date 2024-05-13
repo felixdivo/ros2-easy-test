@@ -7,16 +7,18 @@ from importlib.util import module_from_spec, spec_from_file_location
 from typing import Type
 
 import rclpy
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 
 
 def main(node_class: Type[Node]) -> None:
     rclpy.init()
+    executor = MultiThreadedExecutor(num_threads=2)
 
     node = node_class()
 
     try:
-        rclpy.spin(node)
+        rclpy.spin(node, executor=executor)
     except KeyboardInterrupt:
         pass  # Ignore Ctrl+C
     finally:
@@ -37,6 +39,7 @@ if __name__ == "__main__":
     if spec is None:
         raise RuntimeError(f"{file_path} is not a valid Python file.")
     my_module = module_from_spec(spec)
+    assert spec.loader is not None, "spec.loader is None, this should not happen."
     spec.loader.exec_module(my_module)
     node_class = getattr(my_module, node_class_name)
 

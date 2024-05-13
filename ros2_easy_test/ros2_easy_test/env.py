@@ -8,9 +8,13 @@ from threading import RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Type, cast
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, cast
 
 # ROS
+from action_msgs.msg import GoalStatus
+from rclpy.action import ActionClient
+from rclpy.action.client import ClientGoalHandle
+from rclpy.callback_groups import CallbackGroup, MutuallyExclusiveCallbackGroup
 from rclpy.client import Client, SrvTypeRequest, SrvTypeResponse
 from rclpy.node import Node
 from rclpy.publisher import Publisher
@@ -94,9 +98,16 @@ class ROS2TestEnvironment(Node):
         self._registered_publishers_lock = RLock()
         self._registered_publishers: Dict[str, Publisher] = {}
 
-        # Similarly for services
+        # Similar for services
         self._registered_services_lock = RLock()
         self._registered_services: Dict[str, Client] = {}
+
+        # Similar for actions
+        self._registered_actions_lock = RLock()
+        self._registered_actions: Dict[str, ActionClient] = {}
+        # A MutuallyExclusive CallbackGroup is required to force all the callbacks: goal_response, feedback
+        # and goal_done to run sequentially. This relieves us from some synchronization burden.
+        self._action_cb_group: CallbackGroup = MutuallyExclusiveCallbackGroup()
 
     def _get_mailbox_for(self, topic: str) -> "SimpleQueue[RosMessage]":
         """Checks that a topic is watched for and returns the appropriate mailbox. Handles synchronization.
@@ -363,3 +374,133 @@ class ROS2TestEnvironment(Node):
 
         future = client.call_async(request)
         return cast(SrvTypeResponse, self.await_future(future, timeout=timeout_call))
+
+    def _get_action_client(self, name: str, goal_class: Type) -> ActionClient:
+        """Returns the action client for the given action class."""
+
+        with self._registered_actions_lock:
+            try:
+                return self._registered_actions[name]
+            except KeyError:
+                # This is a bit tricky but relieves the user from passing it explicitly
+                module = import_module(goal_class.__module__)
+                # We cut away the trailing "_Goal" from the type name, which has length 5
+                base_type_name = goal_class.__name__[:-5]
+                base_type: Type = getattr(module, base_type_name)
+
+                client = ActionClient(self, base_type, name, callback_group=self._action_cb_group)
+                self._registered_actions[name] = client
+                return client
+
+    def send_action_goal(
+        self,
+        name: str,
+        goal: Any,
+        collect_feedback: bool = True,
+        timeout_availability: Optional[float] = 1,
+        timeout_receive_goal: Optional[float] = 1,
+    ) -> Tuple[ClientGoalHandle, List[Any]]:
+        """Sends the goal to the given action but does not handle the result.
+
+        This does not check if the goal was accepted and does not attempt to retrieve the result.
+
+        Args:
+            name: The name of the action
+            goal: Goal message to send to the action server.
+            collect_feedback: Whether to collect feedbacks asynchronously. Defaults to True.
+                This is provided for performance reasons.
+            timeout_availability: The timeout to wait for the action to be available. Defaults to 1.
+            timeout_receive_goal: The timeout to wait for the action server to accept the goal. Defaults to 1.
+
+        Raises:
+            TimeoutError: If the action server does not respond within the specified timeouts.
+
+        Returns:
+            Return the goal handle and feedback list (that might still grow asynchronously).
+
+        See Also:
+            :meth:`send_action_goal_and_wait_for_result`
+        """
+
+        # Create an action client
+        client = self._get_action_client(name, type(goal))
+
+        # Wait for the action to be available
+        if not client.wait_for_server(timeout_availability):
+            raise TimeoutError(f"Action {name} did not become ready within {timeout_availability} seconds")
+
+        # Prepare collecting feedbacks
+        feedbacks: List[RosMessage] = []
+
+        def feedback_callback(feedback_msg: RosMessage) -> None:
+            feedbacks.append(feedback_msg.feedback)
+
+        # Send the goal and wait for the acceptence
+        send_goal_future = client.send_goal_async(
+            goal, feedback_callback=feedback_callback if collect_feedback else None
+        )
+        goal_handle: ClientGoalHandle = self.await_future(send_goal_future, timeout=timeout_receive_goal)
+
+        # Return the results to the test case
+        return goal_handle, feedbacks
+
+    def send_action_goal_and_wait_for_result(
+        self,
+        name: str,
+        goal: Any,
+        collect_feedback: bool = True,
+        timeout_availability: Optional[float] = 1,
+        timeout_accept_goal: Optional[float] = 1,
+        timeout_get_result: Optional[float] = 10,
+    ) -> Tuple[List[Any], Any]:
+        """Sends the goal to the given action and returns the response handle, feedbacks and result.
+
+        Args:
+            name: The name of the action
+            goal: Goal message to send to the action server.
+            collect_feedback: Whether to collect feedbacks asynchronously. Defaults to True.
+                This is provided for performance reasons.
+            timeout_availability: The timeout to wait for the action to be available. Defaults to 1.
+            timeout_accept_goal: The timeout to wait for the action server to accept the goal. Defaults to 1.
+            timeout_get_result: The timeout to wait for the action server to return the result.
+                Defaults to 10.
+
+        Raises:
+            TimeoutError: If the action server does not respond within the specified timeouts.
+            AssertionError: If the goal was not accepted or the goal did not succeed.
+
+        Returns:
+            Return the goal handle, all the feedback responses and the final result.
+
+        See Also:
+            :meth:`send_action_goal`
+        """
+
+        # Send the goal and wait for the handle to be available
+        goal_handle, feedbacks = self.send_action_goal(
+            name=name,
+            goal=goal,
+            collect_feedback=collect_feedback,
+            timeout_availability=timeout_availability,
+            timeout_receive_goal=timeout_accept_goal,
+        )
+
+        # Make sure the goal was accepted
+        assert goal_handle.accepted, f"Goal was not accepted: {goal_handle.status=}"
+
+        # Wait for the result
+        result = self.await_future(goal_handle.get_result_async(), timeout=timeout_get_result)
+
+        # Make sure the goal was reached successfully
+        assert goal_handle.status == GoalStatus.STATUS_SUCCEEDED
+
+        # Return the results to the test case
+        return feedbacks, result
+
+    def destroy_node(self):
+        # Actions don't get destroyed automatically
+        with self._registered_actions_lock:
+            for client in self._registered_actions.values():
+                client.destroy()
+
+        return super().destroy_node()
