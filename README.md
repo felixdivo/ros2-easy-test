@@ -82,10 +82,12 @@ Using `ROS2TestEnvironment`, you can call:
 - `publish(topic: str, message: RosMessage) -> None`
 - `listen_for_messages(topic: str, time_span: float) -> List[RosMessage]`
 - `clear_messages(topic: str) -> None` to forget all messages that have been received so far.
-- `call_service(name: str, request: Request, timeout_availability: Optional[float], timeout_call: Optional[float]) -> Response`
+- `call_service(name: str, request: Request, ...) -> Response`
+- `send_action_goal(name: str, goal: Any, ...) -> Tuple[ClientGoalHandle, List[FeedbackMsg]]`
+- `send_action_goal_and_wait_for_result(name: str, goal: Any, ...) -> Tuple[List[FeedbackMsg], ResultMsg]`
 
-Note that `ROS2TestEnvironment` is a [`rclpy.node.Node`](https://docs.ros2.org/latest/api/rclpy/api/node.html) and thus has all the methods of a ROS2 node.
-So feel free to call offer a service with `env.create_service()`, interface with an action using `ActionClient(env, DoTheThing, 'maker')`, etc., to cover more specific use cases.
+Note that a `ROS2TestEnvironment` is a normal [`rclpy.node.Node`](https://docs.ros2.org/latest/api/rclpy/api/node.html) and thus has all the methods of any other ROS2 node.
+So feel free to offer a service with `env.create_service()` and cover more specific use cases.
 Extend as you please!
 
 In addition, nothing stops you from using any other means of interacting with ROS2 that would work otherwise.

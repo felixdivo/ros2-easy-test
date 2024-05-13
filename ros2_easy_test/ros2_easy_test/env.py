@@ -492,10 +492,10 @@ class ROS2TestEnvironment(Node):
         result = self.await_future(goal_handle.get_result_async(), timeout=timeout_get_result)
 
         # Make sure the goal was reached successfully
-        assert goal_handle.status == GoalStatus.STATUS_SUCCEEDED
+        assert result.status == GoalStatus.STATUS_SUCCEEDED, f"Goal did not succeed: {result.status=}"
 
         # Return the results to the test case
-        return feedbacks, result
+        return feedbacks, result.result
 
     def destroy_node(self):
         # Actions don't get destroyed automatically
