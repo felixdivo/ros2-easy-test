@@ -406,11 +406,11 @@ class ROS2TestEnvironment(Node):
 
         Args:
             name: The name of the action
-            goal_msg: Goal message to send to the action server.
+            goal: Goal message to send to the action server.
             collect_feedback: Whether to collect feedbacks asynchronously. Defaults to True.
                 This is provided for performance reasons.
             timeout_availability: The timeout to wait for the action to be available. Defaults to 1.
-            timeout_accept_goal: The timeout to wait for the action server to accept the goal. Defaults to 1.
+            timeout_receive_goal: The timeout to wait for the action server to accept the goal. Defaults to 1.
 
         Raises:
             TimeoutError: If the action server does not respond within the specified timeouts.
@@ -457,7 +457,7 @@ class ROS2TestEnvironment(Node):
 
         Args:
             name: The name of the action
-            goal_msg: Goal message to send to the action server.
+            goal: Goal message to send to the action server.
             collect_feedback: Whether to collect feedbacks asynchronously. Defaults to True.
                 This is provided for performance reasons.
             timeout_availability: The timeout to wait for the action to be available. Defaults to 1.
@@ -467,6 +467,7 @@ class ROS2TestEnvironment(Node):
 
         Raises:
             TimeoutError: If the action server does not respond within the specified timeouts.
+            AssertionError: If the goal was not accepted or the goal did not succeed.
 
         Returns:
             Return the goal handle, all the feedback responses and the final result.
