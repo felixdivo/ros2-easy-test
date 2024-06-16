@@ -30,7 +30,7 @@ jobs:
           apt-get update -q
           apt-get install -qy python3-pip python-is-python3 ros-dev-tools
           rosdep init
-          # There seems to be no other way to install the PiPI dependencies:
+          # There seems to be no other way to install the PiPI extra dependencies:
           export PIP_BREAK_SYSTEM_PACKAGES=1
           pip install -e './ros2_easy_test[dev]'
       - run: echo "ROS_DISTRO=$ROS_DISTRO" >> "$GITHUB_OUTPUT"

@@ -7,7 +7,7 @@ Warning:
 
 # Standard library
 from functools import wraps
-from inspect import signature
+from inspect import Signature, signature
 from pathlib import Path
 from signal import SIGINT
 from subprocess import Popen, TimeoutExpired
@@ -27,10 +27,6 @@ from .env import ROS2TestEnvironment
 
 # Helpers
 from .launch_file import LaunchFileProvider
-
-# Function manipulation
-from makefun import remove_signature_parameters  # isort: skip
-
 
 __all__ = ["with_launch_file", "with_single_node"]
 
@@ -384,3 +380,15 @@ def with_launch_file(  # noqa: C901
         return wrapper
 
     return decorator
+
+
+def remove_signature_parameters(s: Signature, *names: str) -> Signature:
+    """Creates a new signature with the given parameters removed.
+
+    References:
+        Inspired by the makefun library, version 1.15.2.
+        `Direct link <https://github.com/smarie/python-makefun/blob/c1d189c320cb89381a7f7de21ca61d5dcc24c4db/src/makefun/main.py#L1079-L1091>`__.
+    """
+    return s.replace(
+        parameters=[value for name, value in s.parameters.items() if name not in names],
+    )
