@@ -36,7 +36,7 @@ setup(
         "Typing :: Typed",
     ],
     requires_python=">=3.8",
-    install_requires=["makefun>=1.15.2"],
+    install_requires=[],  # They wouldn't be picked up by the ROS build system anyway
     extras_require={
         "dev": [
             "ruff",
