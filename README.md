@@ -139,6 +139,10 @@ cd build/html
 python -m http.server
 ```
 
+A new version can be released by pusing a new tag starting with `v` to the repository.
+This will trigger the CI to build and upload the new version to PyPI and draft a release in GitHub.
+Make sure to update the version number in `package.xml` and `ros2_easy_test/ros2_easy_test/__init__.py` before tagging.
+
 ## Changelog
 
 See [Releases](https://github.com/felixdivo/ros2-easy-test/releases).
