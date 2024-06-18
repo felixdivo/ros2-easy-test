@@ -13,7 +13,7 @@
 A Python test framework for [ROS2](https://ros.org/) allowing for:
 - simple and expressive assertions based on message and service interactions (black box testing)
 - easy integration of existing nodes and launch files
-- testing of nodes implemented in any programming language (C++, Python, ...)
+- testing of nodes implemented in any programming language (C++, Python, etc.)
 - works with and without tools like `colcon test` and `pytest`
 - is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/pyproject.toml)
 - is typed and [documented](https://ros2-easy-test.readthedocs.io/en/latest/)
@@ -28,14 +28,14 @@ pip install ros2-easy-test
 
 ## Examples
 
-The following two examples show off the usage of the Python decorators `@with_single_node` and `@with_launch_file`, which provide the core functionality of this package.
+The following two examples demonstrate the usage of the Python decorators `@with_single_node` and `@with_launch_file`, which provide this package's core functionality.
 To get a better understanding of their inner workings, please have a look at their implementation [here](ros2_easy_test/decorators.py).
 Besides the simple examples here, you can embed everything in `unittest.TestCase` as well. 
 To check out how, have a look at the provided test in [tests/demo/](tests/demo/) for some advanced examples.
 
 ### Testing a Node
 
-Simple settings where a single node shall be tested can use the decorator `@with_single_node` as in the following example.
+In simple settings, where a single node is to be tested, the decorator `@with_single_node` can be used:
 
 ```python
 from ros2_easy_test import ROS2TestEnvironment, with_launch_file, with_single_node
@@ -117,7 +117,7 @@ Please read it before suggesting major features or changes.
 
 ## Contributing
 
-Basic installation is easiest with the porvided `Dockerfile`.
+Basic installation is easiest with the provided `Dockerfile`.
 For the last piece of setup, either open it in the provided [Devcontainer](https://code.visualstudio.com/docs/remote/containers) or maunally run `rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev]` afterward.
 
 After this, you will have access to the configured formatter (`ruff format`) and linter (`ruff check`).
@@ -132,7 +132,7 @@ pip install -e ".[doc]"
 # Build the documentation
 cd doc
 make html
-# open build/html/index.html in you browser
+# open build/html/index.html in your browser
 
 # You can also run a small webserver to serve the static files with
 cd build/html

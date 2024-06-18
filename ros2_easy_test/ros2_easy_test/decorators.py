@@ -357,7 +357,9 @@ def with_launch_file(  # noqa: C901
                                 return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Check return codes
-                return_code_problematic = acceptable_return_codes and return_code not in acceptable_return_codes
+                return_code_problematic = (
+                    acceptable_return_codes and return_code not in acceptable_return_codes
+                )
 
                 if return_code_problematic:
                     if test_function_exception is None:
