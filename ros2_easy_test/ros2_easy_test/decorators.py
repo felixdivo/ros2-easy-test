@@ -235,7 +235,7 @@ def with_launch_file(  # noqa: C901
             It applies individually to both shutting down the environment and the launch process.
         acceptable_return_codes:
             Acceptable return codes for the launch process. By default, both SUCCESS (0) and the result code
-            of SIGINT (130) are acceptable.
+            of SIGINT (130) are acceptable. Empty list accepts all codes.
         kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
@@ -357,7 +357,7 @@ def with_launch_file(  # noqa: C901
                                 return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
                 # Check return codes
-                return_code_problematic = return_code not in acceptable_return_codes
+                return_code_problematic = acceptable_return_codes and return_code not in acceptable_return_codes
 
                 if return_code_problematic:
                     if test_function_exception is None:
