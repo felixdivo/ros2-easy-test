@@ -140,8 +140,9 @@ python -m http.server
 ```
 
 A new version can be released by pusing a new tag starting with `v` to the repository.
-This will trigger the CI to build and upload the new version to PyPI and draft a release in GitHub.
+This will trigger the CI to draft a release in GitHub that can then be filled with the changelog.
 Make sure to update the version number in `package.xml` and `ros2_easy_test/ros2_easy_test/__init__.py` before tagging.
+Then, a release via rosdep can be made.
 
 ## Changelog
 
