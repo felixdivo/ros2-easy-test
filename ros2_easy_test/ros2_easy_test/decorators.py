@@ -201,6 +201,7 @@ def with_launch_file(  # noqa: C901
     warmup_time: float = 2,
     time_limit: Optional[float] = 60,
     shutdown_timeout=_DEFAULT_SHUTDOWN_TIMEOUT,
+    acceptable_return_codes: Optional[set[int]] = {0, 130},
     **kwargs,
 ) -> Callable[[TestFunctionBefore], TestFunctionAfter]:
     """Marks a test case that shall be wrapped by a ROS2 context and be given an environment to interact.
@@ -213,7 +214,7 @@ def with_launch_file(  # noqa: C901
         launch_file: Either:
             1) The path to the launch file to start for the test.
             2) The literal launch file (must contain a newline to be detected as such).
-        launch_arguments: The launch_arguments as ``key:=value`` pairs which will be passed trough
+        launch_arguments: The launch_arguments as ``key:=value`` pairs which will be passed through
         debug_launch_file: If set to ``True``, instruct ``ros2 launch`` to be more verbose and run in debug
             mode. It only affects the output on failing tests.
             However, it might also cause sudden failures, therefore the default is ``False``.
@@ -232,6 +233,9 @@ def with_launch_file(  # noqa: C901
             The time to give a node for a successful shutdown. If it takes longer than this,
             the test will fail.
             It applies individually to both shutting down the environment and the launch process.
+        acceptable_return_codes:
+            Acceptable return codes for the launch process. By default, both SUCCESS (0) and the result code
+            of SIGINT (130) are acceptable.
         kwargs: Passed to the :class:`ros2_easy_test.env.ROS2TestEnvironment`
 
     See Also:
@@ -282,8 +286,8 @@ def with_launch_file(  # noqa: C901
                         ros2_process = Popen(ros2_parameters)
 
                         # Give the launch process time to start up. Otherwise, the timeouts on the first
-                        # test asserts will be off and the system wil generally behave strangely.
-                        # TODO: Ususally, this shouldn't need to be this high. Reducing it would be awesome.
+                        # test asserts will be off and the system will generally behave strangely.
+                        # TODO: Usually, this shouldn't need to be this high. Reducing it would be awesome.
                         executor.spin_until_future_complete(executor.create_task(sleep, warmup_time))
 
                         test_function_task = executor.create_task(
@@ -352,8 +356,8 @@ def with_launch_file(  # noqa: C901
                                 # return_code will be larger than 130
                                 return_code = ros2_process.wait(timeout=shutdown_timeout / 2)
 
-                # Both SUCCESS (0) or the result code of SIGINT (130) are acceptable
-                return_code_problematic = return_code not in {0, 130}
+                # Check return codes
+                return_code_problematic = return_code not in acceptable_return_codes
 
                 if return_code_problematic:
                     if test_function_exception is None:
