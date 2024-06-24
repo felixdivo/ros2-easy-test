@@ -6,9 +6,11 @@
   <description>A Python test framework for ROS2 allowing simple and expressive assertions based on message interactions.</description>
   <maintainer email="felix.divo@sailingteam.tu-darmstadt.de">Felix Divo</maintainer>
   <license>MIT</license>
+  <url type="website">https://ros2-easy-test.readthedocs.io</url>
+  <url type="repository">https://github.com/felixdivo/ros2-easy-test</url>
 
-  <test_depend>python3-pytest</test_depend>
   <test_depend>example_interfaces</test_depend>
+  <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
