@@ -15,7 +15,7 @@ A Python test framework for [ROS2](https://ros.org/) allowing for:
 - easy integration of existing nodes and launch files
 - testing of nodes implemented in any programming language (C++, Python, etc.)
 - works with and without tools like `colcon test` and `pytest`
-- is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/pyproject.toml)
+- is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/ros2_easy_test/package.xml)
 - is typed and [documented](https://ros2-easy-test.readthedocs.io/en/latest/)
 - is tested, used in practice, and maintained
 
