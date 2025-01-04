@@ -7,7 +7,41 @@
 # -- Setup -------------------------------------------------------------------
 
 import re
+import sys
 from pathlib import Path
+
+# -- Mock ROS2 ---------------------------------------------------------------
+
+try:
+    import rclpy
+except ImportError:
+    from unittest.mock import NonCallableMock
+
+    for module in [
+        "rclpy",
+        "rclpy.action",
+        "rclpy.action.client",
+        "rclpy.callback_groups",
+        "rclpy.client",
+        "rclpy.context",
+        "rclpy.executors",
+        "rclpy.node",
+        "rclpy.parameter",
+        "rclpy.publisher",
+        "rclpy.qos",
+        "rclpy.task",
+        "action_msgs.msg",
+    ]:
+        sys.modules[module] = NonCallableMock()
+
+    # This is needed for the autodoc to work (when inheriting from rclpy.node.Node)
+    class Node:
+        """Mocked Node class."""
+
+    sys.modules["rclpy.node"].Node = Node
+
+else:
+    del rclpy
 
 # -- Project information -----------------------------------------------------
 
