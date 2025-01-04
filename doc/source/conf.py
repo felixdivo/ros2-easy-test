@@ -9,23 +9,32 @@
 import re
 import sys
 from pathlib import Path
-from unittest.mock import Mock
 
 # -- Mock ROS2 ---------------------------------------------------------------
 
 try:
     import rclpy
 except ImportError:
-    sys.modules["rclpy"] = Mock()
+    from unittest.mock import NonCallableMock
+
+    for module in [
+        "rclpy",
+        "rclpy.action",
+        "rclpy.action.client",
+        "rclpy.callback_groups",
+        "rclpy.client",
+        "rclpy.context",
+        "rclpy.executors",
+        "rclpy.node",
+        "rclpy.parameter",
+        "rclpy.publisher",
+        "rclpy.qos",
+        "rclpy.task",
+        "action_msgs.msg",
+    ]:
+        sys.modules[module] = NonCallableMock()
 else:
     del rclpy
-
-try:
-    import action_msgs
-except ImportError:
-    sys.modules["action_msgs"] = Mock()
-else:
-    del action_msgs
 
 # -- Project information -----------------------------------------------------
 
