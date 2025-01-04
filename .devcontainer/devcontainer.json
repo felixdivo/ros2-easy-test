@@ -9,7 +9,7 @@
       "extensions": [
         "ms-python.python",
         "redhat.vscode-yaml",
-        "bungcip.better-toml",
+        "tamasfe.even-better-toml",
         "trond-snekvik.simple-rst",
         "GitHub.vscode-github-actions",
         "charliermarsh.ruff"
