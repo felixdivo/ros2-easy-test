@@ -118,7 +118,7 @@ Please read it before suggesting major features or changes.
 ## Contributing
 
 Basic installation is easiest with the provided `Dockerfile`.
-For the last piece of setup, either open it in the provided [Devcontainer](https://code.visualstudio.com/docs/remote/containers) or maunally run `rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev]` afterward.
+For the last piece of setup, either open it in the provided [Devcontainer](https://code.visualstudio.com/docs/remote/containers) or maunally run `rosdep install --from-paths ros2_easy_test && colcon build --symlink-install && pip install -e './ros2_easy_test[dev]'` afterward.
 
 After this, you will have access to the configured formatter (`ruff format`) and linter (`ruff check`).
 
@@ -127,7 +127,7 @@ You can run the test with simply `pytest`. Coverage reports and timings will be 
 Building the documentation is simple, too:
 ```shell
 # Install the required dependencies
-pip install -e ".[doc]"
+pip install -e 'ros2_easy_test[doc]'
 
 # Build the documentation
 cd doc
