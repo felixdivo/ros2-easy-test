@@ -33,6 +33,13 @@ except ImportError:
         "action_msgs.msg",
     ]:
         sys.modules[module] = NonCallableMock()
+
+    # This is needed for the autodoc to work (when inheriting from rclpy.node.Node)
+    class Node:
+        """Mocked Node class."""
+
+    sys.modules["rclpy.node"].Node = Node
+
 else:
     del rclpy
 
