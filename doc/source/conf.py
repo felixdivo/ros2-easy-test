@@ -7,7 +7,25 @@
 # -- Setup -------------------------------------------------------------------
 
 import re
+import sys
 from pathlib import Path
+from unittest.mock import Mock
+
+# -- Mock ROS2 ---------------------------------------------------------------
+
+try:
+    import rclpy
+except ImportError:
+    sys.modules["rclpy"] = Mock()
+else:
+    del rclpy
+
+try:
+    import action_msgs
+except ImportError:
+    sys.modules["action_msgs"] = Mock()
+else:
+    del action_msgs
 
 # -- Project information -----------------------------------------------------
 
