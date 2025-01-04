@@ -1,9 +1,10 @@
 # ROS2 easy-test
 
-[![PyPI version](https://img.shields.io/pypi/v/ros2-easy-test.svg?color=blue)](https://pypi.org/project/ros2-easy-test/)
 [![license](https://img.shields.io/pypi/l/ros2-easy-test.svg?color=blue)](https://github.com/felixdivo/ros2-easy-test/blob/main/LICENSE)
-[![ros2 version](https://img.shields.io/badge/ROS2-Humble%20Hawksbill+-blue)](https://docs.ros.org/en/rolling/Releases.html)
+[![ros2 version](https://img.shields.io/badge/ROS2-Humble+%20(deprecated,%20via%20pip)-blue)](https://docs.ros.org/en/rolling/Releases.html)
+[![ros2 version](https://img.shields.io/badge/ROS2-Kilted+%20(via%20rosdep)-blue)](https://docs.ros.org/en/rolling/Releases.html)
 [![Python version](https://img.shields.io/badge/python-3.8+%20(matching%20ROS)-blue)](https://devguide.python.org/versions/)
+[![ROS Package Index](https://img.shields.io/ros/v/rolling/ros2_easy_test)](https://index.ros.org/p/ros2_easy_test)
 
 [![CI status](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml/badge.svg)](https://github.com/felixdivo/ros2-easy-test/actions/workflows/python-package.yaml)
 [![documentation status](https://readthedocs.org/projects/ros2-easy-test/badge/)](https://ros2-easy-test.readthedocs.io/en/latest/)
@@ -17,13 +18,20 @@ A Python test framework for [ROS2](https://ros.org/) allowing for:
 - works with and without tools like `colcon test` and `pytest`
 - is minimalistic and has [very few dependencies](https://github.com/felixdivo/ros2-easy-test/blob/main/ros2_easy_test/package.xml)
 - is typed and [documented](https://ros2-easy-test.readthedocs.io/en/latest/)
-- is tested, used in practice, and maintained
+- is tested, used in practice, [indexed](https://index.ros.org/p/ros2_easy_test), and maintained
 
 ## Installation
 
-Just run:
+**Note**: *The former [PyPI package `ros2-easy-test`](https://pypi.org/project/ros2-easy-test/) is now deprecated and will not be updated anymore. Thus, only use `pip install ros2-easy-test` for ROS versions prior to Kilted.*
+
+Just run (ROS2 `Rolling` and `Kilted+`):
 ```shell
-pip install ros2-easy-test
+rosdep install ros2_easy_test
+```
+
+Or add it to your `package.xml` (see the [ROS2 docs](https://docs.ros.org/en/rolling/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html#resolve-dependencies)):
+```xml
+<test_depend>ros2_easy_test</test_depend>
 ```
 
 ## Examples
