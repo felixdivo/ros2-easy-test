@@ -8,7 +8,7 @@ from threading import Event, RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, TypeVar, cast
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, cast
 
 # ROS
 from action_msgs.msg import GoalStatus
@@ -27,9 +27,6 @@ __all__ = ["ROS2TestEnvironment"]
 
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
 _DEFAULT_TIMEOUT: Optional[float] = 2
-
-
-AwaitedType = TypeVar("AwaitedType")
 
 
 class ROS2TestEnvironment(Node):
@@ -300,11 +297,10 @@ class ROS2TestEnvironment(Node):
                     self.clear_messages(topic=topic)
 
         else:
-            # There is not clear() in SimpleQueue
+            # There is no clear() in SimpleQueue
             self.listen_for_messages(topic, time_span=None)  # ignore the result
 
-    # In Rolling: Future[AwaitedType]
-    def await_future(self, future: Future, timeout: Optional[float] = 10) -> AwaitedType:
+    def await_future(self, future: Future, timeout: Optional[float] = 10) -> Any:
         """Waits for the given future to complete.
 
         Args:
@@ -328,14 +324,10 @@ class ROS2TestEnvironment(Node):
         # This immediately calls the callback if the future is already done
         future.add_done_callback(unblock)
 
-        # Check future.done() before waiting on the event.
-        # The callback might have been added after the future is completed,
-        # resulting in the event never being set.
-        if not future.done():
-            if not event.wait(timeout):
-                # Timed out. remove_pending_request() to free resources
-                self.remove_pending_request(future)
-                raise TimeoutError(f"Future did not complete within {timeout} seconds")
+        if not event.wait(timeout):
+            # Timed out. remove_pending_request() to free resources
+            self.remove_pending_request(future)
+            raise TimeoutError(f"Future did not complete within {timeout} seconds")
 
         # Potential exception is raised here
         return future.result()
