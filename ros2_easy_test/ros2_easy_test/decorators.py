@@ -315,9 +315,9 @@ def with_launch_file(  # noqa: C901
                             node.destroy_node()
 
                         has_finished = executor.shutdown(shutdown_timeout)
-                        assert (
-                            has_finished
-                        ), f"Executor shutdown did not complete in {shutdown_timeout} seconds."
+                        assert has_finished, (
+                            f"Executor shutdown did not complete in {shutdown_timeout} seconds."
+                        )
 
                     # Make sure that the executor and the node are cleaned up/freed afterwards.
                     # Cleanup is critical for correctness since subsequent tests may NEVER reference old
