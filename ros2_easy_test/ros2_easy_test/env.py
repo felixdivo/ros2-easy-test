@@ -4,11 +4,11 @@
 from collections import defaultdict
 from importlib import import_module
 from queue import Empty, SimpleQueue
-from threading import RLock
+from threading import Event, RLock
 from time import monotonic, sleep
 
 # Typing
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, cast
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, TypeVar, cast
 
 # ROS
 from action_msgs.msg import GoalStatus
@@ -27,6 +27,9 @@ __all__ = ["ROS2TestEnvironment"]
 
 #: The normal timeout for asserts, like waiting for messages. This has to be surprisingly high.
 _DEFAULT_TIMEOUT: Optional[float] = 2
+
+
+AwaitedType = TypeVar("AwaitedType")
 
 
 class ROS2TestEnvironment(Node):
@@ -123,9 +126,9 @@ class ROS2TestEnvironment(Node):
         """
 
         with self._subscriber_mailboxes_lock:
-            assert (
-                topic in self._subscriber_mailboxes
-            ), f"topic {topic} it not being watched: please specify it in the constructor"
+            assert topic in self._subscriber_mailboxes, (
+                f"topic {topic} it not being watched: please specify it in the constructor"
+            )
 
             return self._subscriber_mailboxes[topic]
 
@@ -169,7 +172,7 @@ class ROS2TestEnvironment(Node):
             pass  # this is what we expect
         else:
             raise AssertionError(
-                f"A message was published on topic {topic} although none was expected: " f"{repr(message)}"
+                f"A message was published on topic {topic} although none was expected: {repr(message)}"
             ) from None
 
     def assert_message_published(self, topic: str, timeout: Optional[float] = _DEFAULT_TIMEOUT) -> RosMessage:
@@ -300,11 +303,12 @@ class ROS2TestEnvironment(Node):
             # There is not clear() in SimpleQueue
             self.listen_for_messages(topic, time_span=None)  # ignore the result
 
-    def await_future(self, future: Future, timeout: Optional[float] = 10) -> Any:
+    # In Rolling: Future[AwaitedType]
+    def await_future(self, future: Future, timeout: Optional[float] = 10) -> AwaitedType:
         """Waits for the given future to complete.
 
         Args:
-            future: The future to wait for
+            future: The ROS Future to wait for
             timeout: The timeout to wait for the future
 
         Raises:
@@ -315,15 +319,26 @@ class ROS2TestEnvironment(Node):
             The result of the future
         """
 
-        # This does not work with the default executor, so we use the one from the node
-        assert self.executor, "executor is not set"
-        # The type ignore is needed due to a bug in ROS2 Humble+
-        self.executor.spin_until_future_complete(future, timeout_sec=timeout)  # type: ignore[arg-type]
+        event = Event()
 
-        if future.done():
-            return future.result()
-        else:
-            raise TimeoutError(f"Future did not complete within {timeout} seconds")
+        def unblock(_: Future) -> None:
+            nonlocal event
+            event.set()
+
+        # This immediately calls the callback if the future is already done
+        future.add_done_callback(unblock)
+
+        # Check future.done() before waiting on the event.
+        # The callback might have been added after the future is completed,
+        # resulting in the event never being set.
+        if not future.done():
+            if not event.wait(timeout):
+                # Timed out. remove_pending_request() to free resources
+                self.remove_pending_request(future)
+                raise TimeoutError(f"Future did not complete within {timeout} seconds")
+
+        # Potential exception is raised here
+        return future.result()
 
     def _get_service_client(self, name: str, request_class: Type) -> Client:
         """Returns the service client for the given service name."""
