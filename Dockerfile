@@ -15,7 +15,8 @@ RUN rosdep init && rosdep update
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Need to have setuptools version 64+ for editable installs
-RUN pip install --upgrade pip setuptools
+# Also fixes: https://github.com/pypa/setuptools/issues/4483#issuecomment-2236339726
+RUN pip install --upgrade pip "setuptools>=64.0" "packaging>=22.0"
 
 # Ensure sourced ROS environment at startup
 RUN echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc
