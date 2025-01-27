@@ -315,6 +315,8 @@ class ROS2TestEnvironment(Node):
             The result of the future
         """
 
+        # The event trick follows rclpy's service client implementation of the synchronous call()
+        # https://github.com/ros2/rclpy/blob/2b38e662b3635fffe5b68309f75e39f9e7441602/rclpy/rclpy/client.py#L97-L118
         event = Event()
 
         def unblock(_: Future) -> None:
